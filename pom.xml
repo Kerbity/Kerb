@@ -14,6 +14,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <repositories>
+        <!-- GitHub Projects -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- Jet Brains Annotations -->
         <dependency>
@@ -29,6 +37,20 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.9.2</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Developer Tools -->
+        <dependency>
+            <groupId>com.github.MineManiaUK</groupId>
+            <artifactId>DeveloperTools</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
+        <!-- Configuration Library -->
+        <dependency>
+            <groupId>com.github.Smuddgge</groupId>
+            <artifactId>SquishyYaml</artifactId>
+            <version>1.6.0</version>
         </dependency>
     </dependencies>
 

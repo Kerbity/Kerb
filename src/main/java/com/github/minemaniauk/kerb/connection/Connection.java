@@ -18,22 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb;
+package com.github.minemaniauk.kerb.connection;
 
-import com.github.minemaniauk.kerb.server.Server;
-
-/**
- * Represents the main class.
- * Used to start the server.
- */
-public class Main {
-
-    /**
-     * The main method used to start the server.
-     *
-     * @param args The start arguments.
-     */
-    public static void main(String[] args) {
-        new Server(4999).start();
-    }
+public class Connection {
 }
