@@ -20,14 +20,16 @@
 
 package com.github.minemaniauk.kerb.server;
 
+import com.github.minemaniauk.kerb.connection.Connection;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.net.Socket;
 
-public class ServerConnection {
+public class ServerConnection extends Connection {
 
     private boolean running;
-    private final Server server;
-    private final Socket socket;
+    private final @NotNull Server server;
 
     /**
      * Used to create a server connection.
@@ -36,9 +38,10 @@ public class ServerConnection {
      * @param server The instance of the server.
      * @param socket The instance of the socket.
      */
-    public ServerConnection(Server server, Socket socket) {
+    public ServerConnection(@NotNull Server server, @NotNull Socket socket) {
+        super(socket);
+
         this.server = server;
-        this.socket = socket;
     }
 
     public void start() {
@@ -46,7 +49,7 @@ public class ServerConnection {
             try {
 
                 // Check if the socket is closed.
-                if (this.socket != null && this.socket.isClosed()) {
+                if (this.getSocket().isClosed()) {
                     this.running = false;
                     server.remove(this);
                     return;

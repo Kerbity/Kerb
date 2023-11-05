@@ -21,11 +21,14 @@
 package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.developertools.console.Console;
+import com.github.minemaniauk.developertools.console.Logger;
+import com.github.smuddgge.squishyconfiguration.ConfigurationFactory;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -40,7 +43,8 @@ public class Server {
     private boolean running;
     private int port;
 
-    private Configuration configuration;
+    private @NotNull Configuration configuration;
+    private final @NotNull Logger logger;
     private ServerSocket socket;
 
     private final List<ServerConnection> connectionList;
@@ -51,14 +55,53 @@ public class Server {
      * @param port The port to run the server on.
      */
     public Server(int port) {
-        this.running = true;
+        this.running = false;
         this.port = port;
+
+        // Setup configuration.
+        this.configuration = ConfigurationFactory.YAML.create(
+                new File("config.yml")
+        );
+        this.configuration.setDefaultPath("config.yml");
+        this.configuration.load();
+
+        // Setup the logger.
+        this.logger = new Logger(true)
+                .setLogPrefix("&a[Kerb] &7[LOG] ")
+                .setWarnPrefix("&a[Kerb] &e[WARN] ");
+
         this.connectionList = new ArrayList<>();
-        Console.setLogPrefix("&a[Kerb] &7[LOG] ");
+    }
+
+    /**
+     * Used to get the instance of the
+     * server's configuration.
+     *
+     * @return The instance of the configuration.
+     */
+    public @NotNull Configuration getConfiguration() {
+        return this.configuration;
+    }
+
+    /**
+     * Used to get the instance of the
+     * server's logger.
+     *
+     * @return The instance of the logger.
+     */
+    public @NotNull Logger getLogger() {
+        return this.logger;
     }
 
     public void start() {
-        Console.log("Creating server socket.");
+
+        // Check if the server is already running.
+        if (this.running) {
+            this.logger.warn("Attempted to start the server when the server was already running.");
+            return;
+        }
+
+        this.logger.log("Creating server socket.");
 
         try {
 
@@ -66,7 +109,12 @@ public class Server {
             ServerSocketFactory serverSocketFactory = SSLServerSocketFactory.getDefault();
             this.socket = serverSocketFactory.createServerSocket(this.port);
 
-            Console.log("Server socket created.");
+            this.logger.log("Server socket created.");
+            this.running = true;
+
+            // Start the main server loop.
+            this.startLoop();
+            ;
 
         } catch (IOException exception) {
             throw new RuntimeException(exception);
