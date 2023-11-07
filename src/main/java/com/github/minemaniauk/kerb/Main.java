@@ -21,6 +21,8 @@
 package com.github.minemaniauk.kerb;
 
 import com.github.minemaniauk.kerb.server.Server;
+import com.github.smuddgge.squishyconfiguration.ConfigurationFactory;
+import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 
 import java.io.File;
 
@@ -36,6 +38,22 @@ public class Main {
      * @param args The start arguments.
      */
     public static void main(String[] args) {
-        new Server(4999, new File("keystore.jts"), "123").start();
+
+        // Set up the configuration.
+        ConfigurationFactory factory = ConfigurationFactory.YAML;
+        Configuration configuration = factory.create(new File("config.yml"));
+        configuration.setDefaultPath("config.yml");
+        configuration.load();
+
+        // Create a new instance of the server.
+        Server server = new Server(
+                configuration.getInteger("port", 5000),
+                new File(configuration.getString("key_store_path", "keystore.jks")),
+                configuration.getString("password", "123"),
+                configuration
+        );
+
+        // Start the server.
+        server.start();
     }
 }

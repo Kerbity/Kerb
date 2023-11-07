@@ -58,7 +58,7 @@ public class Server {
      *
      * @param port The port to run the server on.
      */
-    public Server(int port, @NotNull File keyStore, @NotNull String password) {
+    public Server(int port, @NotNull File keyStore, @NotNull String password, @NotNull Configuration configuration) {
         this.running = false;
         this.debugMode = false;
 
@@ -67,14 +67,10 @@ public class Server {
         this.password = password;
 
         // Setup configuration.
-        this.configuration = ConfigurationFactory.YAML.create(
-                new File("config.yml")
-        );
-        this.configuration.setDefaultPath("config.yml");
-        this.configuration.load();
+        this.configuration = configuration;
 
         // Setup the logger.
-        this.logger = new Logger(true)
+        this.logger = new Logger(false)
                 .setLogPrefix("&a[Kerb] &7[LOG] ")
                 .setWarnPrefix("&a[Kerb] &e[WARN] ");
 

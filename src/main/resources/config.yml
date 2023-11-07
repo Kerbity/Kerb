@@ -1,0 +1,12 @@
+#   _  __         _
+# | |/ /        | |
+# | ' / ___ _ __| |__
+# |  < / _ \ '__| '_ \
+# | . \  __/ |  | |_) |
+# |_|\_\___|_|  |_.__/
+#
+# Author: MineManiaUK Staff
+
+port: 5000
+key_store_path: "keystore.jks"
+password: "123"
