@@ -22,7 +22,6 @@ package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.developertools.console.Console;
 import com.github.minemaniauk.developertools.console.Logger;
-import com.github.smuddgge.squishyconfiguration.ConfigurationFactory;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.jetbrains.annotations.NotNull;
 
@@ -144,7 +143,7 @@ public class Server {
             this.socket = serverSocketFactory.createServerSocket(this.port);
 
             this.logger.log("Server socket created.");
-            this.logger.log("Listening on : " + this.socket.getInetAddress());
+            this.logger.log("Listening on : " + this.port);
 
             this.running = true;
 
@@ -164,7 +163,7 @@ public class Server {
                 // Wait for new client connection.
                 Socket client = this.socket.accept();
 
-                Console.log("&dClient connected &7: &r" + client.getInetAddress());
+                this.logger.log("&5Client connected &7: &r" + client.getInetAddress());
 
                 // Create the client thread.
                 ServerConnection serverThread = new ServerConnection(

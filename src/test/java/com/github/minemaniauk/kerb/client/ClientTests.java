@@ -20,5 +20,13 @@
 
 package com.github.minemaniauk.kerb.client;
 
+import org.junit.jupiter.api.Test;
+
 public class ClientTests {
+
+    @Test
+    public void connection() {
+        KerbClient client = ClientCreator.create();
+        client.connect();
+    }
 }
