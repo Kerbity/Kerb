@@ -41,9 +41,13 @@ import java.util.List;
 public class Server {
 
     private boolean running;
-    private int port;
+    private boolean debugMode;
 
-    private @NotNull Configuration configuration;
+    private final int port;
+    private final @NotNull File keyStore;
+    private final @NotNull String password;
+
+    private final @NotNull Configuration configuration;
     private final @NotNull Logger logger;
     private ServerSocket socket;
 
@@ -54,9 +58,13 @@ public class Server {
      *
      * @param port The port to run the server on.
      */
-    public Server(int port) {
+    public Server(int port, @NotNull File keyStore, @NotNull String password) {
         this.running = false;
+        this.debugMode = false;
+
         this.port = port;
+        this.keyStore = keyStore;
+        this.password = password;
 
         // Setup configuration.
         this.configuration = ConfigurationFactory.YAML.create(
@@ -93,6 +101,32 @@ public class Server {
         return this.logger;
     }
 
+    /**
+     * Used to set if the server is in debug mode.
+     *
+     * @param debugMode If the server should be in debug mode.
+     * @return This instance.
+     */
+    public @NotNull Server setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+        return this;
+    }
+
+    /**
+     * Used to check if the server is in debug mode.
+     *
+     * @return True if the server is in debug mode.
+     */
+    public boolean isDebugMode() {
+        return this.debugMode;
+    }
+
+    /**
+     * Used to start this instance of the server.
+     * <ul>
+     *     <li>This will run on the main thread.</li>
+     * </ul>
+     */
     public void start() {
 
         // Check if the server is already running.
@@ -105,18 +139,24 @@ public class Server {
 
         try {
 
+            // Setting properties.
+            System.setProperty("javax.net.ssl.keyStore",  this.keyStore.getAbsolutePath());
+            System.setProperty("javax.net.ssl.keyStorePassword", this.password);
+
             // Attempt to create the server socket.
             ServerSocketFactory serverSocketFactory = SSLServerSocketFactory.getDefault();
             this.socket = serverSocketFactory.createServerSocket(this.port);
 
             this.logger.log("Server socket created.");
+            this.logger.log("Listening on : " + this.socket.getInetAddress());
+
             this.running = true;
 
             // Start the main server loop.
             this.startLoop();
-            ;
 
-        } catch (IOException exception) {
+        } catch (Exception exception) {
+            this.logger.warn("Exception occurred while starting the server.");
             throw new RuntimeException(exception);
         }
     }
@@ -130,10 +170,17 @@ public class Server {
 
                 Console.log("&dClient connected &7: &r" + client.getInetAddress());
 
-                // Thread the client
-                ServerConnection serverThread = new ServerConnection(this, client);
+                // Create the client thread.
+                ServerConnection serverThread = new ServerConnection(
+                        this,
+                        client,
+                        this.logger.createExtension("[" + client.getInetAddress() + "] ")
+                );
+
+                // Add the connection to the list.
                 this.connectionList.add(serverThread);
 
+                // Thread the client loop.
                 Thread thread = new Thread(serverThread::start);
                 thread.start();
 
@@ -143,6 +190,9 @@ public class Server {
         }
     }
 
+    /**
+     * Used to stop this instance of the server.
+     */
     public void stop() {
         Console.log("Stopping the server.");
 

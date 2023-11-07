@@ -20,6 +20,7 @@
 
 package com.github.minemaniauk.kerb.server;
 
+import com.github.minemaniauk.developertools.console.Logger;
 import com.github.minemaniauk.kerb.connection.Connection;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,7 @@ public class ServerConnection extends Connection {
 
     private boolean running;
     private final @NotNull Server server;
+    private final @NotNull Logger logger;
 
     /**
      * Used to create a server connection.
@@ -38,10 +40,16 @@ public class ServerConnection extends Connection {
      * @param server The instance of the server.
      * @param socket The instance of the socket.
      */
-    public ServerConnection(@NotNull Server server, @NotNull Socket socket) {
-        super(socket);
+    public ServerConnection(@NotNull Server server, @NotNull Socket socket, @NotNull Logger logger) {
+        super(socket, logger.createExtension("[Socket] "));
 
         this.server = server;
+        this.logger = logger;
+    }
+
+    @Override
+    public boolean getDebugMode() {
+        return this.server.isDebugMode();
     }
 
     public void start() {
@@ -51,19 +59,34 @@ public class ServerConnection extends Connection {
                 // Check if the socket is closed.
                 if (this.getSocket().isClosed()) {
                     this.running = false;
-                    server.remove(this);
+                    this.server.remove(this);
                     return;
                 }
 
+                // Wait and read the incoming data.
                 String data = read();
 
-                if (data == null) this.stop();
+                if (data == null) this.disconnect();
 
-                networkManager.interpret(data);
+                // TODO : Interpret data.
+                System.out.println(data);
 
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
+        }
+    }
+
+    public void disconnect() {
+        try {
+
+            // Attempt to close the connection.
+            this.getSocket().close();
+            this.server.remove(this);
+
+        } catch (IOException exception) {
+            this.logger.warn("Exception occurred while disconnecting a client.");
+            throw new RuntimeException(exception);
         }
     }
 }

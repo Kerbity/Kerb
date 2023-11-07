@@ -21,9 +21,13 @@
 package com.github.minemaniauk.kerb.connection;
 
 import com.github.minemaniauk.developertools.console.Console;
+import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
@@ -32,19 +36,30 @@ import java.net.Socket;
 public abstract class Connection {
 
     private final @NotNull Socket socket;
+    private final @NotNull Logger logger;
 
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
 
-    public Connection(@NotNull Socket socket) {
+    /**
+     * Used to create an instance of a new connection.
+     *
+     * @param socket The instance of a socket.
+     * @param logger The logger the connection should use.
+     */
+    public Connection(@NotNull Socket socket, @NotNull Logger logger) {
         this.socket = socket;
+        this.logger = logger;
 
         try {
+
+            if (this.getDebugMode()) this.logger.log("[DEBUG] Setting up streams.");
 
             this.printWriter = new PrintWriter(socket.getOutputStream(), true);
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         } catch (IOException exception) {
+            this.logger.warn("Exception occurred when setting up client connection streams.");
             throw new RuntimeException(exception);
         }
     }
@@ -62,12 +77,26 @@ public abstract class Connection {
     }
 
     /**
-     * Used to send data though the socket
+     * Used to send data though the socket.
      *
-     * @param data Data to send
+     * @param data The data to send.
      */
-    public void send(String data) {
+    public void send(@NotNull String data) {
         this.printWriter.println(data);
-        if (this.getDebugMode()) Console.log("");
+        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + data + "\"");
+    }
+
+    /**
+     * Used to read a line from the socket.
+     * If there are no lines it will wait
+     * till a line is written.
+     *
+     * @return Data read from the socket
+     * @throws IOException Read error
+     */
+    public String read() throws IOException {
+        String data = this.bufferedReader.readLine();
+        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + data + "\"");
+        return data;
     }
 }

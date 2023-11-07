@@ -22,6 +22,8 @@ package com.github.minemaniauk.kerb;
 
 import com.github.minemaniauk.kerb.server.Server;
 
+import java.io.File;
+
 /**
  * Represents the main class.
  * Used to start the server.
@@ -34,6 +36,6 @@ public class Main {
      * @param args The start arguments.
      */
     public static void main(String[] args) {
-        new Server(4999).start();
+        new Server(4999, new File("keystore.jts"), "123").start();
     }
 }
