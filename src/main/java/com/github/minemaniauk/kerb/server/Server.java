@@ -140,7 +140,7 @@ public class Server {
         try {
 
             // Setting properties.
-            System.setProperty("javax.net.ssl.keyStore",  this.keyStore.getAbsolutePath());
+            System.setProperty("javax.net.ssl.keyStore", this.keyStore.getAbsolutePath());
             System.setProperty("javax.net.ssl.keyStorePassword", this.password);
 
             // Attempt to create the server socket.
@@ -185,7 +185,8 @@ public class Server {
                 thread.start();
 
             } catch (IOException exception) {
-                exception.printStackTrace();
+                this.logger.warn("Exception occurred while attempting to accept a client connection.");
+                throw new RuntimeException(exception);
             }
         }
     }

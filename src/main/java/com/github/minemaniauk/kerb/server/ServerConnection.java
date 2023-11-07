@@ -21,7 +21,7 @@
 package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.developertools.console.Logger;
-import com.github.minemaniauk.kerb.connection.Connection;
+import com.github.minemaniauk.kerb.Connection;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -41,10 +41,10 @@ public class ServerConnection extends Connection {
      * @param socket The instance of the socket.
      */
     public ServerConnection(@NotNull Server server, @NotNull Socket socket, @NotNull Logger logger) {
-        super(socket, logger.createExtension("[Socket] "));
-
         this.server = server;
         this.logger = logger;
+
+        this.setupStreams(socket, logger.createExtension("[Socket] "));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ServerConnection extends Connection {
             try {
 
                 // Check if the socket is closed.
-                if (this.getSocket().isClosed()) {
+                if (this.getSocket() == null || this.getSocket().isClosed()) {
                     this.running = false;
                     this.server.remove(this);
                     return;

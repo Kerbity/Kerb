@@ -18,11 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.connection;
+package com.github.minemaniauk.kerb;
 
-import com.github.minemaniauk.developertools.console.Console;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,33 +35,18 @@ import java.net.Socket;
  */
 public abstract class Connection {
 
-    private final @NotNull Socket socket;
-    private final @NotNull Logger logger;
+    private @Nullable Socket socket;
+    private @NotNull Logger logger;
 
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
 
     /**
      * Used to create an instance of a new connection.
-     *
-     * @param socket The instance of a socket.
-     * @param logger The logger the connection should use.
      */
-    public Connection(@NotNull Socket socket, @NotNull Logger logger) {
-        this.socket = socket;
-        this.logger = logger;
-
-        try {
-
-            if (this.getDebugMode()) this.logger.log("[DEBUG] Setting up streams.");
-
-            this.printWriter = new PrintWriter(socket.getOutputStream(), true);
-            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-        } catch (IOException exception) {
-            this.logger.warn("Exception occurred when setting up client connection streams.");
-            throw new RuntimeException(exception);
-        }
+    public Connection() {
+        this.logger = new Logger(false)
+                .setBothPrefixes("[UNDEFINED]");
     }
 
     /**
@@ -72,8 +57,32 @@ public abstract class Connection {
      */
     public abstract boolean getDebugMode();
 
-    public @NotNull Socket getSocket() {
+    public @Nullable Socket getSocket() {
         return this.socket;
+    }
+
+    /**
+     * Used to set up the in and out streams.
+     * This will enable the sending and reading of data.
+     *
+     * @return True if successful.
+     */
+    public boolean setupStreams(@NotNull Socket socket, @NotNull Logger logger) {
+        this.socket = socket;
+        this.logger = logger;
+
+        try {
+
+            if (this.getDebugMode()) this.logger.log("[DEBUG] Setting up streams.");
+
+            this.printWriter = new PrintWriter(socket.getOutputStream(), true);
+            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            return true;
+
+        } catch (IOException exception) {
+            this.logger.warn("Exception occurred when setting up client connection streams.");
+            throw new RuntimeException(exception);
+        }
     }
 
     /**
@@ -82,6 +91,9 @@ public abstract class Connection {
      * @param data The data to send.
      */
     public void send(@NotNull String data) {
+        if (socket == null) return;
+        if (socket.isClosed()) return;
+
         this.printWriter.println(data);
         if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + data + "\"");
     }
@@ -95,6 +107,9 @@ public abstract class Connection {
      * @throws IOException Read error
      */
     public String read() throws IOException {
+        if (socket == null) return null;
+        if (socket.isClosed()) return null;
+
         String data = this.bufferedReader.readLine();
         if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + data + "\"");
         return data;
