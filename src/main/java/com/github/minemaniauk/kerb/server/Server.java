@@ -26,6 +26,7 @@ import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class Server {
 
     private final @NotNull Configuration configuration;
     private final @NotNull Logger logger;
-    private ServerSocket socket;
+    private SSLServerSocket socket;
 
     private final List<ServerConnection> connectionList;
 
@@ -139,8 +140,11 @@ public class Server {
             System.setProperty("javax.net.ssl.keyStorePassword", this.password);
 
             // Attempt to create the server socket.
-            ServerSocketFactory serverSocketFactory = SSLServerSocketFactory.getDefault();
-            this.socket = serverSocketFactory.createServerSocket(this.port);
+            SSLServerSocketFactory serverSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            this.socket = (SSLServerSocket) serverSocketFactory.createServerSocket(this.port);
+            this.socket.setNeedClientAuth(true);
+            this.socket.setEnabledCipherSuites(new String[] {"TLS_AES_128_GCM_SHA256"});
+            this.socket.setEnabledProtocols(new String[] {"TLSv1.3"});
 
             this.logger.log("Server socket created.");
             this.logger.log("Listening on : " + this.port);
