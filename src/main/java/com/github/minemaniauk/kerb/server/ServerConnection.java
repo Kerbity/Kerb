@@ -23,11 +23,12 @@ package com.github.minemaniauk.kerb.server;
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.minemaniauk.kerb.Connection;
 import com.github.minemaniauk.kerb.utility.PasswordEncryption;
+import com.github.minemaniauk.kerb.utility.ThreadUtility;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
+import java.time.Duration;
 
 public class ServerConnection extends Connection {
 
@@ -80,6 +81,10 @@ public class ServerConnection extends Connection {
         this.running = true;
         this.isValid = false;
 
+        // Start time out checker.
+        // Used to check if the connection has sent the password quick enough.
+        this.startTimeOutChecker();
+
         // Validate the client.
         boolean valid = this.validate();
         if (!valid) return;
@@ -113,6 +118,16 @@ public class ServerConnection extends Connection {
         }
     }
 
+    private void startTimeOutChecker() {
+        ThreadUtility.scheduleTask(Duration.ofSeconds(5), () -> {
+            if (this.getSocket() == null || this.getSocket().isClosed()) return;
+            if (this.isValid()) return;
+
+            this.logger.log("Connection timed out. Didnt send password quick enough.");
+            this.disconnect();
+        });
+    }
+
     private boolean validate() {
         try {
 
@@ -129,6 +144,7 @@ public class ServerConnection extends Connection {
 
             // Read the encrypted password.
             String password = this.read();
+            if (this.getSocket() == null || this.getSocket().isClosed()) return false;
 
             // Check if the password is incorrect.
             if (!password.equals(this.server.getHashedPassword(salt))) {
@@ -151,7 +167,7 @@ public class ServerConnection extends Connection {
     public void disconnect() {
         try {
 
-            if (this.getSocket() == null) {
+            if (this.getSocket() == null || this.getSocket().isClosed()) {
                 this.running = false;
                 this.server.remove(this);
                 return;

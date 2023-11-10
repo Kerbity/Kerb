@@ -26,13 +26,13 @@ import com.github.minemaniauk.kerb.Connection;
 import com.github.minemaniauk.kerb.server.command.CommandManager;
 import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.security.KeyStore;
 import java.util.ArrayList;
@@ -134,6 +134,15 @@ public class Server {
     }
 
     /**
+     * Used to get the number of connected clients.
+     *
+     * @return The number of connected clients.
+     */
+    public int getSize() {
+        return this.connectionList.size();
+    }
+
+    /**
      * Used to read the version of the maven pom.
      *
      * @return The server version.
@@ -229,13 +238,13 @@ public class Server {
 
                 // Create an extensions of the logger.
                 Logger clientLogger = this.logger.createExtension("[&r" + this.getClientName(client) + "&7] ");
-                clientLogger.log("&eConnected to the server, waiting for validation.");
 
                 // Create the client thread.
                 ServerConnection serverThread = new ServerConnection(this, client, clientLogger);
 
                 // Add the connection to the list.
                 this.connectionList.add(serverThread);
+                clientLogger.log("&eConnected to the server, waiting for validation. {clients: " + this.getSize() + "}");
 
                 // Thread the client loop.
                 Thread thread = new Thread(serverThread::start);

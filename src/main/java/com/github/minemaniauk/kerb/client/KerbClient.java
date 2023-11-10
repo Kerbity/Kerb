@@ -27,9 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 
 /**
@@ -196,6 +194,7 @@ public class KerbClient extends Connection {
 
             // Read the salt from the server.
             String salt = this.read();
+            if (this.getSocket() == null || this.getSocket().isClosed()) return false;
 
             // Encrypt the password.
             String encryptedPassword = PasswordEncryption.encrypt(this.password, salt);
@@ -205,6 +204,7 @@ public class KerbClient extends Connection {
 
             // Get if the password was valid.
             String code = this.read();
+            if (this.getSocket() == null || this.getSocket().isClosed()) return false;
 
             // Check if the password was invalid.
             if (code.equals("0")) {

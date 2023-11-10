@@ -120,7 +120,7 @@ public abstract class Connection {
      *
      * @param certificate The instance of the certificate
      *                    to load into the keystore.
-     * @param password The instance of the keystore password.
+     * @param password    The instance of the keystore password.
      * @return The instance of the keystore.
      */
     public static @NotNull KeyStore createKeyStore(@NotNull File certificate, @NotNull String password)

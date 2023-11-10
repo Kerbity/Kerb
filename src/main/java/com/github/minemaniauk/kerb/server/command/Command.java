@@ -40,8 +40,8 @@ public interface Command {
     /**
      * Used to execute this command.
      *
-     * @param server The instance of the server where
-     *               the command was run.
+     * @param server  The instance of the server where
+     *                the command was run.
      * @param command The instance of the command with arguments.
      */
     void execute(@NotNull Server server, @NotNull String command);

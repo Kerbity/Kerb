@@ -24,12 +24,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
-import java.util.Arrays;
 
 public class PasswordEncryption {
 
@@ -45,7 +43,7 @@ public class PasswordEncryption {
             // Select the algorithm.
             KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 512);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            return new String(factory.generateSecret(spec).getEncoded());
+            return new String(factory.generateSecret(spec).getEncoded()).replace("\n", "");
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException exception) {
             throw new RuntimeException(exception);
