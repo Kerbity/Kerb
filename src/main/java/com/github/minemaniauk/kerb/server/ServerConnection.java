@@ -119,7 +119,7 @@ public class ServerConnection extends Connection {
     }
 
     private void startTimeOutChecker() {
-        ThreadUtility.scheduleTask(Duration.ofSeconds(5), () -> {
+        ThreadUtility.scheduleTask(Duration.ofSeconds(this.server.getTimeOut()), () -> {
             if (this.getSocket() == null || this.getSocket().isClosed()) return;
             if (this.isValid()) return;
 
@@ -164,6 +164,9 @@ public class ServerConnection extends Connection {
         }
     }
 
+    /**
+     * Used to disconnect the client from the server.
+     */
     public void disconnect() {
         try {
 

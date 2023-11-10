@@ -24,6 +24,10 @@ import com.github.minemaniauk.kerb.server.Server;
 import com.github.minemaniauk.kerb.server.command.Command;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the debug command.
+ * Used to change weather the server is in debug mode.
+ */
 public class DebugCommand implements Command {
 
     @Override

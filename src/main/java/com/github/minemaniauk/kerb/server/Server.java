@@ -152,6 +152,16 @@ public class Server {
     }
 
     /**
+     * Used to get the amount of time the server
+     * should expect the password to be validated by.
+     *
+     * @return The amount of time to wait.
+     */
+    public int getTimeOut() {
+        return this.configuration.getInteger("timeout", 5);
+    }
+
+    /**
      * Used to set if the server is in debug mode.
      *
      * @param debugMode If the server should be in debug mode.

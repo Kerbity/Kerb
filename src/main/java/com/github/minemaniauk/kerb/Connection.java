@@ -37,7 +37,6 @@ public abstract class Connection {
 
     private @Nullable Socket socket;
     private @NotNull Logger logger;
-
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
 
@@ -57,6 +56,11 @@ public abstract class Connection {
      */
     public abstract boolean getDebugMode();
 
+    /**
+     * Used to get the instance of the socket.
+     *
+     * @return The instance of the socket.
+     */
     public @Nullable Socket getSocket() {
         return this.socket;
     }
@@ -132,6 +136,15 @@ public abstract class Connection {
         return keyStore;
     }
 
+    /**
+     * Used to create the trust manager.
+     *
+     * @param certificate The instance of the certificate
+     *                    to load into the trust manager.
+     * @param password The instance of the password.
+     * @param logger The instance of the logger.
+     * @return The new instance of a trust manager.
+     */
     public static @NotNull X509TrustManager createTrustManager(@NotNull File certificate, @NotNull String password, @NotNull Logger logger)
             throws KeyStoreException, NoSuchAlgorithmException, NoSuchProviderException, IOException, CertificateException {
 
@@ -157,6 +170,15 @@ public abstract class Connection {
         return x509TrustManager;
     }
 
+    /**
+     * Used to create an instance of the
+     * key manager.
+     *
+     * @param keyStore The instance of the keystore.
+     * @param password The instance of the password.
+     * @param logger The instance of the logger.
+     * @return A new instance of a key manager.
+     */
     public static @NotNull X509KeyManager createKeyManager(@NotNull KeyStore keyStore, @NotNull String password, @NotNull Logger logger)
             throws NoSuchAlgorithmException, NoSuchProviderException, UnrecoverableKeyException, KeyStoreException {
 

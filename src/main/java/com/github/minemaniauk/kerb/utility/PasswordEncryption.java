@@ -29,6 +29,11 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
+/**
+ * Represents the password encryption utility.
+ * This class contains method used to
+ * encrypt the password.
+ */
 public class PasswordEncryption {
 
     /**

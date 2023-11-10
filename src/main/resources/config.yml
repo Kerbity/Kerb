@@ -12,6 +12,10 @@ server_certificate_path: "server.p12"
 client_certificate_path: "client.p12"
 password: "123"
 
+# The amount of seconds the server should expect
+# to validate the client within.
+timeout: 5
+
 # The list of names for ip addresses.
 names:
   "/ip_with_dashes:port": "Computer"

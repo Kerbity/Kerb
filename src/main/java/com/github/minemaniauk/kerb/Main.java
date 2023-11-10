@@ -27,7 +27,7 @@ import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import java.io.File;
 
 /**
- * Represents the main class.
+ * Represents the servers main class.
  * Used to start the server.
  */
 public class Main {
