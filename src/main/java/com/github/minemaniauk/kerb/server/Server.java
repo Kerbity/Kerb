@@ -22,19 +22,19 @@ package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.developertools.console.Console;
 import com.github.minemaniauk.developertools.console.Logger;
+import com.github.minemaniauk.kerb.Connection;
+import com.github.minemaniauk.kerb.server.command.CommandManager;
 import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
 import java.security.KeyStore;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +54,7 @@ public class Server {
     private final @NotNull Configuration configuration;
     private final @NotNull Logger logger;
     private SSLServerSocket socket;
+    private final @NotNull CommandManager commandManager;
 
     private final List<ServerConnection> connectionList;
 
@@ -78,8 +79,18 @@ public class Server {
         this.logger = new Logger(false)
                 .setLogPrefix("&a[Kerb] &7[LOG] ")
                 .setWarnPrefix("&a[Kerb] &e[WARN] ");
+        this.commandManager = new CommandManager(this);
 
         this.connectionList = new ArrayList<>();
+    }
+
+    /**
+     * Used to get the hashed password.
+     *
+     * @return The hashed password.
+     */
+    public @NotNull String getHashedPassword() {
+        return PasswordEncryption.encrypt(this.password);
     }
 
     /**
@@ -103,12 +114,32 @@ public class Server {
     }
 
     /**
-     * Used to get the hashed password.
+     * Used to get the instance of the command manager.
      *
-     * @return The hashed password.
+     * @return The instance of the command manager.
      */
-    public @NotNull String getHashedPassword() {
-        return PasswordEncryption.encrypt(this.password);
+    public @NotNull CommandManager getCommandManager() {
+        return this.commandManager;
+    }
+
+    /**
+     * Used to get the instance of the connection list.
+     * This list contains all the connection currently
+     * connected to the server.
+     *
+     * @return The list of connections.
+     */
+    public @NotNull List<ServerConnection> getConnectionList() {
+        return this.connectionList;
+    }
+
+    /**
+     * Used to read the version of the maven pom.
+     *
+     * @return The server version.
+     */
+    public @NotNull String getVersion() {
+        return Server.class.getPackage().getImplementationVersion();
     }
 
     /**
@@ -145,50 +176,25 @@ public class Server {
             return;
         }
 
+        this.printStartMessage();
         this.logger.log("Creating server socket.");
 
         try {
 
             // Set up key store.
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            InputStream inputStream = new FileInputStream(this.server_certificate);
-            keyStore.load(inputStream, this.password.toCharArray());
+            KeyStore keyStore = Connection.createKeyStore(this.server_certificate, this.password);
 
-            // TrustManagerFactory
-            KeyStore trustStore = KeyStore.getInstance("PKCS12");
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("PKIX", "SunJSSE");
-            InputStream inputStream1 = new FileInputStream(this.client_certificate);
-            trustStore.load(inputStream1, this.password.toCharArray());
-            trustManagerFactory.init(trustStore);
-            X509TrustManager x509TrustManager = null;
-            for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
-                if (trustManager instanceof X509TrustManager) {
-                    x509TrustManager = (X509TrustManager) trustManager;
-                    break;
-                }
-            }
+            // Set up the trust manager.
+            X509TrustManager x509TrustManager = Connection.createTrustManager(
+                    this.client_certificate, this.password, this.logger
+            );
 
-            if (x509TrustManager == null) {
-                this.logger.warn("X509 for trust manager is null.");
-                throw new NullPointerException();
-            }
+            // Set up the key manager.
+            X509KeyManager x509KeyManager = Connection.createKeyManager(
+                    keyStore, this.password, this.logger
+            );
 
-            // KeyManagerFactory
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
-            keyManagerFactory.init(keyStore, this.password.toCharArray());
-            X509KeyManager x509KeyManager = null;
-            for (KeyManager keyManager : keyManagerFactory.getKeyManagers()) {
-                if (keyManager instanceof X509KeyManager) {
-                    x509KeyManager = (X509KeyManager) keyManager;
-                    break;
-                }
-            }
-
-            if (x509KeyManager == null) {
-                this.logger.warn("X509 for key manager is null.");
-                throw new NullPointerException();
-            }
-
+            // Set up the context.
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(new KeyManager[]{x509KeyManager}, new TrustManager[]{x509TrustManager}, null);
 
@@ -205,6 +211,7 @@ public class Server {
             this.running = true;
 
             // Start the main server loop.
+            new Thread(this::startCommandLoop).start();
             this.startLoop();
 
         } catch (Exception exception) {
@@ -220,14 +227,12 @@ public class Server {
                 // Wait for new client connection.
                 Socket client = this.socket.accept();
 
-                this.logger.log("&5Client connected &7: &r" + client.getInetAddress());
+                // Create an extensions of the logger.
+                Logger clientLogger = this.logger.createExtension("[&r" + this.getClientName(client) + "&7] ");
+                clientLogger.log("&eConnected to the server, waiting for validation.");
 
                 // Create the client thread.
-                ServerConnection serverThread = new ServerConnection(
-                        this,
-                        client,
-                        this.logger.createExtension("[" + client.getInetAddress() + "] ")
-                );
+                ServerConnection serverThread = new ServerConnection(this, client, clientLogger);
 
                 // Add the connection to the list.
                 this.connectionList.add(serverThread);
@@ -238,6 +243,45 @@ public class Server {
 
             } catch (IOException exception) {
                 this.logger.warn("Exception occurred while attempting to accept a client connection.");
+                throw new RuntimeException(exception);
+            }
+        }
+    }
+
+    private @NotNull String getClientName(@NotNull Socket client) {
+        String address = client.getInetAddress() + ":" + client.getPort();
+        String collectionAddress = client.getInetAddress() + ":?";
+
+        String nameFromConfig = this.configuration.getSection("names")
+                .getString(address.replace(".", "-"));
+        String collectionNameFromConfig = this.configuration.getSection("names")
+                .getString(collectionAddress.replace(".", "-"));
+
+
+        if (nameFromConfig == null && collectionNameFromConfig == null) return address;
+        if (nameFromConfig == null) return collectionNameFromConfig;
+        return nameFromConfig;
+    }
+
+    private void startCommandLoop() {
+
+        // Create the reader.
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+
+        while (this.running) {
+            try {
+
+                // Read the next command.
+                String command = bufferedReader.readLine();
+
+                // Interpret the command.
+                boolean executed = this.commandManager.executeCommand(command);
+
+                if (!executed) {
+                    this.logger.warn("Command does not exist.");
+                }
+
+            } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
         }
@@ -265,5 +309,19 @@ public class Server {
 
     public void remove(@NotNull ServerConnection serverConnection) {
         this.connectionList.remove(serverConnection);
+    }
+
+    private void printStartMessage() {
+        this.logger.log("&7");
+        this.logger.log("&a  _  __         _");
+        this.logger.log("&a | |/ /        | |");
+        this.logger.log("&a | ' / ___ _ __| |__");
+        this.logger.log("&a |  < / _ \\ '__| '_ \\");
+        this.logger.log("&a | . \\  __/ |  | |_) |");
+        this.logger.log("&a |_|\\_\\___|_|  |_.__/");
+        this.logger.log("&7");
+        this.logger.log("&7Author: &rMineManiaUK Staff");
+        this.logger.log("&7Version: &r" + this.getVersion());
+        this.logger.log("");
     }
 }

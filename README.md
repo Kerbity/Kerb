@@ -8,12 +8,18 @@ You can either use the provided egg for Pterodactyl or run the following command
 ### Setting up SSL
 To connect to the server and client's you will need to set up the SSL documents.
 
-- First Generate the server Certificate.
-`keytool -genkey -keyalg RSA -keysize 2048 -validity 360 -alias mykey -keystore keystore.jks`
-- Export the Certificate.
-`keytool -export -alias mykey -keystore keystore.jks -file key.cert`
-- Add the certificate to the clients trusted store.
-`keytool -import -file key.cert -alias mykey -keystore truststore.jts`
+```
+openssl req -newkey rsa:2048 -nodes -keyout server-key.pem -x509 -days 365 -out server-certificate.pem
+```
+```
+openssl req -newkey rsa:2048 -nodes -keyout server-key.pem -x509 -days 365 -out server-certificate.pem
+```
+```
+openssl pkcs12 -inkey client-key.pem -in client-certificate.pem -export -out client-certificate.p12
+```
+```
+openssl pkcs12 -inkey server-key.pem -in server-certificate.pem -export -out server-certificate.p12
+```
 
 Add the keystore to your server container and the trust store to your clients.
 

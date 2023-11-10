@@ -40,10 +40,10 @@ public class KerbClientFactory {
     /**
      * Used to create a kerb client factory.
      *
-     * @param port       The server port used.
-     * @param address    The servers address.
+     * @param port               The server port used.
+     * @param address            The servers address.
      * @param client_certificate The instance of the client certificate.
-     * @param password   The password.
+     * @param password           The password.
      */
     public KerbClientFactory(int port, @NotNull String address, @NotNull File client_certificate, @NotNull File server_certificate, @NotNull String password) {
         this.port = port;

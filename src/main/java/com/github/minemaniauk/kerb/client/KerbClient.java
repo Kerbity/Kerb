@@ -25,15 +25,12 @@ import com.github.minemaniauk.kerb.Connection;
 import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import org.jetbrains.annotations.NotNull;
 
-import javax.net.SocketFactory;
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 import java.security.KeyStore;
-import java.util.Arrays;
 
 /**
  * Represents a kerb client.
@@ -57,8 +54,8 @@ public class KerbClient extends Connection {
      * You can then use {@link KerbClient#connect()} to
      * attempt connecting to the server.
      *
-     * @param port       The port of the server.
-     * @param password   The password to connect to the server.
+     * @param port     The port of the server.
+     * @param password The password to connect to the server.
      */
     public KerbClient(int port, @NotNull String address, @NotNull File client_certificate, @NotNull File server_certificate, @NotNull String password) {
         this.port = port;
@@ -68,7 +65,8 @@ public class KerbClient extends Connection {
         this.password = password;
 
         this.logger = new Logger(false)
-                .setBothPrefixes("[Kerb] ");
+                .setLogPrefix("&a[Kerb] &7[LOG] ")
+                .setWarnPrefix("&a[Kerb] &e[WARN] ");
         this.isConnected = false;
         this.isValid = false;
     }
@@ -89,6 +87,12 @@ public class KerbClient extends Connection {
         return this;
     }
 
+    /**
+     * Used to check if the client is
+     * connected to the server.
+     *
+     * @return True if the client is connected to the server.
+     */
     public boolean isConnected() {
         return this.isConnected;
     }
@@ -122,50 +126,23 @@ public class KerbClient extends Connection {
         try {
 
             // Loading key store.
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            InputStream inputStream = new FileInputStream(this.client_certificate);
-            keyStore.load(inputStream, this.password.toCharArray());
+            KeyStore keyStore = Connection.createKeyStore(this.client_certificate, this.password);
 
-            // Sorting trust manager.
-            KeyStore trustStore = KeyStore.getInstance("PKCS12");
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("PKIX", "SunJSSE");
-            InputStream inputStream1 = new FileInputStream(this.server_certificate);
-            trustStore.load(inputStream1, this.password.toCharArray());
-            trustManagerFactory.init(trustStore);
+            // Create the trust manager.
+            X509TrustManager x509TrustManager = Connection.createTrustManager(
+                    this.server_certificate, this.password, this.logger
+            );
 
-            X509TrustManager x509TrustManager = null;
-            for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
-                if (trustManager instanceof X509TrustManager) {
-                    x509TrustManager = (X509TrustManager) trustManager;
-                    break;
-                }
-            }
-
-            if (x509TrustManager == null) {
-                this.logger.warn("X509 trust manager has returned null.");
-                throw new NullPointerException();
-            }
-
-            // Sort key manager.
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
-            keyManagerFactory.init(keyStore, this.password.toCharArray());
-            X509KeyManager x509KeyManager = null;
-            for (KeyManager keyManager : keyManagerFactory.getKeyManagers()) {
-                if (keyManager instanceof X509KeyManager) {
-                    x509KeyManager = (X509KeyManager) keyManager;
-                    break;
-                }
-            }
-
-            if (x509KeyManager == null) {
-                this.logger.warn("X509 key manager has returned null.");
-                throw new NullPointerException();
-            }
+            // Create key manager.
+            X509KeyManager x509KeyManager = Connection.createKeyManager(
+                    keyStore, this.password, this.logger
+            );
 
             // Set up the context.
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(new KeyManager[]{x509KeyManager}, new TrustManager[]{x509TrustManager}, null);
 
+            // Set up the socket.
             SSLSocketFactory socketFactory = sslContext.getSocketFactory();
             SSLSocket socket = (SSLSocket) socketFactory.createSocket(this.address, this.port);
             socket.setEnabledProtocols(new String[]{"TLSv1.2"});
@@ -202,6 +179,7 @@ public class KerbClient extends Connection {
                     String data = this.read();
                     if (data.equals("1")) {
                         this.isValid = true;
+                        this.logger.log("Client was validated.");
                         continue;
                     }
 
@@ -210,7 +188,13 @@ public class KerbClient extends Connection {
                     return;
                 }
 
-                // TODO interpret data.
+                String data = this.read();
+
+                if (data == null) {
+                    this.logger.log("Client was disconnected from the server.");
+                    this.disconnect();
+                    return;
+                }
 
 
             } catch (Exception exception) {

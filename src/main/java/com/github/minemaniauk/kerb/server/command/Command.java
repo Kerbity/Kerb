@@ -18,12 +18,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.client;
+package com.github.minemaniauk.kerb.server.command;
 
-public class ClientTests {
+import com.github.minemaniauk.kerb.server.Server;
+import org.jetbrains.annotations.NotNull;
 
-    public static void main(String[] args) {
-        KerbClient client = ClientCreator.create();
-        client.connect();
-    }
+/**
+ * Represents a server command.
+ */
+public interface Command {
+
+    /**
+     * Used to get the command's identifier.
+     * This will be used to find the command
+     * that was run.
+     *
+     * @return The command's identifier.
+     */
+    @NotNull String getIdentifier();
+
+    /**
+     * Used to execute this command.
+     *
+     * @param server The instance of the server where
+     *               the command was run.
+     * @param command The instance of the command with arguments.
+     */
+    void execute(@NotNull Server server, @NotNull String command);
 }

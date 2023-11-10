@@ -38,7 +38,7 @@ public class PasswordEncryption {
 
             // Select the algorithm.
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
-            return new String(messageDigest.digest(password.getBytes()));
+            return new String(messageDigest.digest(password.getBytes())).replace("\n", "");
 
         } catch (NoSuchAlgorithmException exception) {
             throw new RuntimeException(exception);

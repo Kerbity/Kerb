@@ -11,3 +11,8 @@ port: 5000
 server_certificate_path: "server.p12"
 client_certificate_path: "client.p12"
 password: "123"
+
+# The list of names for ip addresses.
+names:
+  "/ip_with_dashes:port": "Computer"
+  "/ip2_with_dashes:port": "Server 1"

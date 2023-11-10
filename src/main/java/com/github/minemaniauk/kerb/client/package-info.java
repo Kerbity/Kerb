@@ -18,12 +18,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * Contains classes to run the client.
+ * <ul>
+ *     <li>
+ *         You can use the {@link com.github.minemaniauk.kerb.client.KerbClient}
+ *         to create a connection to the server.
+ *     </li>
+ *     <li>
+ *         You can also use the {@link com.github.minemaniauk.kerb.client.KerbClientFactory}
+ *         to create a factory for your client connections.
+ *     </li>
+ * </ul>
+ */
 package com.github.minemaniauk.kerb.client;
-
-public class ClientTests {
-
-    public static void main(String[] args) {
-        KerbClient client = ClientCreator.create();
-        client.connect();
-    }
-}

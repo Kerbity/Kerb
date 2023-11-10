@@ -24,11 +24,11 @@ import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import javax.net.ssl.*;
+import java.io.*;
 import java.net.Socket;
+import java.security.*;
+import java.security.cert.CertificateException;
 
 /**
  * Represents a connection to a socket.
@@ -95,7 +95,7 @@ public abstract class Connection {
         if (socket.isClosed()) return;
 
         this.printWriter.println(data);
-        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + data + "\"");
+        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + data + "\"}");
     }
 
     /**
@@ -111,7 +111,70 @@ public abstract class Connection {
         if (socket.isClosed()) return null;
 
         String data = this.bufferedReader.readLine();
-        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + data + "\"");
+        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + data + "\"}");
         return data;
+    }
+
+    /**
+     * Used to create and load a key store.
+     *
+     * @param certificate The instance of the certificate
+     *                    to load into the keystore.
+     * @param password The instance of the keystore password.
+     * @return The instance of the keystore.
+     */
+    public static @NotNull KeyStore createKeyStore(@NotNull File certificate, @NotNull String password)
+            throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
+
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        InputStream inputStream = new FileInputStream(certificate);
+        keyStore.load(inputStream, password.toCharArray());
+        return keyStore;
+    }
+
+    public static @NotNull X509TrustManager createTrustManager(@NotNull File certificate, @NotNull String password, @NotNull Logger logger)
+            throws KeyStoreException, NoSuchAlgorithmException, NoSuchProviderException, IOException, CertificateException {
+
+        KeyStore trustStore = KeyStore.getInstance("PKCS12");
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("PKIX", "SunJSSE");
+        InputStream inputStream1 = new FileInputStream(certificate);
+        trustStore.load(inputStream1, password.toCharArray());
+        trustManagerFactory.init(trustStore);
+
+        X509TrustManager x509TrustManager = null;
+        for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+            if (trustManager instanceof X509TrustManager) {
+                x509TrustManager = (X509TrustManager) trustManager;
+                break;
+            }
+        }
+
+        if (x509TrustManager == null) {
+            logger.warn("X509 for trust manager is null.");
+            throw new NullPointerException();
+        }
+
+        return x509TrustManager;
+    }
+
+    public static @NotNull X509KeyManager createKeyManager(@NotNull KeyStore keyStore, @NotNull String password, @NotNull Logger logger)
+            throws NoSuchAlgorithmException, NoSuchProviderException, UnrecoverableKeyException, KeyStoreException {
+
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
+        keyManagerFactory.init(keyStore, password.toCharArray());
+        X509KeyManager x509KeyManager = null;
+        for (KeyManager keyManager : keyManagerFactory.getKeyManagers()) {
+            if (keyManager instanceof X509KeyManager) {
+                x509KeyManager = (X509KeyManager) keyManager;
+                break;
+            }
+        }
+
+        if (x509KeyManager == null) {
+            logger.warn("X509 key manager has returned null.");
+            throw new NullPointerException();
+        }
+
+        return x509KeyManager;
     }
 }

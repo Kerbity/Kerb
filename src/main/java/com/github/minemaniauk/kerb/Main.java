@@ -52,7 +52,7 @@ public class Main {
                 new File(configuration.getString("client_certificate_path", "client.p12")),
                 configuration.getString("password", "123"),
                 configuration
-        ).setDebugMode(true);
+        );
 
         // Start the server.
         server.start();

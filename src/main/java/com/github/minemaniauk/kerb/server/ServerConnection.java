@@ -81,7 +81,6 @@ public class ServerConnection extends Connection {
 
         while (running) {
             try {
-                System.out.println("a");
 
                 // Check if the socket is closed.
                 if (this.getSocket() == null || this.getSocket().isClosed()) {
@@ -96,7 +95,7 @@ public class ServerConnection extends Connection {
                     if (password.equals(this.server.getHashedPassword())) {
                         this.isValid = true;
                         this.send("1");
-                        this.logger.log("Client was validated.");
+                        this.logger.log("&aClient was validated.");
                         continue;
                     }
 
@@ -111,7 +110,7 @@ public class ServerConnection extends Connection {
 
                 // Check if the data is null.
                 if (data == null) {
-                    this.logger.log("Disconnecting client as data sent is null.");
+                    this.logger.log("Client disconnected from the server.");
                     this.disconnect();
                 }
 
@@ -137,6 +136,7 @@ public class ServerConnection extends Connection {
             this.running = false;
             this.getSocket().close();
             this.server.remove(this);
+            this.logger.log("Disconnected.");
 
         } catch (IOException exception) {
             this.logger.warn("Exception occurred while disconnecting a client.");
