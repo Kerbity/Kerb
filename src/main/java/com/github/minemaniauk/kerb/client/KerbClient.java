@@ -161,8 +161,10 @@ public class KerbClient extends Connection {
     }
 
     private void startLoop() {
-        // Send password.
-        this.send(PasswordEncryption.encrypt(this.password));
+
+        // Attempt to validate client.
+        boolean valid = this.validate();
+        if (!valid) return;
 
         while (this.isConnected) {
             try {
@@ -171,20 +173,6 @@ public class KerbClient extends Connection {
                 if (this.getSocket() == null || this.getSocket().isClosed()) {
                     this.logger.log("Disconnecting from server as socket is null or closed.");
                     this.disconnect();
-                    return;
-                }
-
-                // Check if the connection is still invalid.
-                if (!this.isValid()) {
-                    String data = this.read();
-                    if (data.equals("1")) {
-                        this.isValid = true;
-                        this.logger.log("Client was validated.");
-                        continue;
-                    }
-
-                    this.disconnect();
-                    this.logger.warn("Incorrect password. The client was rejected from the server.");
                     return;
                 }
 
@@ -200,6 +188,37 @@ public class KerbClient extends Connection {
             } catch (Exception exception) {
                 throw new RuntimeException(exception);
             }
+        }
+    }
+
+    private boolean validate() {
+        try {
+
+            // Read the salt from the server.
+            String salt = this.read();
+
+            // Encrypt the password.
+            String encryptedPassword = PasswordEncryption.encrypt(this.password, salt);
+
+            // Send the encrypted password back to the server.
+            this.send(encryptedPassword);
+
+            // Get if the password was valid.
+            String code = this.read();
+
+            // Check if the password was invalid.
+            if (code.equals("0")) {
+                this.disconnect();
+                this.logger.warn("Incorrect password. The client was rejected from the server.");
+                return false;
+            }
+
+            this.isValid = true;
+            this.logger.log("Client was validated.");
+            return true;
+
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 

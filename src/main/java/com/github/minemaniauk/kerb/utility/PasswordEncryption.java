@@ -22,8 +22,14 @@ package com.github.minemaniauk.kerb.utility;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
 
 public class PasswordEncryption {
 
@@ -33,15 +39,28 @@ public class PasswordEncryption {
      * @param password The instance of the password to hash.
      * @return The requested hash.
      */
-    public static @NotNull String encrypt(@NotNull String password) {
+    public static @NotNull String encrypt(@NotNull String password, @NotNull String salt) {
         try {
 
             // Select the algorithm.
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
-            return new String(messageDigest.digest(password.getBytes())).replace("\n", "");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 512);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            return new String(factory.generateSecret(spec).getEncoded());
 
-        } catch (NoSuchAlgorithmException exception) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    /**
+     * Used to generate a new salt.
+     *
+     * @return The new salt.
+     */
+    public static String createSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return new String(salt);
     }
 }

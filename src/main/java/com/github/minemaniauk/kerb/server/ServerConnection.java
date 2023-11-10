@@ -22,6 +22,7 @@ package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.minemaniauk.kerb.Connection;
+import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -79,28 +80,17 @@ public class ServerConnection extends Connection {
         this.running = true;
         this.isValid = false;
 
+        // Validate the client.
+        boolean valid = this.validate();
+        if (!valid) return;
+
+        // Start the connection loop.
         while (running) {
             try {
 
                 // Check if the socket is closed.
                 if (this.getSocket() == null || this.getSocket().isClosed()) {
                     this.logger.log("Disconnecting client dut to socket being null or closed.");
-                    this.disconnect();
-                    return;
-                }
-
-                // Check if the connection is currently invalid.
-                if (!this.isValid()) {
-                    String password = this.read();
-                    if (password.equals(this.server.getHashedPassword())) {
-                        this.isValid = true;
-                        this.send("1");
-                        this.logger.log("&aClient was validated.");
-                        continue;
-                    }
-
-                    this.logger.log("Disconnecting client due to password being incorrect.");
-                    this.send("0");
                     this.disconnect();
                     return;
                 }
@@ -120,6 +110,41 @@ public class ServerConnection extends Connection {
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
+        }
+    }
+
+    private boolean validate() {
+        try {
+
+            if (this.getDebugMode()) this.logger.log("[DEBUG] Validating client.");
+            this.isValid = false;
+
+            // Generate the salt.
+            // This will be used to encrypt the password.
+            String salt = PasswordEncryption.createSalt();
+            if (this.getDebugMode()) this.logger.log("[DEBUG] Created salt: " + salt);
+
+            // Send the salt so the client can encrypt the password.
+            this.send(salt);
+
+            // Read the encrypted password.
+            String password = this.read();
+
+            // Check if the password is incorrect.
+            if (!password.equals(this.server.getHashedPassword(salt))) {
+                this.logger.log("Disconnecting client due to password being incorrect.");
+                this.send("0");
+                this.disconnect();
+                return false;
+            }
+
+            this.isValid = true;
+            this.send("1");
+            this.logger.log("&aClient was validated.");
+            return true;
+
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
         }
     }
 
