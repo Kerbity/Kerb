@@ -22,13 +22,18 @@ package com.github.minemaniauk.kerb.client;
 
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.minemaniauk.kerb.Connection;
+import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
+import java.security.KeyStore;
+import java.util.Arrays;
 
 /**
  * Represents a kerb client.
@@ -38,11 +43,14 @@ public class KerbClient extends Connection {
 
     private final int port;
     private final @NotNull String address;
-    private final @NotNull File trustStore;
+    private final @NotNull File client_certificate;
+    private final @NotNull File server_certificate;
     private final @NotNull String password;
 
     private final @NotNull Logger logger;
     private boolean isConnected;
+    private boolean isValid;
+    private boolean debugMode;
 
     /**
      * Used to create a new instance of a kerb client.
@@ -50,25 +58,50 @@ public class KerbClient extends Connection {
      * attempt connecting to the server.
      *
      * @param port       The port of the server.
-     * @param trustStore The location of the trust store.
-     *                   This file is used to create a secure
-     *                   connection to the server.
      * @param password   The password to connect to the server.
      */
-    public KerbClient(int port, @NotNull String address, @NotNull File trustStore, @NotNull String password) {
+    public KerbClient(int port, @NotNull String address, @NotNull File client_certificate, @NotNull File server_certificate, @NotNull String password) {
         this.port = port;
         this.address = address;
-        this.trustStore = trustStore;
+        this.client_certificate = client_certificate;
+        this.server_certificate = server_certificate;
         this.password = password;
 
         this.logger = new Logger(false)
                 .setBothPrefixes("[Kerb] ");
         this.isConnected = false;
+        this.isValid = false;
     }
 
     @Override
     public boolean getDebugMode() {
-        return false;
+        return this.debugMode;
+    }
+
+    /**
+     * Used to set the value of debug mode.
+     *
+     * @param debugMode The value of debug mode.
+     * @return This instance.
+     */
+    public @NotNull KerbClient setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+        return this;
+    }
+
+    public boolean isConnected() {
+        return this.isConnected;
+    }
+
+    /**
+     * Used to check if the client has been validated.
+     * This means the password was accepted and the
+     * client is contained in the whitelist.
+     *
+     * @return True if valid.
+     */
+    public boolean isValid() {
+        return this.isValid;
     }
 
     /**
@@ -88,12 +121,54 @@ public class KerbClient extends Connection {
 
         try {
 
-            // Setting properties.
-            System.setProperty("javax.net.ssl.trustStore", this.trustStore.getAbsolutePath());
-            System.setProperty("javax.net.ssl.trustStorePassword", this.password);
+            // Loading key store.
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            InputStream inputStream = new FileInputStream(this.client_certificate);
+            keyStore.load(inputStream, this.password.toCharArray());
 
-            SocketFactory socketFactory = SSLSocketFactory.getDefault();
-            Socket socket = socketFactory.createSocket(this.address, this.port);
+            // Sorting trust manager.
+            KeyStore trustStore = KeyStore.getInstance("PKCS12");
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("PKIX", "SunJSSE");
+            InputStream inputStream1 = new FileInputStream(this.server_certificate);
+            trustStore.load(inputStream1, this.password.toCharArray());
+            trustManagerFactory.init(trustStore);
+
+            X509TrustManager x509TrustManager = null;
+            for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+                if (trustManager instanceof X509TrustManager) {
+                    x509TrustManager = (X509TrustManager) trustManager;
+                    break;
+                }
+            }
+
+            if (x509TrustManager == null) {
+                this.logger.warn("X509 trust manager has returned null.");
+                throw new NullPointerException();
+            }
+
+            // Sort key manager.
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
+            keyManagerFactory.init(keyStore, this.password.toCharArray());
+            X509KeyManager x509KeyManager = null;
+            for (KeyManager keyManager : keyManagerFactory.getKeyManagers()) {
+                if (keyManager instanceof X509KeyManager) {
+                    x509KeyManager = (X509KeyManager) keyManager;
+                    break;
+                }
+            }
+
+            if (x509KeyManager == null) {
+                this.logger.warn("X509 key manager has returned null.");
+                throw new NullPointerException();
+            }
+
+            // Set up the context.
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(new KeyManager[]{x509KeyManager}, new TrustManager[]{x509TrustManager}, null);
+
+            SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+            SSLSocket socket = (SSLSocket) socketFactory.createSocket(this.address, this.port);
+            socket.setEnabledProtocols(new String[]{"TLSv1.2"});
 
             this.setupStreams(socket, this.logger);
             this.isConnected = true;
@@ -109,8 +184,34 @@ public class KerbClient extends Connection {
     }
 
     private void startLoop() {
+        // Send password.
+        this.send(PasswordEncryption.encrypt(this.password));
+
         while (this.isConnected) {
             try {
+
+                // Check if the socket is closed.
+                if (this.getSocket() == null || this.getSocket().isClosed()) {
+                    this.logger.log("Disconnecting from server as socket is null or closed.");
+                    this.disconnect();
+                    return;
+                }
+
+                // Check if the connection is still invalid.
+                if (!this.isValid()) {
+                    String data = this.read();
+                    if (data.equals("1")) {
+                        this.isValid = true;
+                        continue;
+                    }
+
+                    this.disconnect();
+                    this.logger.warn("Incorrect password. The client was rejected from the server.");
+                    return;
+                }
+
+                // TODO interpret data.
+
 
             } catch (Exception exception) {
                 throw new RuntimeException(exception);

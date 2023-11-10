@@ -22,16 +22,19 @@ package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.developertools.console.Console;
 import com.github.minemaniauk.developertools.console.Logger;
+import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.jetbrains.annotations.NotNull;
 
-import javax.net.ServerSocketFactory;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.InputStream;
 import java.net.Socket;
+import java.security.KeyStore;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +47,8 @@ public class Server {
     private boolean debugMode;
 
     private final int port;
-    private final @NotNull File keyStore;
+    private final @NotNull File server_certificate;
+    private final @NotNull File client_certificate;
     private final @NotNull String password;
 
     private final @NotNull Configuration configuration;
@@ -58,18 +62,19 @@ public class Server {
      *
      * @param port The port to run the server on.
      */
-    public Server(int port, @NotNull File keyStore, @NotNull String password, @NotNull Configuration configuration) {
+    public Server(int port, @NotNull File server_certificate, @NotNull File client_certificate, @NotNull String password, @NotNull Configuration configuration) {
         this.running = false;
         this.debugMode = false;
 
         this.port = port;
-        this.keyStore = keyStore;
+        this.server_certificate = server_certificate;
+        this.client_certificate = client_certificate;
         this.password = password;
 
         // Setup configuration.
         this.configuration = configuration;
 
-        // Setup the logger.
+        // Set up the logger.
         this.logger = new Logger(false)
                 .setLogPrefix("&a[Kerb] &7[LOG] ")
                 .setWarnPrefix("&a[Kerb] &e[WARN] ");
@@ -95,6 +100,15 @@ public class Server {
      */
     public @NotNull Logger getLogger() {
         return this.logger;
+    }
+
+    /**
+     * Used to get the hashed password.
+     *
+     * @return The hashed password.
+     */
+    public @NotNull String getHashedPassword() {
+        return PasswordEncryption.encrypt(this.password);
     }
 
     /**
@@ -135,16 +149,55 @@ public class Server {
 
         try {
 
-            // Setting properties.
-            System.setProperty("javax.net.ssl.keyStore", this.keyStore.getAbsolutePath());
-            System.setProperty("javax.net.ssl.keyStorePassword", this.password);
+            // Set up key store.
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            InputStream inputStream = new FileInputStream(this.server_certificate);
+            keyStore.load(inputStream, this.password.toCharArray());
+
+            // TrustManagerFactory
+            KeyStore trustStore = KeyStore.getInstance("PKCS12");
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("PKIX", "SunJSSE");
+            InputStream inputStream1 = new FileInputStream(this.client_certificate);
+            trustStore.load(inputStream1, this.password.toCharArray());
+            trustManagerFactory.init(trustStore);
+            X509TrustManager x509TrustManager = null;
+            for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+                if (trustManager instanceof X509TrustManager) {
+                    x509TrustManager = (X509TrustManager) trustManager;
+                    break;
+                }
+            }
+
+            if (x509TrustManager == null) {
+                this.logger.warn("X509 for trust manager is null.");
+                throw new NullPointerException();
+            }
+
+            // KeyManagerFactory
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
+            keyManagerFactory.init(keyStore, this.password.toCharArray());
+            X509KeyManager x509KeyManager = null;
+            for (KeyManager keyManager : keyManagerFactory.getKeyManagers()) {
+                if (keyManager instanceof X509KeyManager) {
+                    x509KeyManager = (X509KeyManager) keyManager;
+                    break;
+                }
+            }
+
+            if (x509KeyManager == null) {
+                this.logger.warn("X509 for key manager is null.");
+                throw new NullPointerException();
+            }
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(new KeyManager[]{x509KeyManager}, new TrustManager[]{x509TrustManager}, null);
+
 
             // Attempt to create the server socket.
-            SSLServerSocketFactory serverSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            SSLServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
             this.socket = (SSLServerSocket) serverSocketFactory.createServerSocket(this.port);
             this.socket.setNeedClientAuth(true);
-            this.socket.setEnabledCipherSuites(new String[] {"TLS_AES_128_GCM_SHA256"});
-            this.socket.setEnabledProtocols(new String[] {"TLSv1.3"});
+            this.socket.setEnabledProtocols(new String[]{"TLSv1.2"});
 
             this.logger.log("Server socket created.");
             this.logger.log("Listening on : " + this.port);

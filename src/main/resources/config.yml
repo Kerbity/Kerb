@@ -8,5 +8,6 @@
 # Author: MineManiaUK Staff
 
 port: 5000
-key_store_path: "keystore.jks"
+server_certificate_path: "server.p12"
+client_certificate_path: "client.p12"
 password: "123"

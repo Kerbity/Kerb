@@ -40,7 +40,8 @@ public class ClientCreator {
         factory = new KerbClientFactory(
                 configuration.getInteger("port"),
                 configuration.getString("address"),
-                new File(configuration.getString("trust_store_file")),
+                new File(configuration.getString("client_certificate_path")),
+                new File(configuration.getString("server_certificate_path")),
                 configuration.getString("password")
         );
     }

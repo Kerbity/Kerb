@@ -26,10 +26,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ServerConnection extends Connection {
 
     private boolean running;
+    private boolean isValid;
+
     private final @NotNull Server server;
     private final @NotNull Logger logger;
 
@@ -52,21 +55,65 @@ public class ServerConnection extends Connection {
         return this.server.isDebugMode();
     }
 
+    /**
+     * Used to check if the connection loop is running.
+     *
+     * @return True if the connection loop is running.
+     */
+    public boolean isRunning() {
+        return this.running;
+    }
+
+    /**
+     * Used to check if the connection is valid.
+     * A valid connection is where the password has
+     * been sent, and it is correct.
+     *
+     * @return True if the connection has been validated.
+     */
+    public boolean isValid() {
+        return this.isValid;
+    }
+
     public void start() {
+        this.running = true;
+        this.isValid = false;
+
         while (running) {
             try {
+                System.out.println("a");
 
                 // Check if the socket is closed.
                 if (this.getSocket() == null || this.getSocket().isClosed()) {
-                    this.running = false;
-                    this.server.remove(this);
+                    this.logger.log("Disconnecting client dut to socket being null or closed.");
+                    this.disconnect();
+                    return;
+                }
+
+                // Check if the connection is currently invalid.
+                if (!this.isValid()) {
+                    String password = this.read();
+                    if (password.equals(this.server.getHashedPassword())) {
+                        this.isValid = true;
+                        this.send("1");
+                        this.logger.log("Client was validated.");
+                        continue;
+                    }
+
+                    this.logger.log("Disconnecting client due to password being incorrect.");
+                    this.send("0");
+                    this.disconnect();
                     return;
                 }
 
                 // Wait and read the incoming data.
-                String data = read();
+                String data = this.read();
 
-                if (data == null) this.disconnect();
+                // Check if the data is null.
+                if (data == null) {
+                    this.logger.log("Disconnecting client as data sent is null.");
+                    this.disconnect();
+                }
 
                 // TODO : Interpret data.
                 System.out.println(data);
@@ -80,7 +127,14 @@ public class ServerConnection extends Connection {
     public void disconnect() {
         try {
 
+            if (this.getSocket() == null) {
+                this.running = false;
+                this.server.remove(this);
+                return;
+            }
+
             // Attempt to close the connection.
+            this.running = false;
             this.getSocket().close();
             this.server.remove(this);
 

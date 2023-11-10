@@ -33,7 +33,8 @@ public class KerbClientFactory {
 
     private final int port;
     private final @NotNull String address;
-    private final @NotNull File trustStore;
+    private final @NotNull File client_certificate;
+    private final @NotNull File server_certificate;
     private final @NotNull String password;
 
     /**
@@ -41,13 +42,14 @@ public class KerbClientFactory {
      *
      * @param port       The server port used.
      * @param address    The servers address.
-     * @param trustStore The instance of the trust store file.
+     * @param client_certificate The instance of the client certificate.
      * @param password   The password.
      */
-    public KerbClientFactory(int port, @NotNull String address, @NotNull File trustStore, @NotNull String password) {
+    public KerbClientFactory(int port, @NotNull String address, @NotNull File client_certificate, @NotNull File server_certificate, @NotNull String password) {
         this.port = port;
         this.address = address;
-        this.trustStore = trustStore;
+        this.client_certificate = client_certificate;
+        this.server_certificate = server_certificate;
         this.password = password;
     }
 
@@ -57,6 +59,6 @@ public class KerbClientFactory {
      * @return A new kerb client.
      */
     public @NotNull KerbClient create() {
-        return new KerbClient(this.port, this.address, this.trustStore, this.password);
+        return new KerbClient(this.port, this.address, this.client_certificate, this.server_certificate, this.password).setDebugMode(true);
     }
 }

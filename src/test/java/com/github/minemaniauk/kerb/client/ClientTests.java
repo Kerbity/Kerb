@@ -24,6 +24,11 @@ import org.junit.jupiter.api.Test;
 
 public class ClientTests {
 
+    public static void main(String[] args) {
+        KerbClient client = ClientCreator.create();
+        client.connect();
+    }
+
     @Test
     public void connection() {
         KerbClient client = ClientCreator.create();

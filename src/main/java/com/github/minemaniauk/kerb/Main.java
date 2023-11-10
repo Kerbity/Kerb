@@ -48,10 +48,11 @@ public class Main {
         // Create a new instance of the server.
         Server server = new Server(
                 configuration.getInteger("port", 5000),
-                new File(configuration.getString("key_store_path", "keystore.jks")),
+                new File(configuration.getString("server_certificate_path", "server.p12")),
+                new File(configuration.getString("client_certificate_path", "client.p12")),
                 configuration.getString("password", "123"),
                 configuration
-        );
+        ).setDebugMode(true);
 
         // Start the server.
         server.start();
