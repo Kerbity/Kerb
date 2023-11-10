@@ -141,8 +141,8 @@ public abstract class Connection {
      *
      * @param certificate The instance of the certificate
      *                    to load into the trust manager.
-     * @param password The instance of the password.
-     * @param logger The instance of the logger.
+     * @param password    The instance of the password.
+     * @param logger      The instance of the logger.
      * @return The new instance of a trust manager.
      */
     public static @NotNull X509TrustManager createTrustManager(@NotNull File certificate, @NotNull String password, @NotNull Logger logger)
@@ -176,7 +176,7 @@ public abstract class Connection {
      *
      * @param keyStore The instance of the keystore.
      * @param password The instance of the password.
-     * @param logger The instance of the logger.
+     * @param logger   The instance of the logger.
      * @return A new instance of a key manager.
      */
     public static @NotNull X509KeyManager createKeyManager(@NotNull KeyStore keyStore, @NotNull String password, @NotNull Logger logger)
