@@ -107,6 +107,7 @@ public class ServerConnection extends Connection {
                 if (data == null) {
                     this.logger.log("Client disconnected from the server.");
                     this.disconnect();
+                    return;
                 }
 
                 // TODO : Interpret data.
