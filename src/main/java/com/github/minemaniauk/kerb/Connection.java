@@ -54,14 +54,14 @@ public abstract class Connection {
      *
      * @return True if in debug mode.
      */
-    public abstract boolean getDebugMode();
+    protected abstract boolean getDebugMode();
 
     /**
      * Used to get the instance of the socket.
      *
      * @return The instance of the socket.
      */
-    public @Nullable Socket getSocket() {
+    protected @Nullable Socket getSocket() {
         return this.socket;
     }
 
@@ -71,7 +71,7 @@ public abstract class Connection {
      *
      * @return True if successful.
      */
-    public boolean setupStreams(@NotNull Socket socket, @NotNull Logger logger) {
+    protected boolean setupStreams(@NotNull Socket socket, @NotNull Logger logger) {
         this.socket = socket;
         this.logger = logger;
 
@@ -94,7 +94,7 @@ public abstract class Connection {
      *
      * @param data The data to send.
      */
-    public void send(@NotNull String data) {
+    protected void send(@NotNull String data) {
         if (this.socket == null) return;
         if (this.socket.isClosed()) return;
 
@@ -107,7 +107,7 @@ public abstract class Connection {
      *
      * @param byteArray The byte array.
      */
-    public void send(byte[] byteArray) {
+    protected void send(byte[] byteArray) {
         if (this.socket == null) return;
         if (this.socket.isClosed()) return;
 
@@ -127,7 +127,7 @@ public abstract class Connection {
      * @return Data read from the socket
      * @throws IOException Read error
      */
-    public String read() throws IOException {
+    protected String read() throws IOException {
         if (socket == null) return null;
         if (socket.isClosed()) return null;
 
@@ -136,7 +136,7 @@ public abstract class Connection {
         return data;
     }
 
-    public byte[] readBytes() throws IOException {
+    protected byte[] readBytes() throws IOException {
         if (socket == null) return null;
         if (socket.isClosed()) return null;
 
@@ -155,15 +155,11 @@ public abstract class Connection {
     }
 
     /**
-     * Used to reset the connection streams.
+     * Used to close the input and output streams.
+     *
+     * @throws IOException Error when closing the buffered reader.
      */
-    public void resetStreams() {
-
-        this.printWriter.flush();
-
-    }
-
-    public void closeStreams() throws IOException {
+    protected void closeStreams() throws IOException {
         this.printWriter.close();
         this.bufferedReader.close();
     }

@@ -104,6 +104,15 @@ public class ServerConnection extends Connection {
         return this.isValid;
     }
 
+    /**
+     * Used to send data though the socket.
+     *
+     * @param data The data to send.
+     */
+    public void sendData(@NotNull String data) {
+        this.send(data);
+    }
+
     public void start() {
         this.running = true;
         this.isValid = false;
@@ -162,9 +171,6 @@ public class ServerConnection extends Connection {
 
             if (this.getDebugMode()) this.logger.log("[DEBUG] Validating client.");
             this.isValid = false;
-
-            // Reset the streams.
-            this.resetStreams();
 
             // Generate the salt.
             // This will be used to encrypt the password.

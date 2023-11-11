@@ -56,7 +56,7 @@ public class EventPacketManger implements PacketManager {
         for (ServerConnection serverConnection : this.connection.getServer().getConnectionList()) {
 
             // Send the event packet.
-            serverConnection.send(packet.packet());
+            serverConnection.sendData(packet.packet());
         }
     }
 }

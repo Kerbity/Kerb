@@ -85,6 +85,24 @@ public class Server {
     }
 
     /**
+     * Used to get the port the server is running on.
+     *
+     * @return The port the server is on.
+     */
+    public int getPort() {
+        return this.port;
+    }
+
+    /**
+     * Used to get the server's address.
+     *
+     * @return The server's address.
+     */
+    public String getAddress() {
+        return this.socket.getInetAddress().getHostAddress();
+    }
+
+    /**
      * Used to get the hashed password.
      *
      * @return The hashed password.
@@ -148,7 +166,8 @@ public class Server {
      * @return The server version.
      */
     public @NotNull String getVersion() {
-        return Server.class.getPackage().getImplementationVersion();
+        return Server.class.getPackage().getImplementationVersion() == null ? "null"
+                : Server.class.getPackage().getImplementationVersion();
     }
 
     /**

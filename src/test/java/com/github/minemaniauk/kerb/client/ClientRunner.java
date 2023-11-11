@@ -18,32 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.event.event;
+package com.github.minemaniauk.kerb.client;
 
-import com.github.minemaniauk.kerb.event.Event;
-import org.jetbrains.annotations.NotNull;
+import com.github.minemaniauk.kerb.creator.ClientCreator;
+import com.github.minemaniauk.kerb.event.event.PingEvent;
 
-public class PingEvent2 implements Event {
+public class ClientRunner {
 
-    private final @NotNull String serverName;
+    public static void main(String[] args) throws InterruptedException {
+        KerbClient client = ClientCreator.create();
+        client.connect();
 
-    /**
-     * Used to create a ping event.
-     *
-     * @param serverName The server that the
-     *                   ping was sent from.
-     */
-    public PingEvent2(@NotNull String serverName) {
-        this.serverName = serverName;
-    }
+        Thread.sleep(1000);
 
-    /**
-     * Used to get the name of the server
-     * the event was sent from.
-     *
-     * @return The name of the server.
-     */
-    public @NotNull String getServerName() {
-        return this.serverName;
+        client.registerListener((EventListener<PingEvent>) event -> {
+            String serverName = event.getServerName();
+            System.out.println(serverName);
+        });
     }
 }

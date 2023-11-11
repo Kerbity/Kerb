@@ -18,45 +18,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.client;
+package com.github.minemaniauk.kerb.creator;
 
+import com.github.minemaniauk.kerb.server.Server;
 import com.github.smuddgge.squishyconfiguration.ConfigurationFactory;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-public class ClientCreator {
+public class ServerCreator {
 
-    private static KerbClientFactory factory;
+    private static int currentPort = 5000;
 
-    private static void setup() {
-
-        // Load settings.
+    public static @NotNull Server createAndStart() {
         ConfigurationFactory configurationFactory = ConfigurationFactory.YAML;
         Configuration configuration = configurationFactory.create(new File("src/main/resources/hidden_resource/settings.yml"));
         configuration.load();
 
-        factory = new KerbClientFactory(
-                configuration.getInteger("port"),
-                configuration.getString("address"),
-                new File(configuration.getString("client_certificate_path")),
+        Server server = new Server(
+                ServerCreator.nextPort(),
                 new File(configuration.getString("server_certificate_path")),
-                configuration.getString("password")
+                new File(configuration.getString("client_certificate_path")),
+                configuration.getString("password"),
+                configuration
         );
+
+        new Thread(server::start).start();
+        return server;
     }
 
-    /**
-     * Used to create a new instance of a kerb client.
-     * This will also create the factory if
-     * it hasn't yet been created.
-     *
-     * @return The instance of a new kerb client.
-     */
-    public static @NotNull KerbClient create() {
-        if (factory == null) ClientCreator.setup();
-
-        assert factory != null;
-        return factory.create();
+    public static int nextPort() {
+        ServerCreator.currentPort++;
+        return ServerCreator.currentPort;
     }
 }
