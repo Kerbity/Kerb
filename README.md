@@ -8,11 +8,11 @@
 [![](https://jitpack.io/v/Kerbity/Kerb.svg)](https://jitpack.io/#Kerbity/Kerb)
 ```xml
     <repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 ```
 ```xml
     <dependency>
