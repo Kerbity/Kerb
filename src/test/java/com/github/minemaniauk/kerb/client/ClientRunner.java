@@ -30,11 +30,12 @@ public class ClientRunner {
         KerbClient client = ClientCreator.create();
         client.connect();
 
-        Thread.sleep(1000);
-
         client.registerListener((EventListener<PingEvent>) event -> {
             String serverName = event.serverName();
             System.out.println(serverName);
         });
+
+        Thread.sleep(1000);
+        client.callEvent(new PingEvent("Computer"));
     }
 }

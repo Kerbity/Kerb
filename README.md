@@ -1,12 +1,53 @@
 # Kerb Server Setup
 
+### Kerb API
+
+`Coming Soon`
+
+```java
+// Attempt to the kerb server.
+KerbClient client = new KerbClient(...);
+client.connect();
+
+// Register an event listener.
+client.registerListener((EventListener<PingEvent>) event -> {
+    String serverName = event.serverName();
+    System.out.println(serverName);
+});
+
+// Send an event to all clients.
+client.callEvent(new PingEvent("Computer"));
+```
+
+```java
+/**
+ * Represents a simple ping event.
+ * This is used as an example.
+ *
+ * @param serverName The server that the ping was sent from.
+ */
+public record PingEvent(@NotNull String serverName) implements Event {
+
+    /**
+     * Used to get the name of the server
+     * the event was sent from.
+     *
+     * @return The name of the server.
+     */
+    @Override
+    public @NotNull String serverName() {
+        return this.serverName;
+    }
+}
+```
+
 ### Running the server
 You can either use the provided egg for Pterodactyl or run the following command.
 - `java -Xms128M -Dterminal.jline=false -Dterminal.ansi=true -jar Kerb-1.0.0.jar`
 
 
 ### Setting up SSL
-To connect to the server and client's you will need to set up the SSL documents.
+To connect to the server and client's, you will need to set up the SSL documents.
 
 ```
 openssl req -newkey rsa:2048 -nodes -keyout server-key.pem -x509 -days 365 -out server-certificate.pem
@@ -21,8 +62,4 @@ openssl pkcs12 -inkey client-key.pem -in client-certificate.pem -export -out cli
 openssl pkcs12 -inkey server-key.pem -in server-certificate.pem -export -out server-certificate.p12
 ```
 
-Add the keystore to your server container and the trust store to your clients.
-
-# Kerb API
-
-Coming Soon
+Add both the client and server certificate to your server and clients.
