@@ -18,35 +18,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.event;
+package com.github.minemaniauk.kerb.event.event;
 
-import com.github.minemaniauk.kerb.packet.Packet;
-import com.github.minemaniauk.kerb.server.PacketType;
+import com.github.minemaniauk.kerb.event.Event;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an event.
+ * Represents a simple ping event.
+ * This is used as an example.
  */
-public interface Event {
+public class PingEvent implements Event {
+
+    private final @NotNull String serverName;
 
     /**
-     * Used to get the events unique identifier.
-     * This will be used in the packet to
-     * identifier what event it is.
+     * Used to create a ping event.
      *
-     * @return The event's identifier.
+     * @param serverName The server that the
+     *                   ping was sent from.
      */
-    @NotNull String getIdentifier();
+    public PingEvent(@NotNull String serverName) {
+        this.serverName = serverName;
+    }
+
+    @Override
+    public @NotNull String getIdentifier() {
+        return "ping";
+    }
 
     /**
-     * Used to convert this event into a packet.
+     * Used to get the name of the server
+     * the event was sent from.
      *
-     * @return The instance of the packet.
+     * @return The name of the server.
      */
-    default @NotNull Packet packet() {
-        return new Packet()
-                .setType(PacketType.EVENT.getIdentifier())
-                .setIdentifier(this.getIdentifier())
-                .setData(this);
+    public @NotNull String getServerName() {
+        return this.serverName;
     }
 }

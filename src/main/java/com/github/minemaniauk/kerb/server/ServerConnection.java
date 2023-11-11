@@ -22,6 +22,7 @@ package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.minemaniauk.kerb.Connection;
+import com.github.minemaniauk.kerb.packet.Packet;
 import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import com.github.minemaniauk.kerb.utility.ThreadUtility;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +31,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
 
+/**
+ * Represents a connection from a
+ * client to the server.
+ */
 public class ServerConnection extends Connection {
 
     private boolean running;
@@ -37,6 +42,7 @@ public class ServerConnection extends Connection {
 
     private final @NotNull Server server;
     private final @NotNull Logger logger;
+    private final @NotNull ServerConnectionPacketManager packetManager;
 
     /**
      * Used to create a server connection.
@@ -48,6 +54,7 @@ public class ServerConnection extends Connection {
     public ServerConnection(@NotNull Server server, @NotNull Socket socket, @NotNull Logger logger) {
         this.server = server;
         this.logger = logger;
+        this.packetManager = new ServerConnectionPacketManager(this);
 
         this.setupStreams(socket, logger.createExtension("[Socket] "));
     }
@@ -55,6 +62,16 @@ public class ServerConnection extends Connection {
     @Override
     public boolean getDebugMode() {
         return this.server.isDebugMode();
+    }
+
+    /**
+     * Used to get the instance of the server
+     * this connection is running on.
+     *
+     * @return The instance of the server.
+     */
+    public @NotNull Server getServer() {
+        return this.server;
     }
 
     /**
@@ -110,8 +127,9 @@ public class ServerConnection extends Connection {
                     return;
                 }
 
-                // TODO : Interpret data.
-                System.out.println(data);
+                // Convert the data to a packet.
+                Packet packet = Packet.getPacket(data);
+                this.packetManager.interpret(packet);
 
             } catch (IOException exception) {
                 exception.printStackTrace();

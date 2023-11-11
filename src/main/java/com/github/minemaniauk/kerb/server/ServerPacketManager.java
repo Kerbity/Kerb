@@ -18,35 +18,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.event;
+package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.kerb.packet.Packet;
-import com.github.minemaniauk.kerb.server.PacketType;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an event.
+ * Represents a server packet manager.
  */
-public interface Event {
+public interface ServerPacketManager {
 
     /**
-     * Used to get the events unique identifier.
-     * This will be used in the packet to
-     * identifier what event it is.
+     * Used to get the packet type the
+     * manager can interpret.
      *
-     * @return The event's identifier.
+     * @return The manager's packet type.
      */
-    @NotNull String getIdentifier();
+    @NotNull PacketType getPacketType();
 
     /**
-     * Used to convert this event into a packet.
+     * Used to interpret a packet.
      *
-     * @return The instance of the packet.
+     * @param packet The instance of the packet.
      */
-    default @NotNull Packet packet() {
-        return new Packet()
-                .setType(PacketType.EVENT.getIdentifier())
-                .setIdentifier(this.getIdentifier())
-                .setData(this);
-    }
+    void interpret(@NotNull Packet packet);
 }

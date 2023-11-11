@@ -20,10 +20,11 @@
 
 package com.github.minemaniauk.kerb.packet;
 
-import com.github.smuddgge.squishyconfiguration.interfaces.ConfigurationSection;
+import com.github.minemaniauk.kerb.server.PacketType;
 import com.github.smuddgge.squishyconfiguration.memory.MemoryConfigurationSection;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,36 @@ public class Packet extends MemoryConfigurationSection {
      */
     public Packet(@NotNull Map<String, Object> map) {
         super(map);
+    }
+
+    /**
+     * Used to get the type of packet.
+     *
+     * @return The type of packet.
+     */
+    public @Nullable PacketType getType() {
+        return PacketType.fromIdentifier(this.getString("type"));
+    }
+
+    /**
+     * Used to get the packet's identifier.
+     *
+     * @return The packet's identifier.
+     */
+    public @Nullable String getIdentifier() {
+        return this.getString("identifier");
+    }
+
+    /**
+     * Used to get the data as a class.
+     *
+     * @param clazz The instance of the class.
+     * @param <T>   The type of class.
+     * @return The requested class as data.
+     */
+    public @Nullable <T> T getData(@NotNull Class<T> clazz) {
+        Gson gson = new Gson();
+        return gson.fromJson(this.getString("data"), clazz);
     }
 
     /**
