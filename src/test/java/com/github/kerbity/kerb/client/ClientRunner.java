@@ -21,6 +21,7 @@
 package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.client.listener.EventListener;
+import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.creator.ClientCreator;
 import com.github.kerbity.kerb.event.event.PingEvent;
 
@@ -35,11 +36,12 @@ public class ClientRunner {
             System.out.println(serverName);
         });
 
-        client.registerListener(event -> {
-            System.out.println(event.getIdentifier());
+        client.registerListener((ObjectListener<String>) string -> {
+            System.out.println(string);
         });
 
         Thread.sleep(1000);
         client.callEvent(new PingEvent("Computer"));
+        client.callObject("test");
     }
 }

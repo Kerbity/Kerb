@@ -22,8 +22,10 @@ package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.client.listener.EventListener;
+import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.event.Event;
 import com.github.kerbity.kerb.packet.Packet;
+import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.utility.PasswordEncryption;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +54,9 @@ public class KerbClient extends Connection {
     private boolean isValid;
     private boolean debugMode;
 
-    private @NotNull List<EventListener<?>> listenerList;
+    private @NotNull List<EventListener<?>> eventListenerList;
+    private final @NotNull List<ObjectListener<?>> objectListenerList;
+
     private final @NotNull ClientPacketManager packetManager;
 
     /**
@@ -77,7 +81,9 @@ public class KerbClient extends Connection {
         this.isValid = false;
         this.debugMode = false;
 
-        this.listenerList = new ArrayList<>();
+        this.eventListenerList = new ArrayList<>();
+        this.objectListenerList = new ArrayList<>();
+
         this.packetManager = new ClientPacketManager(this);
     }
 
@@ -121,8 +127,18 @@ public class KerbClient extends Connection {
      *
      * @return The list of listeners.
      */
-    public List<EventListener<?>> getListeners() {
-        return this.listenerList;
+    public @NotNull List<EventListener<?>> getEventListeners() {
+        return this.eventListenerList;
+    }
+
+    /**
+     * Used to get the list of object listeners
+     * registered with this client.
+     *
+     * @return The list of object listeners.
+     */
+    public @NotNull List<ObjectListener<?>> getObjectListeners() {
+        return this.objectListenerList;
     }
 
     /**
@@ -166,8 +182,22 @@ public class KerbClient extends Connection {
      * @param <T>      The type of event to listen for.
      * @return This instance.
      */
-    public <T extends Event> @NotNull KerbClient registerListener(EventListener<T> listener) {
-        this.listenerList.add(listener);
+    public <T extends Event> @NotNull KerbClient registerListener(@NotNull EventListener<T> listener) {
+        this.eventListenerList.add(listener);
+        return this;
+    }
+
+    /**
+     * Used to register a listener for objects.
+     * When an object is called it is sent to the server
+     * and back to all clients.
+     *
+     * @param listener The instance of the listener.
+     * @param <T>      The type of object to listen for.
+     * @return This instance.
+     */
+    public <T> @NotNull KerbClient registerListener(@NotNull ObjectListener<T> listener) {
+        this.objectListenerList.add(listener);
         return this;
     }
 
@@ -179,7 +209,7 @@ public class KerbClient extends Connection {
      * @return This instance.
      */
     public <T extends Event> @NotNull KerbClient unregisterListener(EventListener<T> listener) {
-        this.listenerList.remove(listener);
+        this.eventListenerList.remove(listener);
         return this;
     }
 
@@ -189,7 +219,7 @@ public class KerbClient extends Connection {
      * @return This instance.
      */
     public @NotNull KerbClient unregisterAllListeners() {
-        this.listenerList = new ArrayList<>();
+        this.eventListenerList = new ArrayList<>();
         return this;
     }
 
@@ -214,6 +244,23 @@ public class KerbClient extends Connection {
         for (Event event : eventList) {
             this.callEvent(event);
         }
+        return this;
+    }
+
+    /**
+     * Used to send an object to all the server's connections.
+     *
+     * @param object The object to send.
+     * @return This instance.
+     */
+    public @NotNull KerbClient callObject(@NotNull Object object) {
+        Packet packet = new Packet();
+        packet.setType(PacketType.OBJECT);
+        packet.setIdentifier(object.getClass().getName());
+        packet.setData(object);
+
+        // Send the packet.
+        this.send(packet.packet());
         return this;
     }
 

@@ -21,18 +21,13 @@
 package com.github.kerbity.kerb.client.packetmanager;
 
 import com.github.kerbity.kerb.client.KerbClient;
-import com.github.kerbity.kerb.client.listener.EventListener;
-import com.github.kerbity.kerb.event.Event;
+import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents the event packet manager
- * for the client.
- */
-public class EventPacketManager implements PacketManager {
+public class ObjectPacketManager implements PacketManager {
 
     private final @NotNull KerbClient client;
 
@@ -42,13 +37,13 @@ public class EventPacketManager implements PacketManager {
      * @param client The instance of the kerb client
      *               it will be managing.
      */
-    public EventPacketManager(@NotNull KerbClient client) {
+    public ObjectPacketManager(@NotNull KerbClient client) {
         this.client = client;
     }
 
     @Override
     public @NotNull PacketType getPacketType() {
-        return PacketType.EVENT;
+        return PacketType.OBJECT;
     }
 
     @Override
@@ -56,20 +51,19 @@ public class EventPacketManager implements PacketManager {
         try {
 
             // Get the instance of the event class.
-            Class<?> eventClass = Class.forName(packet.getIdentifier());
+            Class<?> clazz = Class.forName(packet.getIdentifier());
 
             // Create the event class from the packet.
-            Object eventObject = packet.getData(eventClass);
+            Object object = packet.getData(clazz);
 
-            // Check if the event object is instance of an event.
-            if (!(eventObject instanceof Event)) {
-                this.client.getLogger().warn("Packet interpreted was not an event.");
+            if (object == null) {
+                this.client.getLogger().warn("Object was null.");
                 return;
             }
 
             // Loop though all listeners.
-            for (EventListener<?> listener : this.client.getEventListeners()) {
-                listener.runIfCorrectEvent((Event) eventObject);
+            for (ObjectListener<?> listener : this.client.getObjectListeners()) {
+                listener.runIfCorrectObject(object);
             }
 
         } catch (ClassNotFoundException exception) {

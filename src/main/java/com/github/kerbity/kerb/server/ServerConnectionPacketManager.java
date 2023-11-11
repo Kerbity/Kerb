@@ -23,6 +23,7 @@ package com.github.kerbity.kerb.server;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.server.packetmanager.EventPacketManger;
+import com.github.kerbity.kerb.server.packetmanager.ObjectPacketManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class ServerConnectionPacketManager {
 
         this.packetManagerList = new ArrayList<>();
         this.packetManagerList.add(new EventPacketManger(connection));
+        this.packetManagerList.add(new ObjectPacketManager(connection));
     }
 
     /**

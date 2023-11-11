@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  * Represents all the packet types.
  */
 public enum PacketType {
-    EVENT("event");
+    EVENT("event"), OBJECT("object");
 
     private final @NotNull String identifier;
 

@@ -89,8 +89,8 @@ public class Packet extends MemoryConfigurationSection {
      * @param packetType The type of packet.
      * @return This instance.
      */
-    public @NotNull Packet setType(@NotNull String packetType) {
-        this.set("type", packetType);
+    public @NotNull Packet setType(@NotNull PacketType packetType) {
+        this.set("type", packetType.getIdentifier());
         return this;
     }
 

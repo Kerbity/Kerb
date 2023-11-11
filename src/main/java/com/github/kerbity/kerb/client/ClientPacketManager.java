@@ -21,6 +21,7 @@
 package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.client.packetmanager.EventPacketManager;
+import com.github.kerbity.kerb.client.packetmanager.ObjectPacketManager;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,7 @@ public class ClientPacketManager {
     public ClientPacketManager(@NotNull KerbClient client) {
         this.packetManagerList = new ArrayList<>();
         this.packetManagerList.add(new EventPacketManager(client));
+        this.packetManagerList.add(new ObjectPacketManager(client));
     }
 
     /**

@@ -52,7 +52,7 @@ public interface Event {
      */
     default @NotNull Packet packet() {
         return new Packet()
-                .setType(PacketType.EVENT.getIdentifier())
+                .setType(PacketType.EVENT)
                 .setIdentifier(this.getIdentifier())
                 .setData(this);
     }
