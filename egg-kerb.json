@@ -6,7 +6,7 @@
     },
     "exported_at": "2022-10-24T19:20:23+02:00",
     "name": "Kerb",
-    "author": "DJsmudgster+kerb@gmail.com",
+    "author": "Smuddgge",
     "description": "Creates a container that runs a kerb server.",
     "features": null,
     "docker_images": {
