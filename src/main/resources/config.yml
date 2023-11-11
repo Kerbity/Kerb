@@ -5,7 +5,7 @@
 # | . \  __/ |  | |_) |
 # |_|\_\___|_|  |_.__/
 #
-# Author: MineManiaUK Staff
+# Author: Smuddgge
 
 port: 5000
 server_certificate_path: "server.p12"

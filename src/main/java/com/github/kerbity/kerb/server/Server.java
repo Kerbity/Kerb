@@ -358,7 +358,7 @@ public class Server {
         this.logger.log("&a | . \\  __/ |  | |_) |");
         this.logger.log("&a |_|\\_\\___|_|  |_.__/");
         this.logger.log("&7");
-        this.logger.log("&7Author: &rMineManiaUK Staff");
+        this.logger.log("&7Author: &rSmuddgge");
         this.logger.log("&7Version: &r" + this.getVersion());
         this.logger.log("");
     }
