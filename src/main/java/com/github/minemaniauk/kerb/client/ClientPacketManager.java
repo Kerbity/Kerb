@@ -18,45 +18,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.server.packetmanager;
+package com.github.minemaniauk.kerb.client;
 
+import com.github.minemaniauk.kerb.client.packetmanager.EventPacketManager;
 import com.github.minemaniauk.kerb.packet.Packet;
 import com.github.minemaniauk.kerb.packet.PacketManager;
-import com.github.minemaniauk.kerb.packet.PacketType;
-import com.github.minemaniauk.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents a event packet manager.
- */
-public class EventPacketManger implements PacketManager {
+import java.util.ArrayList;
+import java.util.List;
 
-    private final @NotNull ServerConnection connection;
+/**
+ * Represents the clients packet manager.
+ */
+public class ClientPacketManager {
+
+    private final @NotNull List<PacketManager> packetManagerList;
 
     /**
-     * used to create an event packet manager.
-     *
-     * @param connection The instance of the server connection.
+     * Used to create a new server connection packet manager.
+     * This will also create the separate packet managers
+     * for each type of packet for this connection.
      */
-    public EventPacketManger(@NotNull ServerConnection connection) {
-        this.connection = connection;
+    public ClientPacketManager(@NotNull KerbClient client) {
+        this.packetManagerList = new ArrayList<>();
+        this.packetManagerList.add(new EventPacketManager(client));
     }
 
-    @Override
-    public @NotNull PacketType getPacketType() {
-        return PacketType.EVENT;
-    }
-
-    @Override
+    /**
+     * Used to interpret a packet.
+     *
+     * @param packet The instance of a packet.
+     */
     public void interpret(@NotNull Packet packet) {
-
-        this.connection.getLogger().log("&3[Event] " + packet);
-
-        // Loop though all the connections.
-        for (ServerConnection serverConnection : this.connection.getServer().getConnectionList()) {
-
-            // Send the event packet.
-            serverConnection.send(packet.packet());
+        for (PacketManager manager : this.packetManagerList) {
+            if (manager.getPacketType().equals(packet.getType())) {
+                manager.interpret(packet);
+                return;
+            }
         }
     }
 }

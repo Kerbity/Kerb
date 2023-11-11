@@ -20,7 +20,6 @@
 
 package com.github.minemaniauk.kerb.packet;
 
-import com.github.minemaniauk.kerb.server.PacketType;
 import com.github.smuddgge.squishyconfiguration.memory.MemoryConfigurationSection;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
@@ -140,5 +139,10 @@ public class Packet extends MemoryConfigurationSection {
     public static @NotNull Packet getPacket(@NotNull String json) {
         Gson gson = new Gson();
         return new Packet(gson.fromJson(json, Map.class));
+    }
+
+    @Override
+    public String toString() {
+        return this.getMap().toString();
     }
 }

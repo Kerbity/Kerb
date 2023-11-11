@@ -41,11 +41,6 @@ public class PingEvent implements Event {
         this.serverName = serverName;
     }
 
-    @Override
-    public @NotNull String getIdentifier() {
-        return "ping";
-    }
-
     /**
      * Used to get the name of the server
      * the event was sent from.

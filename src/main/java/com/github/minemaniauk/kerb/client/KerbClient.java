@@ -22,6 +22,8 @@ package com.github.minemaniauk.kerb.client;
 
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.minemaniauk.kerb.Connection;
+import com.github.minemaniauk.kerb.event.Event;
+import com.github.minemaniauk.kerb.packet.Packet;
 import com.github.minemaniauk.kerb.utility.PasswordEncryption;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,6 +31,8 @@ import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a kerb client.
@@ -46,6 +50,9 @@ public class KerbClient extends Connection {
     private boolean isConnected;
     private boolean isValid;
     private boolean debugMode;
+
+    private @NotNull List<Listener<?>> listenerList;
+    private final @NotNull ClientPacketManager packetManager;
 
     /**
      * Used to create a new instance of a kerb client.
@@ -67,11 +74,34 @@ public class KerbClient extends Connection {
                 .setWarnPrefix("&a[Kerb] &e[WARN] ");
         this.isConnected = false;
         this.isValid = false;
+        this.debugMode = false;
+
+        this.listenerList = new ArrayList<>();
+        this.packetManager = new ClientPacketManager(this);
     }
 
     @Override
     public boolean getDebugMode() {
         return this.debugMode;
+    }
+
+    /**
+     * Used to get the instance of the logger.
+     *
+     * @return The instance of the logger.
+     */
+    public @NotNull Logger getLogger() {
+        return this.logger;
+    }
+
+    /**
+     * Used to get the list of listeners
+     * registered with this client.
+     *
+     * @return The list of listeners.
+     */
+    public List<Listener<?>> getListeners() {
+        return this.listenerList;
     }
 
     /**
@@ -104,6 +134,66 @@ public class KerbClient extends Connection {
      */
     public boolean isValid() {
         return this.isValid;
+    }
+
+    /**
+     * Used to register an event listener.
+     * When the specified event is sent from the server
+     * it will call the method in the listener.
+     *
+     * @param listener The instance of a listener.
+     * @param <T>      The type of event to listen for.
+     * @return This instance.
+     */
+    public <T extends Event> @NotNull KerbClient registerListener(Listener<T> listener) {
+        this.listenerList.add(listener);
+        return this;
+    }
+
+    /**
+     * Used to unregister a listener from this client.
+     *
+     * @param listener The listener to unregister.
+     * @param <T>      The type of event that was listened to.
+     * @return This instance.
+     */
+    public <T extends Event> @NotNull KerbClient unregisterListener(Listener<T> listener) {
+        this.listenerList.remove(listener);
+        return this;
+    }
+
+    /**
+     * Used to unregister all listeners.
+     *
+     * @return This instance.
+     */
+    public @NotNull KerbClient unregisterAllListeners() {
+        this.listenerList = new ArrayList<>();
+        return this;
+    }
+
+    /**
+     * Used to call an event.
+     *
+     * @param event The instance of an event.
+     * @return This instance.
+     */
+    public @NotNull KerbClient callEvent(Event event) {
+        this.send(event.packet().packet());
+        return this;
+    }
+
+    /**
+     * Used to call a series or events.
+     *
+     * @param eventList The list of events.
+     * @return This instance.
+     */
+    public @NotNull KerbClient callEvent(Event... eventList) {
+        for (Event event : eventList) {
+            this.callEvent(event);
+        }
+        return this;
     }
 
     /**
@@ -182,6 +272,8 @@ public class KerbClient extends Connection {
                     return;
                 }
 
+                Packet packet = Packet.getPacket(data);
+                this.packetManager.interpret(packet);
 
             } catch (Exception exception) {
                 throw new RuntimeException(exception);
@@ -195,6 +287,11 @@ public class KerbClient extends Connection {
             // Read the salt from the server.
             String salt = this.read();
             if (this.getSocket() == null || this.getSocket().isClosed()) return false;
+
+            // Check if the salt is empty.
+            if (salt.isEmpty()) {
+                return this.validate();
+            }
 
             // Encrypt the password.
             String encryptedPassword = PasswordEncryption.encrypt(this.password, salt);
@@ -234,6 +331,7 @@ public class KerbClient extends Connection {
             if (this.getSocket() == null) return true;
 
             // Attempt to close the socket.
+            this.closeStreams();
             this.getSocket().close();
             this.isConnected = false;
 

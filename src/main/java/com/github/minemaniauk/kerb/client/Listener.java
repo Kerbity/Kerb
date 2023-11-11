@@ -18,36 +18,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.event;
+package com.github.minemaniauk.kerb.client;
 
-import com.github.minemaniauk.kerb.packet.Packet;
-import com.github.minemaniauk.kerb.packet.PacketType;
-import org.jetbrains.annotations.NotNull;
+import com.github.minemaniauk.kerb.event.Event;
 
 /**
- * Represents an event.
+ * Represents an event listener.
+ * Used to listen to a specific event.
+ * When the event is called it will call the
+ * method {@link Listener#runIfCorrectEvent(Event)}.
+ *
+ * @param <T> The event to listen for.
  */
-public interface Event {
+public interface Listener<T extends Event> {
 
     /**
-     * Used to get the events unique identifier.
-     * This will be the name of the class.
+     * Called when the event is received.
      *
-     * @return The event's identifier.
+     * @param event The instance of the event.
      */
-    default @NotNull String getIdentifier() {
-        return this.getClass().getName();
-    }
+    void onEvent(T event);
 
     /**
-     * Used to convert this event into a packet.
+     * Used to call this listener with
+     * an unspecified type.
      *
-     * @return The instance of the packet.
+     * @param event The instance of the event.
      */
-    default @NotNull Packet packet() {
-        return new Packet()
-                .setType(PacketType.EVENT.getIdentifier())
-                .setIdentifier(this.getIdentifier())
-                .setData(this);
+    @SuppressWarnings("unchecked")
+    default void runIfCorrectEvent(Event event) {
+        try {
+            this.onEvent((T) event);
+        } catch (Exception ignored) {
+        }
     }
 }

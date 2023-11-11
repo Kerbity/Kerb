@@ -20,10 +20,21 @@
 
 package com.github.minemaniauk.kerb.client;
 
+import com.github.minemaniauk.kerb.event.event.PingEvent;
+
 public class ClientTests {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         KerbClient client = ClientCreator.create();
         client.connect();
+
+        Thread.sleep(1000);
+
+        client.registerListener((Listener<PingEvent>) event -> {
+            String serverName = event.getServerName();
+            System.out.println(serverName);
+        });
+
+        client.callEvent(new PingEvent("Joshua's Computer"));
     }
 }

@@ -75,6 +75,15 @@ public class ServerConnection extends Connection {
     }
 
     /**
+     * Used to get the instance of the logger.
+     *
+     * @return The instance of the logger.
+     */
+    public @NotNull Logger getLogger() {
+        return this.logger;
+    }
+
+    /**
      * Used to check if the connection loop is running.
      *
      * @return True if the connection loop is running.
@@ -153,6 +162,9 @@ public class ServerConnection extends Connection {
             if (this.getDebugMode()) this.logger.log("[DEBUG] Validating client.");
             this.isValid = false;
 
+            // Reset the streams.
+            this.resetStreams();
+
             // Generate the salt.
             // This will be used to encrypt the password.
             String salt = PasswordEncryption.createSalt();
@@ -197,6 +209,7 @@ public class ServerConnection extends Connection {
 
             // Attempt to close the connection.
             this.running = false;
+            this.closeStreams();
             this.getSocket().close();
             this.server.remove(this);
             this.logger.log("Disconnected.");

@@ -95,8 +95,8 @@ public abstract class Connection {
      * @param data The data to send.
      */
     public void send(@NotNull String data) {
-        if (socket == null) return;
-        if (socket.isClosed()) return;
+        if (this.socket == null) return;
+        if (this.socket.isClosed()) return;
 
         this.printWriter.println(data);
         if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + data + "\"}");
@@ -117,6 +117,20 @@ public abstract class Connection {
         String data = this.bufferedReader.readLine();
         if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + data + "\"}");
         return data;
+    }
+
+    /**
+     * Used to reset the connection streams.
+     */
+    public void resetStreams() {
+
+        this.printWriter.flush();
+
+    }
+
+    public void closeStreams() throws IOException {
+        this.printWriter.close();
+        this.bufferedReader.close();
     }
 
     /**

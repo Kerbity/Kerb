@@ -21,6 +21,7 @@
 package com.github.minemaniauk.kerb.server;
 
 import com.github.minemaniauk.kerb.packet.Packet;
+import com.github.minemaniauk.kerb.packet.PacketManager;
 import com.github.minemaniauk.kerb.server.packetmanager.EventPacketManger;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +34,7 @@ import java.util.List;
  */
 public class ServerConnectionPacketManager {
 
-    private final @NotNull ServerConnection connection;
-    private final @NotNull List<ServerPacketManager> packetManagerList;
+    private final @NotNull List<PacketManager> packetManagerList;
 
     /**
      * Used to create a new server connection packet manager.
@@ -42,7 +42,6 @@ public class ServerConnectionPacketManager {
      * for each type of packet for this connection.
      */
     public ServerConnectionPacketManager(@NotNull ServerConnection connection) {
-        this.connection = connection;
 
         this.packetManagerList = new ArrayList<>();
         this.packetManagerList.add(new EventPacketManger(connection));
@@ -54,7 +53,7 @@ public class ServerConnectionPacketManager {
      * @param packet The instance of a packet.
      */
     public void interpret(@NotNull Packet packet) {
-        for (ServerPacketManager manager : this.packetManagerList) {
+        for (PacketManager manager : this.packetManagerList) {
             if (manager.getPacketType().equals(packet.getType())) {
                 manager.interpret(packet);
                 return;

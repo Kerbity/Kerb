@@ -18,28 +18,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.server;
+package com.github.minemaniauk.kerb.event.event;
 
-import com.github.minemaniauk.kerb.packet.Packet;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents a server packet manager.
- */
-public interface ServerPacketManager {
+public class PingEvent2 {
+
+    private final @NotNull String serverName;
 
     /**
-     * Used to get the packet type the
-     * manager can interpret.
+     * Used to create a ping event.
      *
-     * @return The manager's packet type.
+     * @param serverName The server that the
+     *                   ping was sent from.
      */
-    @NotNull PacketType getPacketType();
+    public PingEvent2(@NotNull String serverName) {
+        this.serverName = serverName;
+    }
 
     /**
-     * Used to interpret a packet.
+     * Used to get the name of the server
+     * the event was sent from.
      *
-     * @param packet The instance of the packet.
+     * @return The name of the server.
      */
-    void interpret(@NotNull Packet packet);
+    public @NotNull String getServerName() {
+        return this.serverName;
+    }
 }
