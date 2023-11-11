@@ -2,7 +2,7 @@
  * Kerb
  * Event and request distributor server software.
  *
- * Copyright (C) 2023  MineManiaUK Staff
+ * Copyright (C) 2023  Smuddgge
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 
 package com.github.kerbity.kerb.event;
 
-import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.packet.Packet;
+import com.github.kerbity.kerb.packet.PacketType;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -2,7 +2,7 @@
  * Kerb
  * Event and request distributor server software.
  *
- * Copyright (C) 2023  MineManiaUK Staff
+ * Copyright (C) 2023  Smuddgge
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 
 package com.github.kerbity.kerb.tests;
 
-import com.github.kerbity.kerb.creator.ServerCreator;
-import com.github.kerbity.kerb.server.Server;
-import com.github.minemaniauk.developertools.testing.ResultChecker;
 import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.creator.ClientCreator;
+import com.github.kerbity.kerb.creator.ServerCreator;
 import com.github.kerbity.kerb.event.event.PingEvent;
+import com.github.kerbity.kerb.server.Server;
+import com.github.minemaniauk.developertools.testing.ResultChecker;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

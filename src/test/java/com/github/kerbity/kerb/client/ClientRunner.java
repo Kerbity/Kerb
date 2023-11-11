@@ -2,7 +2,7 @@
  * Kerb
  * Event and request distributor server software.
  *
- * Copyright (C) 2023  MineManiaUK Staff
+ * Copyright (C) 2023  Smuddgge
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,10 @@ public class ClientRunner {
         client.registerListener((EventListener<PingEvent>) event -> {
             String serverName = event.serverName();
             System.out.println(serverName);
+        });
+
+        client.registerListener(event -> {
+            System.out.println(event.getIdentifier());
         });
 
         Thread.sleep(1000);

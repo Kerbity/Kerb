@@ -2,7 +2,7 @@
  * Kerb
  * Event and request distributor server software.
  *
- * Copyright (C) 2023  MineManiaUK Staff
+ * Copyright (C) 2023  Smuddgge
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +26,19 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a simple ping event.
  * This is used as an example.
- *
- * @param serverName The server that the ping was sent from.
  */
-public record PingEvent(@NotNull String serverName) implements Event {
+public class PingEvent implements Event {
+
+    private final @NotNull String serverName;
+
+    /**
+     * Used to create a ping event.
+     *
+     * @param serverName The server that the ping was sent from.
+     */
+    public PingEvent(@NotNull String serverName) {
+        this.serverName = serverName;
+    }
 
     /**
      * Used to get the name of the server
@@ -37,7 +46,6 @@ public record PingEvent(@NotNull String serverName) implements Event {
      *
      * @return The name of the server.
      */
-    @Override
     public @NotNull String serverName() {
         return this.serverName;
     }

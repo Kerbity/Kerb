@@ -2,7 +2,7 @@
  * Kerb
  * Event and request distributor server software.
  *
- * Copyright (C) 2023  MineManiaUK Staff
+ * Copyright (C) 2023  Smuddgge
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ public class EventPacketManager implements PacketManager {
 
             // Get the instance of the event class.
             Class<?> eventClass = Class.forName(packet.getIdentifier());
+            System.out.println(eventClass);
 
             // Create the event class from the packet.
             Object eventObject = packet.getData(eventClass);

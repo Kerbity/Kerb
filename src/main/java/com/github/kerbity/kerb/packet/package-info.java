@@ -2,7 +2,7 @@
  * Kerb
  * Event and request distributor server software.
  *
- * Copyright (C) 2023  MineManiaUK Staff
+ * Copyright (C) 2023  Smuddgge
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,21 +22,18 @@
  * Packets are used to convert data between json strings and maps.
  * This is used in the communication. A packet will be converted
  * into a json string to be sent over the socket, and then
- * repacked into a map when it is read on the other side.
- * <p>
  * Each packet will have the following default values:
- *     <ul>
- *         <li>
- *             Packet type: The type of packet. For example, event packet.
- *         </li>
- *         <li>
- *             Packet identifier: This will contain the class identifier so the class
- *             can be re-created on the other side.
- *         </li>
- *         <li>
- *             Packet data: This will contain the data related to the packet type.
- *         </li>
- *     </ul>
- * </p>
+ * <ul>
+ *     <li>
+ *         Packet type: The type of packet. For example, event packet.
+ *     </li>
+ *     <li>
+ *         Packet identifier: This will contain the class identifier so the class
+ *         can be re-created on the other side.
+ *     </li>
+ *     <li>
+ *         Packet data: This will contain the data related to the packet type.
+ *     </li>
+ * </ul>
  */
 package com.github.kerbity.kerb.packet;
