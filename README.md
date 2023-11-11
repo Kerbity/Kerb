@@ -1,8 +1,9 @@
-# Kerb Server Setup
+<div align=center>
+    <a href="https://smuddgge.gitbook.io/kerb/"><img src="./images/wiki.png" width="512"></a>
+    <a href="https://discord.gg/pax7uFhaaD"><img src="./images/Discord.png" width="512"></a>
+</div>
 
 ### Kerb API
-
-`Coming Soon`
 
 ```java
 // Attempt to the kerb server.
