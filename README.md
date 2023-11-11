@@ -5,6 +5,22 @@
 
 ### Kerb API
 
+[![](https://jitpack.io/v/Kerbity/Kerb.svg)](https://jitpack.io/#Kerbity/Kerb)
+```xml
+    <repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+```
+```xml
+    <dependency>
+        <groupId>com.github.Kerbity</groupId>
+        <artifactId>Kerb</artifactId>
+        <version>Tag</version>
+    </dependency>
+```
 ```java
 // Attempt to the kerb server.
 KerbClient client = new KerbClient(...);
