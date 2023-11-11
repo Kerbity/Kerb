@@ -34,7 +34,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.github.minemaniauk.kerb.Main</mainClass>
+              <mainClass>com.github.kerbity.kerb.Main</mainClass>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
           </archive>
