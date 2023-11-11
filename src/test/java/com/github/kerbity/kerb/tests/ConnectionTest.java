@@ -43,14 +43,14 @@ public class ConnectionTest {
         Server server = ServerCreator.createAndStart();
 
         // Wait for server to load.
-        Thread.sleep(1000);
+        Thread.sleep(200);
 
         // Create a client connection.
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
         client.connect();
 
         // Wait for validation.
-        Thread.sleep(1000);
+        Thread.sleep(200);
 
         new ResultChecker()
                 .expect(client.isValid());
@@ -62,14 +62,14 @@ public class ConnectionTest {
         Server server = ServerCreator.createAndStart();
 
         // Wait for server to load.
-        Thread.sleep(1000);
+        Thread.sleep(200);
 
         // Create a client connection.
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
         client.connect();
 
         // Wait for validation.
-        Thread.sleep(1000);
+        Thread.sleep(200);
 
         // Set up the flag.
         AtomicBoolean flag = new AtomicBoolean(false);
@@ -83,7 +83,7 @@ public class ConnectionTest {
         client.callEvent(new PingEvent("Test"));
 
         // Wait for event.
-        Thread.sleep(1000);
+        Thread.sleep(200);
 
         // Expect the ping event to change the flag.
         new ResultChecker()

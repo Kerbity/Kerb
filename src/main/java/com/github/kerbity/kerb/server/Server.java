@@ -201,6 +201,26 @@ public class Server {
     }
 
     /**
+     * Used to check if a client is blocked from the server.
+     *
+     * @param client The instance of a client's socket.
+     * @return True if they are blocked.
+     */
+    public boolean isBlocked(@NotNull Socket client) {
+        if (!this.configuration.getBoolean("block_other_connections", false)) return false;
+
+        // Check if the address is listed.
+        for (String address : this.configuration.getSection("names").getKeys()) {
+            if (address.contains(client.getInetAddress()
+                    .getHostAddress()
+                    .replace(".", "-"))) return false;
+        }
+
+        // Otherwise, it is blocked.
+        return true;
+    }
+
+    /**
      * Used to start this instance of the server.
      * <ul>
      *     <li>This will run on the main thread.</li>
@@ -268,6 +288,13 @@ public class Server {
                 // Create an extensions of the logger.
                 Logger clientLogger = this.logger.createExtension("[&r" + this.getClientName(client) + "&7] ");
 
+                // Check if the client is blocked.
+                if (this.isBlocked(client)) {
+                    clientLogger.log("Tried to connect but is blocked.");
+                    client.close();
+                    continue;
+                }
+
                 // Create the client thread.
                 ServerConnection serverThread = new ServerConnection(this, client, clientLogger);
 
@@ -276,8 +303,7 @@ public class Server {
                 clientLogger.log("&eConnected to the server, waiting for validation. {clients: " + this.getSize() + "}");
 
                 // Thread the client loop.
-                Thread thread = new Thread(serverThread::start);
-                thread.start();
+                new Thread(serverThread::start).start();
 
             } catch (IOException exception) {
                 this.logger.warn("Exception occurred while attempting to accept a client connection.");

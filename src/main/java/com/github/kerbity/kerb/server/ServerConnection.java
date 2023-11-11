@@ -211,6 +211,7 @@ public class ServerConnection extends Connection {
             if (this.getSocket() == null || this.getSocket().isClosed()) {
                 this.running = false;
                 this.server.remove(this);
+                this.logger.log("Already disconnected.");
                 return;
             }
 

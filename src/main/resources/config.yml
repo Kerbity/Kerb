@@ -7,14 +7,25 @@
 #
 # Author: Smuddgge
 
+# The server's port.
 port: 5000
+
+# The path to the server certificate.
 server_certificate_path: "server.p12"
+
+# The path to the client certificate.
 client_certificate_path: "client.p12"
+
+# The password to log in to the server and
+# also access the certificates.
 password: "123"
 
 # The amount of seconds the server should expect
 # to validate the client within.
 timeout: 5
+
+# Weather IPs that are not in the list should be blocked.
+block_other_connections: false
 
 # The list of names for ip addresses.
 names:
