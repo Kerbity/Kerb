@@ -20,9 +20,10 @@
 
 package com.github.minemaniauk.kerb.event.event;
 
+import com.github.minemaniauk.kerb.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-public class PingEvent2 {
+public class PingEvent2 implements Event {
 
     private final @NotNull String serverName;
 

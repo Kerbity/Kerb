@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
+import java.util.Arrays;
 
 /**
  * Represents a connection from a
@@ -167,18 +168,18 @@ public class ServerConnection extends Connection {
 
             // Generate the salt.
             // This will be used to encrypt the password.
-            String salt = PasswordEncryption.createSalt();
+            byte[] salt = PasswordEncryption.createSalt();
             if (this.getDebugMode()) this.logger.log("[DEBUG] Created salt: " + salt);
 
             // Send the salt so the client can encrypt the password.
             this.send(salt);
 
             // Read the encrypted password.
-            String password = this.read();
+            byte[] password = this.readBytes();
             if (this.getSocket() == null || this.getSocket().isClosed()) return false;
 
             // Check if the password is incorrect.
-            if (!password.equals(this.server.getHashedPassword(salt))) {
+            if (!Arrays.equals(password, this.server.getHashedPassword(salt))) {
                 this.logger.log("Disconnecting client due to password being incorrect.");
                 this.send("0");
                 this.disconnect();

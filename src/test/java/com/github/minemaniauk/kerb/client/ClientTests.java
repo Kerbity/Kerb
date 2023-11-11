@@ -20,7 +20,9 @@
 
 package com.github.minemaniauk.kerb.client;
 
+import com.github.minemaniauk.kerb.event.Event;
 import com.github.minemaniauk.kerb.event.event.PingEvent;
+import com.github.minemaniauk.kerb.event.event.PingEvent2;
 
 public class ClientTests {
 
@@ -30,11 +32,15 @@ public class ClientTests {
 
         Thread.sleep(1000);
 
-        client.registerListener((Listener<PingEvent>) event -> {
+        client.registerListener((EventListener<PingEvent>) event -> {
             String serverName = event.getServerName();
             System.out.println(serverName);
         });
 
-        client.callEvent(new PingEvent("Joshua's Computer"));
+        client.registerListener((EventListener<PingEvent2>) event -> {
+            System.out.println("ping 2");
+        });
+
+        client.callEvent(new PingEvent2("Joshua's Computer"));
     }
 }

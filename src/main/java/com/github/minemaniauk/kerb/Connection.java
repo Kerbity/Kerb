@@ -103,6 +103,23 @@ public abstract class Connection {
     }
 
     /**
+     * Used to send an array of bytes though the socket.
+     *
+     * @param byteArray The byte array.
+     */
+    public void send(byte[] byteArray) {
+        if (this.socket == null) return;
+        if (this.socket.isClosed()) return;
+
+        StringBuilder builder = new StringBuilder();
+        for (byte item : byteArray) {
+            builder.append(item).append(",");
+        }
+        this.send(builder.toString());
+        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + builder + "\"}");
+    }
+
+    /**
      * Used to read a line from the socket.
      * If there are no lines it will wait
      * till a line is written.
@@ -117,6 +134,24 @@ public abstract class Connection {
         String data = this.bufferedReader.readLine();
         if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + data + "\"}");
         return data;
+    }
+
+    public byte[] readBytes() throws IOException {
+        if (socket == null) return null;
+        if (socket.isClosed()) return null;
+
+        String byteListString = this.read();
+
+        byte[] byteList = new byte[byteListString.split(",").length];
+
+        int index = 0;
+        for (String byteString : byteListString.split(",")) {
+            byteList[index] = Byte.parseByte(byteString);
+            index++;
+        }
+
+        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + byteList + "\"}");
+        return byteList;
     }
 
     /**

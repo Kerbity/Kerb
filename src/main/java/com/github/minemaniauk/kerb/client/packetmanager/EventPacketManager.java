@@ -20,8 +20,8 @@
 
 package com.github.minemaniauk.kerb.client.packetmanager;
 
+import com.github.minemaniauk.kerb.client.EventListener;
 import com.github.minemaniauk.kerb.client.KerbClient;
-import com.github.minemaniauk.kerb.client.Listener;
 import com.github.minemaniauk.kerb.event.Event;
 import com.github.minemaniauk.kerb.packet.Packet;
 import com.github.minemaniauk.kerb.packet.PacketManager;
@@ -62,7 +62,7 @@ public class EventPacketManager implements PacketManager {
             }
 
             // Loop though all listeners.
-            for (Listener<?> listener : this.client.getListeners()) {
+            for (EventListener<?> listener : this.client.getListeners()) {
                 listener.runIfCorrectEvent((Event) eventObject);
             }
 

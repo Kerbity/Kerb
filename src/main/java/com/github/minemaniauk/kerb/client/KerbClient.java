@@ -51,7 +51,7 @@ public class KerbClient extends Connection {
     private boolean isValid;
     private boolean debugMode;
 
-    private @NotNull List<Listener<?>> listenerList;
+    private @NotNull List<EventListener<?>> listenerList;
     private final @NotNull ClientPacketManager packetManager;
 
     /**
@@ -100,7 +100,7 @@ public class KerbClient extends Connection {
      *
      * @return The list of listeners.
      */
-    public List<Listener<?>> getListeners() {
+    public List<EventListener<?>> getListeners() {
         return this.listenerList;
     }
 
@@ -145,7 +145,7 @@ public class KerbClient extends Connection {
      * @param <T>      The type of event to listen for.
      * @return This instance.
      */
-    public <T extends Event> @NotNull KerbClient registerListener(Listener<T> listener) {
+    public <T extends Event> @NotNull KerbClient registerListener(EventListener<T> listener) {
         this.listenerList.add(listener);
         return this;
     }
@@ -157,7 +157,7 @@ public class KerbClient extends Connection {
      * @param <T>      The type of event that was listened to.
      * @return This instance.
      */
-    public <T extends Event> @NotNull KerbClient unregisterListener(Listener<T> listener) {
+    public <T extends Event> @NotNull KerbClient unregisterListener(EventListener<T> listener) {
         this.listenerList.remove(listener);
         return this;
     }
@@ -285,16 +285,11 @@ public class KerbClient extends Connection {
         try {
 
             // Read the salt from the server.
-            String salt = this.read();
+            byte[] salt = this.readBytes();
             if (this.getSocket() == null || this.getSocket().isClosed()) return false;
 
-            // Check if the salt is empty.
-            if (salt.isEmpty()) {
-                return this.validate();
-            }
-
             // Encrypt the password.
-            String encryptedPassword = PasswordEncryption.encrypt(this.password, salt);
+            byte[] encryptedPassword = PasswordEncryption.encrypt(this.password, salt);
 
             // Send the encrypted password back to the server.
             this.send(encryptedPassword);

@@ -21,16 +21,17 @@
 package com.github.minemaniauk.kerb.client;
 
 import com.github.minemaniauk.kerb.event.Event;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an event listener.
  * Used to listen to a specific event.
  * When the event is called it will call the
- * method {@link Listener#runIfCorrectEvent(Event)}.
+ * method {@link EventListener#runIfCorrectEvent(Event)}.
  *
  * @param <T> The event to listen for.
  */
-public interface Listener<T extends Event> {
+public interface EventListener<T extends Event> {
 
     /**
      * Called when the event is received.
@@ -45,10 +46,11 @@ public interface Listener<T extends Event> {
      *
      * @param event The instance of the event.
      */
-    @SuppressWarnings("unchecked")
-    default void runIfCorrectEvent(Event event) {
+    default void runIfCorrectEvent(@NotNull Event event) {
         try {
-            this.onEvent((T) event);
+            if (event != null) {
+                this.onEvent((T) event);
+            }
         } catch (Exception ignored) {
         }
     }

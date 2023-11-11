@@ -89,7 +89,7 @@ public class Server {
      *
      * @return The hashed password.
      */
-    public @NotNull String getHashedPassword(@NotNull String salt) {
+    public byte[] getHashedPassword(byte[] salt) {
         return PasswordEncryption.encrypt(this.password, salt);
     }
 

@@ -42,13 +42,13 @@ public class PasswordEncryption {
      * @param password The instance of the password to hash.
      * @return The requested hash.
      */
-    public static @NotNull String encrypt(@NotNull String password, @NotNull String salt) {
+    public static @NotNull byte[] encrypt(@NotNull String password, @NotNull byte[] salt) {
         try {
 
             // Select the algorithm.
-            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 512);
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 512);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            return new String(factory.generateSecret(spec).getEncoded()).replace("\n", "");
+            return factory.generateSecret(spec).getEncoded();
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException exception) {
             throw new RuntimeException(exception);
@@ -60,10 +60,10 @@ public class PasswordEncryption {
      *
      * @return The new salt.
      */
-    public static String createSalt() {
+    public static byte[] createSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);
-        return new String(salt);
+        return salt;
     }
 }
