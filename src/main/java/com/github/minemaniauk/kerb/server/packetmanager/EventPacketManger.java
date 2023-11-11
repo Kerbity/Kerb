@@ -27,7 +27,8 @@ import com.github.minemaniauk.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a event packet manager.
+ * Represents an event packet manager.
+ * Used to interpret event packets.
  */
 public class EventPacketManger implements PacketManager {
 
@@ -54,6 +55,9 @@ public class EventPacketManger implements PacketManager {
 
         // Loop though all the connections.
         for (ServerConnection serverConnection : this.connection.getServer().getConnectionList()) {
+
+            // Check if the server connection has been validated.
+            if (!serverConnection.isValid()) continue;
 
             // Send the event packet.
             serverConnection.sendData(packet.packet());

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.client;
+package com.github.minemaniauk.kerb.client.listener;
 
 import com.github.minemaniauk.kerb.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -43,14 +43,15 @@ public interface EventListener<T extends Event> {
     /**
      * Used to call this listener with
      * an unspecified type.
+     * If the type is incorrect it will not execute
+     * the listener.
      *
-     * @param event The instance of the event.
+     * @param event The instance of an event.
      */
+    @SuppressWarnings("unchecked")
     default void runIfCorrectEvent(@NotNull Event event) {
         try {
-            if (event != null) {
-                this.onEvent((T) event);
-            }
+            this.onEvent((T) event);
         } catch (Exception ignored) {
         }
     }

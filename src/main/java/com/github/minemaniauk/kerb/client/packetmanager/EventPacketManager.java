@@ -20,8 +20,8 @@
 
 package com.github.minemaniauk.kerb.client.packetmanager;
 
-import com.github.minemaniauk.kerb.client.EventListener;
 import com.github.minemaniauk.kerb.client.KerbClient;
+import com.github.minemaniauk.kerb.client.listener.EventListener;
 import com.github.minemaniauk.kerb.event.Event;
 import com.github.minemaniauk.kerb.packet.Packet;
 import com.github.minemaniauk.kerb.packet.PacketManager;
@@ -36,6 +36,12 @@ public class EventPacketManager implements PacketManager {
 
     private final @NotNull KerbClient client;
 
+    /**
+     * Used to create a new event packet manager.
+     *
+     * @param client The instance of the kerb client
+     *               it will be managing.
+     */
     public EventPacketManager(@NotNull KerbClient client) {
         this.client = client;
     }
@@ -67,6 +73,7 @@ public class EventPacketManager implements PacketManager {
             }
 
         } catch (ClassNotFoundException exception) {
+            this.client.getLogger().warn("Received event packet but the event sent doesnt exist.");
             throw new RuntimeException(exception);
         }
     }

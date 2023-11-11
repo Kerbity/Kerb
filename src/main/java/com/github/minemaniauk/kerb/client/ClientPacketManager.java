@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * Represents the clients packet manager.
+ * Used to interpret packets sent to the client.
  */
 public class ClientPacketManager {
 

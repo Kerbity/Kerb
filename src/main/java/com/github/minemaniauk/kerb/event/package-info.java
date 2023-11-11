@@ -18,23 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.minemaniauk.kerb.client;
-
-import com.github.minemaniauk.kerb.client.listener.EventListener;
-import com.github.minemaniauk.kerb.creator.ClientCreator;
-import com.github.minemaniauk.kerb.event.event.PingEvent;
-
-public class ClientRunner {
-
-    public static void main(String[] args) throws InterruptedException {
-        KerbClient client = ClientCreator.create();
-        client.connect();
-
-        Thread.sleep(1000);
-
-        client.registerListener((EventListener<PingEvent>) event -> {
-            String serverName = event.serverName();
-            System.out.println(serverName);
-        });
-    }
-}
+/**
+ * Contains the event interface and default events.
+ * <ul>
+ *     <li>An event can be sent to the server though a client.</li>
+ *     <li>When the server receives the event, it will send it back to all trusted clients.</li>
+ *     <li>
+ *         When a client receives a event it will check if there are any registered
+ *         listeners for the event and call them.
+ *     </li>
+ * </ul>
+ */
+package com.github.minemaniauk.kerb.event;

@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * Represents a packet of data stored
  * as a map of string to object.
+ * For more infomation on packets see the package info.
  */
 public class Packet extends MemoryConfigurationSection {
 
@@ -120,7 +121,7 @@ public class Packet extends MemoryConfigurationSection {
     }
 
     /**
-     * Used to packet the map into a string.
+     * Used to packet the map into a json string.
      *
      * @return The packet as a string.
      */

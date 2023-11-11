@@ -26,20 +26,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a simple ping event.
  * This is used as an example.
+ *
+ * @param serverName The server that the ping was sent from.
  */
-public class PingEvent implements Event {
-
-    private final @NotNull String serverName;
-
-    /**
-     * Used to create a ping event.
-     *
-     * @param serverName The server that the
-     *                   ping was sent from.
-     */
-    public PingEvent(@NotNull String serverName) {
-        this.serverName = serverName;
-    }
+public record PingEvent(@NotNull String serverName) implements Event {
 
     /**
      * Used to get the name of the server
@@ -47,7 +37,8 @@ public class PingEvent implements Event {
      *
      * @return The name of the server.
      */
-    public @NotNull String getServerName() {
+    @Override
+    public @NotNull String serverName() {
         return this.serverName;
     }
 }

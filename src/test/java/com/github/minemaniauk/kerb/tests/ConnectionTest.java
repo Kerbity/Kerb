@@ -21,8 +21,8 @@
 package com.github.minemaniauk.kerb.tests;
 
 import com.github.minemaniauk.developertools.testing.ResultChecker;
-import com.github.minemaniauk.kerb.client.EventListener;
 import com.github.minemaniauk.kerb.client.KerbClient;
+import com.github.minemaniauk.kerb.client.listener.EventListener;
 import com.github.minemaniauk.kerb.creator.ClientCreator;
 import com.github.minemaniauk.kerb.creator.ServerCreator;
 import com.github.minemaniauk.kerb.event.event.PingEvent;

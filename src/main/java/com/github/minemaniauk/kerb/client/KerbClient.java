@@ -22,6 +22,7 @@ package com.github.minemaniauk.kerb.client;
 
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.minemaniauk.kerb.Connection;
+import com.github.minemaniauk.kerb.client.listener.EventListener;
 import com.github.minemaniauk.kerb.event.Event;
 import com.github.minemaniauk.kerb.packet.Packet;
 import com.github.minemaniauk.kerb.utility.PasswordEncryption;
@@ -83,6 +84,26 @@ public class KerbClient extends Connection {
     @Override
     public boolean getDebugMode() {
         return this.debugMode;
+    }
+
+    /**
+     * Used to get the server port the
+     * client is connected to.
+     *
+     * @return The server's port.
+     */
+    public int getPort() {
+        return this.port;
+    }
+
+    /**
+     * Used to get the server's address the
+     * client is connected to.
+     *
+     * @return The server's address.
+     */
+    public @NotNull String getAddress() {
+        return this.address;
     }
 
     /**

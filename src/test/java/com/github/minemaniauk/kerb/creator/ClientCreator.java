@@ -83,7 +83,7 @@ public class ClientCreator {
      * This will also create the factory if
      * it hasn't yet been created.
      *
-     * @param port The port to connect to.
+     * @param port    The port to connect to.
      * @param address The address to connect to.
      * @return The instance of a new kerb client.
      */

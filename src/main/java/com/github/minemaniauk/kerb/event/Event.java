@@ -26,6 +26,12 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an event.
+ * <ul>
+ *     <li>
+ *         When sent though a client to the server it will be
+ *         then sent to all current trusted connections to the server.
+ *     </li>
+ * </ul>
  */
 public interface Event {
 
