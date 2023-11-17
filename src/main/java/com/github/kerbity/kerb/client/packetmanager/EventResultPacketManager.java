@@ -21,40 +21,51 @@
 package com.github.kerbity.kerb.client.packetmanager;
 
 import com.github.kerbity.kerb.client.KerbClient;
-import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.event.Event;
-import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
+import com.github.kerbity.kerb.result.CompletableResultCollection;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents the event packet manager
- * for the client.
- */
-public class EventPacketManager implements PacketManager {
+public class EventResultPacketManager implements PacketManager {
 
     private final @NotNull KerbClient client;
 
     /**
-     * Used to create a new event packet manager.
+     * Used to create a new event result packet manager.
      *
      * @param client The instance of the kerb client
      *               it will be managing.
      */
-    public EventPacketManager(@NotNull KerbClient client) {
+    public EventResultPacketManager(@NotNull KerbClient client) {
         this.client = client;
     }
 
     @Override
     public @NotNull PacketType getPacketType() {
-        return PacketType.EVENT;
+        return PacketType.EVENT_RESULT;
     }
 
     @Override
     public void interpret(@NotNull Packet packet) {
+
         try {
+
+            // Check if the packet has a sequence identifier.
+            if (packet.getSequenceIdentifier() == null) {
+                this.client.getLogger().warn("Sequence identifier returned null for packet: " + packet);
+                return;
+            }
+
+            // Get the result collection.
+            CompletableResultCollection<?> resultCollection = this.client.getResult(packet.getSequenceIdentifier());
+
+            // Check if the result collection is null.
+            if (resultCollection == null) {
+                this.client.getLogger().warn("Result collection returned null.");
+                return;
+            }
 
             // Get the instance of the event class.
             Class<?> eventClass = Class.forName(packet.getIdentifier());
@@ -68,46 +79,15 @@ public class EventPacketManager implements PacketManager {
                 return;
             }
 
-            // Set the instance.
+            // Attempt to add the result.
+            resultCollection.addAmbiguosResult(event);
 
-            // Loop though low-priority events.
-            for (EventListener<?> listener : this.client.getEventListeners(Priority.LOW)) {
-                if (!listener.isAdaptable(event)) continue;
-                Event result = listener.onEventAdapted(event);
-                if (result == null) continue;
-                event = result;
+            // Check if the result has been completed.
+            if (resultCollection.isComplete()) {
+                this.client.removeResult(packet.getSequenceIdentifier());
             }
 
-            // Loop though med-priority events.
-            for (EventListener<?> listener : this.client.getEventListeners(Priority.MEDIUM)) {
-                if (!listener.isAdaptable(event)) continue;
-                Event result = listener.onEventAdapted(event);
-                if (result == null) continue;
-                event = result;
-            }
-
-            // Loop though high-priority events.
-            for (EventListener<?> listener : this.client.getEventListeners(Priority.HIGH)) {
-                if (!listener.isAdaptable(event)) continue;
-                Event result = listener.onEventAdapted(event);
-                if (result == null) continue;
-                event = result;
-            }
-
-            // Check if the packet target is null.
-            if (packet.getTarget() == null) {
-                this.client.getLogger().warn("Packet's target was null.");
-                return;
-            }
-
-            // Send a result back.
-            this.client.sendPacket(packet
-                    .setType(PacketType.EVENT_RESULT)
-                    .setData(event)
-            );
-
-        } catch (ClassNotFoundException exception) {
-            this.client.getLogger().warn("Received event packet but the event sent doesnt exist.");
+        } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
     }

@@ -26,34 +26,34 @@ import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
-/**
- * Represents an event packet manager.
- * Used to interpret event packets.
- */
-public class EventPacketManger implements PacketManager {
+public class EventResultPacketManager implements PacketManager {
 
     private final @NotNull ServerConnection connection;
 
     /**
-     * used to create an event packet manager.
+     * used to create an event result packet manager.
      *
      * @param connection The instance of the server connection.
      */
-    public EventPacketManger(@NotNull ServerConnection connection) {
+    public EventResultPacketManager(@NotNull ServerConnection connection) {
         this.connection = connection;
     }
 
     @Override
     public @NotNull PacketType getPacketType() {
-        return PacketType.EVENT;
+        return PacketType.EVENT_RESULT;
     }
 
     @Override
     public void interpret(@NotNull Packet packet) {
 
-        this.connection.getLogger().log("&3[Event] " + packet);
+        this.connection.getLogger().log("&3[Event Result] " + packet);
+
+        // Check if the target is not null.
+        if (packet.getTarget() == null) {
+            this.connection.getLogger().warn("Could not send event result back as target was null.");
+            return;
+        }
 
         // Loop though all the connections.
         for (ServerConnection serverConnection : this.connection.getServer().getConnectionList()) {
@@ -64,11 +64,11 @@ public class EventPacketManger implements PacketManager {
             // Check if the socket is still connected.
             if (!this.connection.isConnected()) continue;
 
-            // Send the event packet.
-            serverConnection.sendData(packet
-                    .setTarget(Objects.requireNonNull(this.connection.getTargetIdentifier()))
-                    .packet()
-            );
+            // Check if the target is the same.
+            if (!packet.getTarget().equals(serverConnection.getTargetIdentifier())) continue;
+
+            // Send the event result packet.
+            serverConnection.sendData(packet.packet());
         }
     }
 }

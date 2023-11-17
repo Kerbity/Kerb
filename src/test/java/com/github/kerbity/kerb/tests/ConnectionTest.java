@@ -24,6 +24,7 @@ import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.creator.ClientCreator;
 import com.github.kerbity.kerb.creator.ServerCreator;
+import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.event.event.PingEvent;
 import com.github.kerbity.kerb.server.Server;
 import com.github.minemaniauk.developertools.testing.ResultChecker;
@@ -75,8 +76,9 @@ public class ConnectionTest {
         AtomicBoolean flag = new AtomicBoolean(false);
 
         // Set up an event listener for the ping event.
-        client.registerListener((EventListener<PingEvent>) event -> {
+        client.registerListener(Priority.LOW, (EventListener<PingEvent>) event -> {
             flag.set(true);
+            return event;
         });
 
         // Call the ping event.

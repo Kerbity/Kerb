@@ -20,7 +20,9 @@
 
 package com.github.kerbity.kerb.client;
 
+import com.github.kerbity.kerb.client.packetmanager.ClientAmountPacketManager;
 import com.github.kerbity.kerb.client.packetmanager.EventPacketManager;
+import com.github.kerbity.kerb.client.packetmanager.EventResultPacketManager;
 import com.github.kerbity.kerb.client.packetmanager.ObjectPacketManager;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
@@ -44,7 +46,9 @@ public class ClientPacketManager {
      */
     public ClientPacketManager(@NotNull KerbClient client) {
         this.packetManagerList = new ArrayList<>();
+        this.packetManagerList.add(new ClientAmountPacketManager(client));
         this.packetManagerList.add(new EventPacketManager(client));
+        this.packetManagerList.add(new EventResultPacketManager(client));
         this.packetManagerList.add(new ObjectPacketManager(client));
     }
 

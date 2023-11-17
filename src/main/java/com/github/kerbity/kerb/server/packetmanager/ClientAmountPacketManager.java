@@ -18,39 +18,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.event;
+package com.github.kerbity.kerb.server.packetmanager;
 
-import com.github.kerbity.kerb.indicator.Packable;
 import com.github.kerbity.kerb.packet.Packet;
+import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
+import com.github.kerbity.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents an event.
- * <ul>
- *     <li>
- *         When sent though a client to the server it will be
- *         then sent to all current trusted connections to the server.
- *     </li>
- * </ul>
- */
-public interface Event extends Packable {
+public class ClientAmountPacketManager implements PacketManager {
+
+    private final @NotNull ServerConnection connection;
 
     /**
-     * Used to get the events unique identifier.
-     * This will be the name of the class.
+     * used to create an client amount manager.
      *
-     * @return The event's identifier.
+     * @param connection The instance of the server connection.
      */
-    default @NotNull String getIdentifier() {
-        return this.getClass().getName();
+    public ClientAmountPacketManager(@NotNull ServerConnection connection) {
+        this.connection = connection;
     }
 
     @Override
-    default @NotNull Packet packet() {
-        return new Packet()
-                .setType(PacketType.EVENT)
-                .setIdentifier(this.getIdentifier())
-                .setData(this);
+    public @NotNull PacketType getPacketType() {
+        return PacketType.CLIENT_AMOUNT;
+    }
+
+    @Override
+    public void interpret(@NotNull Packet packet) {
+        this.connection.sendData(packet
+                .setData(this.connection.getServer().getConnectionList().size())
+                .packet()
+        );
     }
 }

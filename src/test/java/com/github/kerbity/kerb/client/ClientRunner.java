@@ -21,9 +21,12 @@
 package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.client.listener.EventListener;
-import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.creator.ClientCreator;
+import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.event.event.PingEvent;
+import com.github.kerbity.kerb.result.CompletableResultCollection;
+
+import java.util.List;
 
 public class ClientRunner {
 
@@ -31,17 +34,18 @@ public class ClientRunner {
         KerbClient client = ClientCreator.create();
         client.connect();
 
-        client.registerListener((EventListener<PingEvent>) event -> {
-            String serverName = event.serverName();
-            System.out.println(serverName);
-        });
-
-        client.registerListener((ObjectListener<String>) string -> {
-            System.out.println(string);
+        client.registerListener(Priority.LOW, (EventListener<PingEvent>) event -> {
+            event.setServerName("reached");
+            return event;
         });
 
         Thread.sleep(1000);
-        client.callEvent(new PingEvent("Computer"));
-        client.callObject("test");
+
+        CompletableResultCollection<PingEvent> resultCollection = client.callEvent(new PingEvent("Computer"));
+        List<PingEvent> result = resultCollection.waitForFinalResult();
+
+        for (PingEvent eventResult : result) {
+            System.out.println(eventResult.getServerName());
+        }
     }
 }

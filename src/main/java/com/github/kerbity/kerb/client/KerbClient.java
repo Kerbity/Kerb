@@ -21,21 +21,24 @@
 package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.Connection;
+import com.github.kerbity.kerb.client.listener.AdaptedEventListener;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.event.Event;
+import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketType;
+import com.github.kerbity.kerb.result.CompletableResultCollection;
 import com.github.kerbity.kerb.utility.PasswordEncryption;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a kerb client.
@@ -54,8 +57,10 @@ public class KerbClient extends Connection {
     private boolean isValid;
     private boolean debugMode;
 
-    private @NotNull List<EventListener<?>> eventListenerList;
-    private final @NotNull List<ObjectListener<?>> objectListenerList;
+    private @NotNull List<@NotNull AdaptedEventListener<?>> eventListenerList;
+    private final @NotNull List<@NotNull ObjectListener<?>> objectListenerList;
+
+    private final @NotNull Map<@NotNull String, @NotNull CompletableResultCollection<?>> resultMap;
 
     private final @NotNull ClientPacketManager packetManager;
 
@@ -83,6 +88,8 @@ public class KerbClient extends Connection {
 
         this.eventListenerList = new ArrayList<>();
         this.objectListenerList = new ArrayList<>();
+
+        this.resultMap = new HashMap<>();
 
         this.packetManager = new ClientPacketManager(this);
     }
@@ -127,8 +134,24 @@ public class KerbClient extends Connection {
      *
      * @return The list of listeners.
      */
-    public @NotNull List<EventListener<?>> getEventListeners() {
+    public @NotNull List<AdaptedEventListener<?>> getEventListeners() {
         return this.eventListenerList;
+    }
+
+    /**
+     * Used to get the list of listeners
+     * registered with this client that are
+     * of a certain priority.
+     *
+     * @param priority The priority to get.
+     * @return The requested list of listeners.
+     */
+    public @NotNull List<EventListener<?>> getEventListeners(@NotNull Priority priority) {
+        List<EventListener<?>> list = new ArrayList<>();
+        for (AdaptedEventListener<?> eventListener : this.getEventListeners()) {
+            if (eventListener.getPriority() == priority) list.add(eventListener);
+        }
+        return list;
     }
 
     /**
@@ -139,6 +162,50 @@ public class KerbClient extends Connection {
      */
     public @NotNull List<ObjectListener<?>> getObjectListeners() {
         return this.objectListenerList;
+    }
+
+    /**
+     * Used to get the result from the sequence identifier.
+     *
+     * @param sequenceIdentifier The sequence identifier.
+     * @return The requested completable result collection.
+     */
+    public @Nullable CompletableResultCollection<?> getResult(@NotNull String sequenceIdentifier) {
+        return this.resultMap.get(sequenceIdentifier);
+    }
+
+    /**
+     * Used to remove a result from the result map.
+     *
+     * @param sequenceIdentifier The instance of the sequence identifier.
+     * @return This instance.
+     */
+    public @NotNull KerbClient removeResult(@NotNull String sequenceIdentifier) {
+        this.resultMap.remove(sequenceIdentifier);
+        return this;
+    }
+
+    /**
+     * Used to get the number of clients connected to the server.
+     *
+     * @return The number of clients connected to the server.
+     */
+    public CompletableResultCollection<Integer> getAmountOfClients() {
+
+        // Create a new sequence identifier.
+        String sequenceIdentifier = UUID.randomUUID().toString();
+
+        // Send packet.
+        this.send(new Packet()
+                .setType(PacketType.CLIENT_AMOUNT)
+                .setSequenceIdentifier(sequenceIdentifier)
+                .packet()
+        );
+
+        // Create a result collection.
+        CompletableResultCollection<Integer> resultCollection = new CompletableResultCollection<>(1);
+        this.resultMap.put(sequenceIdentifier, resultCollection);
+        return resultCollection;
     }
 
     /**
@@ -174,6 +241,17 @@ public class KerbClient extends Connection {
     }
 
     /**
+     * Used to send a packet though the socket.
+     *
+     * @param packet The packet to send.
+     * @return This isntance.
+     */
+    public @NotNull KerbClient sendPacket(@NotNull Packet packet) {
+        this.send(packet.packet());
+        return this;
+    }
+
+    /**
      * Used to register an event listener.
      * When the specified event is sent from the server
      * it will call the method in the listener.
@@ -182,8 +260,10 @@ public class KerbClient extends Connection {
      * @param <T>      The type of event to listen for.
      * @return This instance.
      */
-    public <T extends Event> @NotNull KerbClient registerListener(@NotNull EventListener<T> listener) {
-        this.eventListenerList.add(listener);
+    public <T extends Event> @NotNull KerbClient registerListener(@NotNull Priority priority, @NotNull EventListener<T> listener) {
+        this.eventListenerList.add(new AdaptedEventListener<>(listener)
+                .setPriority(priority)
+        );
         return this;
     }
 
@@ -229,9 +309,28 @@ public class KerbClient extends Connection {
      * @param event The instance of an event.
      * @return This instance.
      */
-    public @NotNull KerbClient callEvent(Event event) {
-        this.send(event.packet().packet());
-        return this;
+    public @NotNull <T extends Event> CompletableResultCollection<T> callEvent(T event) {
+
+        // Create a new sequence identifier.
+        String sequenceIdentifier = UUID.randomUUID().toString();
+
+        Integer amount = this.getAmountOfClients().waitForFirst();
+
+        // Check if the amount is null.
+        if (amount == null) {
+            throw new RuntimeException("Amount of clients returned null when calling an event.");
+        }
+
+        // Create a new completable result collection.
+        CompletableResultCollection<T> resultCollection = new CompletableResultCollection<>(amount);
+        this.resultMap.put(sequenceIdentifier, resultCollection);
+
+        // Send the event packet.
+        this.send(event.packet()
+                .setSequenceIdentifier(sequenceIdentifier)
+                .packet());
+
+        return resultCollection;
     }
 
     /**

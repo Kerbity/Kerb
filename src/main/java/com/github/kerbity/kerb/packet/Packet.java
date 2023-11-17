@@ -71,6 +71,25 @@ public class Packet extends MemoryConfigurationSection {
     }
 
     /**
+     * Used to get the sequence identifier.
+     * This keeps similar event calls seperated.
+     *
+     * @return The sequence identifier.
+     */
+    public @Nullable String getSequenceIdentifier() {
+        return this.getString("sequence_identifier", null);
+    }
+
+    /**
+     * Used to get the raw data.
+     *
+     * @return Teh rew data.
+     */
+    public @Nullable String getData() {
+        return this.getString("data");
+    }
+
+    /**
      * Used to get the data as a class.
      *
      * @param clazz The instance of the class.
@@ -80,6 +99,19 @@ public class Packet extends MemoryConfigurationSection {
     public @Nullable <T> T getData(@NotNull Class<T> clazz) {
         Gson gson = new Gson();
         return gson.fromJson(this.getString("data"), clazz);
+    }
+
+    /**
+     * Used to get the details of the target.
+     * The details of the target.
+     * <ul>
+     *     <li>address:port</li>
+     * </ul>
+     *
+     * @return The details of the target.
+     */
+    public @Nullable String getTarget() {
+        return this.getString("target", null);
     }
 
     /**
@@ -108,6 +140,18 @@ public class Packet extends MemoryConfigurationSection {
     }
 
     /**
+     * Used to set the sequence identifier.
+     * Used to keep similar events seperated.
+     *
+     * @param sequenceIdentifier The sequence identifier.
+     * @return This instance.
+     */
+    public @NotNull Packet setSequenceIdentifier(@NotNull String sequenceIdentifier) {
+        this.set("sequence_identifier", sequenceIdentifier);
+        return this;
+    }
+
+    /**
      * Used to set the packet's data.
      * This can be any class object.
      *
@@ -117,6 +161,17 @@ public class Packet extends MemoryConfigurationSection {
     public @NotNull Packet setData(@NotNull Object object) {
         Gson gson = new Gson();
         this.set("data", gson.toJson(object));
+        return this;
+    }
+
+    /**
+     * Used to set the target ip address and port.
+     *
+     * @param targetIdentifier The target identifier.
+     * @return This instance.
+     */
+    public @NotNull Packet setTarget(@NotNull String targetIdentifier) {
+        this.set("target", targetIdentifier);
         return this;
     }
 

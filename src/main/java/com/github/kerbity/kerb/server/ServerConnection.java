@@ -26,6 +26,7 @@ import com.github.kerbity.kerb.utility.PasswordEncryption;
 import com.github.kerbity.kerb.utility.ThreadUtility;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -85,12 +86,54 @@ public class ServerConnection extends Connection {
     }
 
     /**
+     * Used to get the client's address.
+     *
+     * @return The client's address.
+     */
+    public @Nullable String getAddress() {
+        if (this.getSocket() == null) return null;
+        return this.getSocket().getInetAddress().getHostAddress();
+    }
+
+    /**
+     * Used to get the client's port.
+     * This could return -1 if the socket is null.
+     *
+     * @return The client's port.
+     */
+    public int getPort() {
+        if (this.getSocket() == null) return -1;
+        return this.getSocket().getPort();
+    }
+
+    /**
+     * Used to get the target identifier that
+     * represents this client.
+     *
+     * @return The target identifier.
+     */
+    public @Nullable String getTargetIdentifier() {
+        if (this.getAddress() == null || this.getPort() == -1) return null;
+        return this.getAddress() + ":" + this.getPort();
+    }
+
+    /**
      * Used to check if the connection loop is running.
      *
      * @return True if the connection loop is running.
      */
     public boolean isRunning() {
         return this.running;
+    }
+
+    /**
+     * Used to check if the socket is still connected.
+     *
+     * @return True if the socket is still connected.
+     */
+    public boolean isConnected() {
+        if (this.getSocket() == null) return false;
+        return this.getSocket().isConnected();
     }
 
     /**

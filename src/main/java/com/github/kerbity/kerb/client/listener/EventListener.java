@@ -22,37 +22,57 @@ package com.github.kerbity.kerb.client.listener;
 
 import com.github.kerbity.kerb.event.Event;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an event listener.
  * Used to listen to a specific event.
  * When the event is called it will call the
- * method {@link EventListener#runIfCorrectEvent(Event)}.
+ * method {@link EventListener#onEventAdapted(Event)}.
  *
  * @param <T> The event to listen for.
  */
 public interface EventListener<T extends Event> {
 
+
     /**
      * Called when the event is received.
      *
      * @param event The instance of the event.
+     * @return The instance of the modified or unmodified event.
+     * You can also return null.
      */
-    void onEvent(T event);
+    @Nullable Event onEvent(T event);
 
     /**
-     * Used to call this listener with
-     * an unspecified type.
-     * If the type is incorrect it will not execute
-     * the listener.
+     * Used to adapt the event to this event.
      *
-     * @param event The instance of an event.
+     * @param event The instance of the event to adapt.
+     * @return Null if the event was not the correct type.
      */
     @SuppressWarnings("unchecked")
-    default void runIfCorrectEvent(@NotNull Event event) {
+    default boolean isAdaptable(@NotNull Event event) {
         try {
-            this.onEvent((T) event);
+            T adapted = (T) event;
+            return true;
         } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /**
+     * Used to adapt the event and run on event.
+     *
+     * @param event The instance of the event.
+     * @return The instance of the modified or unmodified event.
+     * You can also return null.
+     */
+    @SuppressWarnings("unchecked")
+    default @Nullable Event onEventAdapted(Event event) {
+        try {
+            return this.onEvent((T) event);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 }

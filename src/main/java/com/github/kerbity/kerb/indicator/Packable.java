@@ -18,39 +18,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.event;
+package com.github.kerbity.kerb.indicator;
 
-import com.github.kerbity.kerb.indicator.Packable;
 import com.github.kerbity.kerb.packet.Packet;
-import com.github.kerbity.kerb.packet.PacketType;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an event.
- * <ul>
- *     <li>
- *         When sent though a client to the server it will be
- *         then sent to all current trusted connections to the server.
- *     </li>
- * </ul>
+ * Indicates if a class is able to
+ * be turned into a packet.
  */
-public interface Event extends Packable {
+public interface Packable {
 
     /**
-     * Used to get the events unique identifier.
-     * This will be the name of the class.
+     * Used to turn a class into a packet.
      *
-     * @return The event's identifier.
+     * @return The instance of the packet.
      */
-    default @NotNull String getIdentifier() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    default @NotNull Packet packet() {
-        return new Packet()
-                .setType(PacketType.EVENT)
-                .setIdentifier(this.getIdentifier())
-                .setData(this);
-    }
+    @NotNull Packet packet();
 }

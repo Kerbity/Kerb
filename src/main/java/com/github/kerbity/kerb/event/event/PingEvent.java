@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PingEvent implements Event {
 
-    private final @NotNull String serverName;
+    private @NotNull String serverName;
 
     /**
      * Used to create a ping event.
@@ -46,7 +46,18 @@ public class PingEvent implements Event {
      *
      * @return The name of the server.
      */
-    public @NotNull String serverName() {
+    public @NotNull String getServerName() {
         return this.serverName;
+    }
+
+    /**
+     * Used to set the name of the server.
+     *
+     * @param serverName The name of the server.
+     * @return The instance of the event.
+     */
+    public @NotNull PingEvent setServerName(@NotNull String serverName) {
+        this.serverName = serverName;
+        return this;
     }
 }
