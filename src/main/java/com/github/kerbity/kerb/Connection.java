@@ -20,6 +20,7 @@
 
 package com.github.kerbity.kerb;
 
+import com.github.kerbity.kerb.task.TaskContainer;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,7 @@ import java.security.cert.CertificateException;
 /**
  * Represents a connection to a socket.
  */
-public abstract class Connection {
+public abstract class Connection extends TaskContainer {
 
     private @Nullable Socket socket;
     private @NotNull Logger logger;

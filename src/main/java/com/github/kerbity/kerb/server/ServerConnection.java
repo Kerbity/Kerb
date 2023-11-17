@@ -21,9 +21,8 @@
 package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
+import com.github.kerbity.kerb.PasswordEncryption;
 import com.github.kerbity.kerb.packet.Packet;
-import com.github.kerbity.kerb.utility.PasswordEncryption;
-import com.github.kerbity.kerb.utility.ThreadUtility;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +36,9 @@ import java.util.Arrays;
  * Represents a connection from a
  * client to the server.
  */
-public class ServerConnection extends Connection {
+public class ServerConnection extends Connection implements PasswordEncryption {
+
+    private static final @NotNull String TIME_OUT_IDENTIFIER;
 
     private boolean running;
     private boolean isValid;
@@ -200,13 +201,15 @@ public class ServerConnection extends Connection {
     }
 
     private void startTimeOutChecker() {
-        ThreadUtility.scheduleTask(Duration.ofSeconds(this.server.getTimeOut()), () -> {
+
+        // Run a task in the future.
+        this.runTask(() -> {
             if (this.getSocket() == null || this.getSocket().isClosed()) return;
             if (this.isValid()) return;
 
             this.logger.log("Connection timed out. Didnt send password quick enough.");
             this.disconnect();
-        });
+        }, Duration.ofSeconds(this.server.getTimeOut()), TIME_OUT_IDENTIFIER);
     }
 
     private boolean validate() {
@@ -217,7 +220,7 @@ public class ServerConnection extends Connection {
 
             // Generate the salt.
             // This will be used to encrypt the password.
-            byte[] salt = PasswordEncryption.createSalt();
+            byte[] salt = this.createSalt();
             if (this.getDebugMode()) this.logger.log("[DEBUG] Created salt: " + salt);
 
             // Send the salt so the client can encrypt the password.
@@ -264,6 +267,9 @@ public class ServerConnection extends Connection {
             this.getSocket().close();
             this.server.remove(this);
             this.logger.log("Disconnected.");
+
+            // Stop all tasks.
+            this.stopAllTasks();
 
         } catch (IOException exception) {
             this.logger.warn("Exception occurred while disconnecting a client.");

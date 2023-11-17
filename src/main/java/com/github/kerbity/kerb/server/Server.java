@@ -21,8 +21,8 @@
 package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
+import com.github.kerbity.kerb.PasswordEncryption;
 import com.github.kerbity.kerb.server.command.CommandManager;
-import com.github.kerbity.kerb.utility.PasswordEncryption;
 import com.github.minemaniauk.developertools.console.Console;
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * Represents the server.
  */
-public class Server {
+public class Server implements PasswordEncryption {
 
     private boolean running;
     private boolean debugMode;
@@ -108,7 +108,7 @@ public class Server {
      * @return The hashed password.
      */
     public byte[] getHashedPassword(byte[] salt) {
-        return PasswordEncryption.encrypt(this.password, salt);
+        return this.encrypt(this.password, salt);
     }
 
     /**

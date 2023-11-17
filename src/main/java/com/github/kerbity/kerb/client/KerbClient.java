@@ -21,6 +21,7 @@
 package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.Connection;
+import com.github.kerbity.kerb.PasswordEncryption;
 import com.github.kerbity.kerb.client.listener.AdaptedEventListener;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.client.listener.ObjectListener;
@@ -29,7 +30,6 @@ import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.result.CompletableResultCollection;
-import com.github.kerbity.kerb.utility.PasswordEncryption;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +44,7 @@ import java.util.*;
  * Represents a kerb client.
  * Used to connect to a Kerb server.
  */
-public class KerbClient extends Connection {
+public class KerbClient extends Connection implements PasswordEncryption {
 
     private final int port;
     private final @NotNull String address;
@@ -456,7 +456,7 @@ public class KerbClient extends Connection {
             if (this.getSocket() == null || this.getSocket().isClosed()) return false;
 
             // Encrypt the password.
-            byte[] encryptedPassword = PasswordEncryption.encrypt(this.password, salt);
+            byte[] encryptedPassword = this.encrypt(this.password, salt);
 
             // Send the encrypted password back to the server.
             this.send(encryptedPassword);

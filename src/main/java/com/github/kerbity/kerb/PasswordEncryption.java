@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.utility;
+package com.github.kerbity.kerb;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,19 +30,19 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 /**
- * Represents the password encryption utility.
- * This class contains method used to
+ * Represents the password encryption interface.
+ * This class contains methods used to
  * encrypt the password.
  */
-public class PasswordEncryption {
+public interface PasswordEncryption {
 
     /**
-     * Used to encrypt a password using sha-512.
+     * Used to encrypt a password using PBKDF2.
      *
      * @param password The instance of the password to hash.
      * @return The requested hash.
      */
-    public static @NotNull byte[] encrypt(@NotNull String password, @NotNull byte[] salt) {
+    default byte @NotNull [] encrypt(@NotNull String password, byte @NotNull [] salt) {
         try {
 
             // Select the algorithm.
@@ -60,7 +60,7 @@ public class PasswordEncryption {
      *
      * @return The new salt.
      */
-    public static byte[] createSalt() {
+    default byte[] createSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);
