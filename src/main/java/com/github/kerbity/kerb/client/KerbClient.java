@@ -199,7 +199,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
         this.send(new Packet()
                 .setType(PacketType.CLIENT_AMOUNT)
                 .setSequenceIdentifier(sequenceIdentifier)
-                .packet()
+                .getPacketString()
         );
 
         // Create a result collection.
@@ -247,7 +247,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
      * @return This isntance.
      */
     public @NotNull KerbClient sendPacket(@NotNull Packet packet) {
-        this.send(packet.packet());
+        this.send(packet.getPacketString());
         return this;
     }
 
@@ -328,7 +328,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
         // Send the event packet.
         this.send(event.packet()
                 .setSequenceIdentifier(sequenceIdentifier)
-                .packet());
+                .getPacketString());
 
         return resultCollection;
     }
@@ -359,7 +359,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
         packet.setData(object);
 
         // Send the packet.
-        this.send(packet.packet());
+        this.send(packet.getPacketString());
         return this;
     }
 

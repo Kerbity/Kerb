@@ -26,12 +26,16 @@ import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the client amount packet manager.
+ * Used to get the number of clients currently connected to the server.
+ */
 public class ClientAmountPacketManager implements PacketManager {
 
     private final @NotNull ServerConnection connection;
 
     /**
-     * used to create an client amount manager.
+     * used to create a client amount manager.
      *
      * @param connection The instance of the server connection.
      */
@@ -48,7 +52,7 @@ public class ClientAmountPacketManager implements PacketManager {
     public void interpret(@NotNull Packet packet) {
         this.connection.sendData(packet
                 .setData(this.connection.getServer().getConnectionList().size())
-                .packet()
+                .getPacketString()
         );
     }
 }

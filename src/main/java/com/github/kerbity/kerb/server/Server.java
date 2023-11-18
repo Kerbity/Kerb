@@ -40,6 +40,7 @@ import java.util.List;
 
 /**
  * Represents the server.
+ * Lets clients connect and interact with each other.
  */
 public class Server implements PasswordEncryption {
 
@@ -55,7 +56,6 @@ public class Server implements PasswordEncryption {
     private final @NotNull Logger logger;
     private SSLServerSocket socket;
     private final @NotNull CommandManager commandManager;
-
     private final List<ServerConnection> connectionList;
 
     /**
@@ -80,7 +80,6 @@ public class Server implements PasswordEncryption {
                 .setLogPrefix("&a[Kerb] &7[LOG] ")
                 .setWarnPrefix("&a[Kerb] &e[WARN] ");
         this.commandManager = new CommandManager(this);
-
         this.connectionList = new ArrayList<>();
     }
 
@@ -371,6 +370,12 @@ public class Server implements PasswordEncryption {
         }
     }
 
+    /**
+     * Used to remove a server connection from the servers
+     * registered client list.
+     *
+     * @param serverConnection The instance of the server connection.
+     */
     public void remove(@NotNull ServerConnection serverConnection) {
         this.connectionList.remove(serverConnection);
     }

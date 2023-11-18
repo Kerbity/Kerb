@@ -18,16 +18,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.task;
+package com.github.kerbity.kerb.indicator;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a task that can be run
- * in a {@link TaskContainer}.
+ * Indicates if a class is cancellable.
+ *
+ * @param <T> The instance of the class to return.
  */
-public interface Task {
+public interface Cancellable<T> {
 
     /**
-     * Used to cancel the task.
+     * Used to set weather the class is
+     * cancelled or not.
+     *
+     * @param isCancelled True if the class
+     *                    should be cancelled.
+     * @return The instance of the return type.
      */
-    void cancel();
+    @NotNull T setCancelled(boolean isCancelled);
+
+    /**
+     * Used to check if the class was cancelled.
+     *
+     * @return True if the class was cancelled.
+     */
+    boolean isCancelled();
 }

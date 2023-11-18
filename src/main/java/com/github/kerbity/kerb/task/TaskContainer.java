@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a task container.
+ * This can be implemented to run tasks in the class instance.
  */
 public class TaskContainer {
 

@@ -18,16 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.task;
-
 /**
- * Represents a task that can be run
- * in a {@link TaskContainer}.
+ * The indicators that can be used in classes.
+ * Indicators indicate that certain methods will
+ * be contained in the class.
  */
-public interface Task {
-
-    /**
-     * Used to cancel the task.
-     */
-    void cancel();
-}
+package com.github.kerbity.kerb.indicator;

@@ -18,16 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.task;
-
 /**
- * Represents a task that can be run
- * in a {@link TaskContainer}.
+ * Contains the software default events.
  */
-public interface Task {
-
-    /**
-     * Used to cancel the task.
-     */
-    void cancel();
-}
+package com.github.kerbity.kerb.event.event;

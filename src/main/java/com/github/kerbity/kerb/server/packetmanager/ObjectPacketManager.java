@@ -26,6 +26,11 @@ import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the object packet manager.
+ * Used to handle objects sent to the server from clients.
+ * These objects will then be sent to all clients.
+ */
 public class ObjectPacketManager implements PacketManager {
 
     private final @NotNull ServerConnection connection;
@@ -56,7 +61,7 @@ public class ObjectPacketManager implements PacketManager {
             if (!serverConnection.isValid()) continue;
 
             // Send the event packet.
-            serverConnection.sendData(packet.packet());
+            serverConnection.sendData(packet.getPacketString());
         }
     }
 }

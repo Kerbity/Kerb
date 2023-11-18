@@ -21,6 +21,7 @@
 package com.github.kerbity.kerb.result;
 
 import com.github.kerbity.kerb.datatype.Ratio;
+import com.github.kerbity.kerb.indicator.Cancellable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,13 +36,14 @@ import java.util.List;
  *
  * @param <T> The type of result.
  */
-public class CompletableResultCollection<T> {
+public class CompletableResultCollection<T> implements Cancellable<CompletableResultCollection<T>> {
 
     private static final int LOCK_TIME_MILLS = 100;
 
     private final @NotNull List<T> result;
     private final int size;
     private boolean isComplete;
+    private boolean isCancelled;
 
     /**
      * Used to create a completable
@@ -54,6 +56,7 @@ public class CompletableResultCollection<T> {
         this.result = new ArrayList<>();
         this.size = size;
         this.isComplete = false;
+        this.isCancelled = false;
     }
 
     /**
@@ -164,16 +167,16 @@ public class CompletableResultCollection<T> {
         while ((!this.isComplete() || this.containsNonNull())) {
             try {
                 Thread.sleep(LOCK_TIME_MILLS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
             }
         }
 
-        for (T t : this.result) {
-            if (t == null) continue;
-            return t;
+        // Attempt to find the first non-null result.
+        for (T result : this.result) {
+            if (result == null) continue;
+            return result;
         }
-
         return null;
     }
 
@@ -210,6 +213,14 @@ public class CompletableResultCollection<T> {
         return this;
     }
 
+    /**
+     * Used to add a result that may not be the correct type.
+     * If the result is not the correct type, nothing will happen.
+     *
+     * @param result The instance of the result.
+     * @return This instance.
+     */
+    @SuppressWarnings("unchecked")
     public @NotNull CompletableResultCollection<T> addAmbiguosResult(@Nullable Object result) {
         try {
             this.addResult((T) result);
@@ -255,6 +266,12 @@ public class CompletableResultCollection<T> {
         return false;
     }
 
+    /**
+     * Used to attempt to create an instance
+     * of the generic.
+     *
+     * @return A new instance of the generic.
+     */
     @SuppressWarnings("all")
     public @NotNull T createGeneric() {
         try {
@@ -267,5 +284,38 @@ public class CompletableResultCollection<T> {
         } catch (InstantiationException | IllegalAccessException exception) {
             throw new RuntimeException("Unable to create new generic for result collection.");
         }
+    }
+
+    /**
+     * Used to set if the results should be perceived as cancelled.
+     * This will not stop new results from appearing.
+     *
+     * @param isCancelled True if the results should be
+     *                    perceived as cancelled.
+     * @return This instance.
+     */
+    @Override
+    public @NotNull CompletableResultCollection<T> setCancelled(boolean isCancelled) {
+        this.isCancelled = isCancelled;
+        return this;
+    }
+
+    /**
+     * Used to check if at least 1 result was
+     * rendered as cancelled.
+     *
+     * @return True if cancelled.
+     */
+    @Override
+    public boolean isCancelled() {
+
+        // Check if a result has been canceled.
+        for (T result : this.result) {
+            if (!(result instanceof Cancellable<?> cancellable)) continue;
+            if (cancellable.isCancelled()) return true;
+        }
+
+        // Return if all results should be rendered as canceled.
+        return this.isCancelled;
     }
 }

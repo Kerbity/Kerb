@@ -24,10 +24,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents all the packet types.
+ * Represents all the packet types that can be sent.
  */
 public enum PacketType {
-    EVENT("event"), OBJECT("object"), EVENT_RESULT("event_result"), CLIENT_AMOUNT("client_amount");
+    EVENT("event"),
+    EVENT_RESULT("event_result"),
+    OBJECT("object"),
+    CLIENT_AMOUNT("client_amount");
 
     private final @NotNull String identifier;
 

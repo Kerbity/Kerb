@@ -67,7 +67,7 @@ public class EventPacketManger implements PacketManager {
             // Send the event packet.
             serverConnection.sendData(packet
                     .setTarget(Objects.requireNonNull(this.connection.getTargetIdentifier()))
-                    .packet()
+                    .getPacketString()
             );
         }
     }

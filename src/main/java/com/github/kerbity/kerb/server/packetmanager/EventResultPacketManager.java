@@ -26,6 +26,10 @@ import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the event result packet manager.
+ * Used to handle event results sent from the clients.
+ */
 public class EventResultPacketManager implements PacketManager {
 
     private final @NotNull ServerConnection connection;
@@ -68,7 +72,7 @@ public class EventResultPacketManager implements PacketManager {
             if (!packet.getTarget().equals(serverConnection.getTargetIdentifier())) continue;
 
             // Send the event result packet.
-            serverConnection.sendData(packet.packet());
+            serverConnection.sendData(packet.getPacketString());
         }
     }
 }

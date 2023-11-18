@@ -38,7 +38,7 @@ import java.util.Arrays;
  */
 public class ServerConnection extends Connection implements PasswordEncryption {
 
-    private static final @NotNull String TIME_OUT_IDENTIFIER;
+    private static final @NotNull String TIME_OUT_IDENTIFIER = "time_out";
 
     private boolean running;
     private boolean isValid;
@@ -157,6 +157,11 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         this.send(data);
     }
 
+    /**
+     * Used to start the server connection loop.
+     * This should be contained within a thread, otherwise other
+     * procsesses will stop when this connection is waiting.
+     */
     public void start() {
         this.running = true;
         this.isValid = false;

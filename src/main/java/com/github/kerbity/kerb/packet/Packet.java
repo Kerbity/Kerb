@@ -53,6 +53,16 @@ public class Packet extends MemoryConfigurationSection {
     }
 
     /**
+     * Used to packet the map into a json string.
+     *
+     * @return The packet as a string.
+     */
+    public @NotNull String getPacketString() {
+        Gson gson = new Gson();
+        return gson.toJson(this.data);
+    }
+
+    /**
      * Used to get the type of packet.
      *
      * @return The type of packet.
@@ -173,16 +183,6 @@ public class Packet extends MemoryConfigurationSection {
     public @NotNull Packet setTarget(@NotNull String targetIdentifier) {
         this.set("target", targetIdentifier);
         return this;
-    }
-
-    /**
-     * Used to packet the map into a json string.
-     *
-     * @return The packet as a string.
-     */
-    public @NotNull String packet() {
-        Gson gson = new Gson();
-        return gson.toJson(this.data);
     }
 
     /**

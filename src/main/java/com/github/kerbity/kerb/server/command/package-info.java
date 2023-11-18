@@ -20,5 +20,7 @@
 
 /**
  * Contains classes used to create server commands.
+ * These commands can be run in the console while the
+ * server is running.
  */
 package com.github.kerbity.kerb.server.command;
