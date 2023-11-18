@@ -30,5 +30,22 @@
  *         to create a factory for your client connections.
  *     </li>
  * </ul>
+ * When creating a client there are a few keywords to note.
+ * <ul>
+ *     <li>
+ *         A packet type defines the type of packet that was sent.
+ *         For example this could be an event packet or event result packet.
+ *         Packet types are normally defined for one send and receive to the server.
+ *     </li>
+ *     <li>
+ *         A packet identifier will normally define curial info about the type of the type of packet.
+ *         For example, in the event packet the identifier contains the type of event sent.
+ *     </li>
+ *     <li>
+ *         A sequence identifier is used to define a cycle that will eventually return a result.
+ *         When an event is sent a event result is sent back from the clients.
+ *         These will both have the same sequence identifier as they are in the same sequence.
+ *     </li>
+ * </ul>
  */
 package com.github.kerbity.kerb.client;

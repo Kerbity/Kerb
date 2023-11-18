@@ -27,6 +27,10 @@ import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the object packet manager.
+ * Used to handle object packets when sent to the client.
+ */
 public class ObjectPacketManager implements PacketManager {
 
     private final @NotNull KerbClient client;

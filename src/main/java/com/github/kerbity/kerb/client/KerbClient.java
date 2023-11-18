@@ -22,9 +22,9 @@ package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
-import com.github.kerbity.kerb.client.listener.AdaptedEventListener;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.client.listener.ObjectListener;
+import com.github.kerbity.kerb.client.listener.PriorityEventListener;
 import com.github.kerbity.kerb.event.Event;
 import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
@@ -57,11 +57,9 @@ public class KerbClient extends Connection implements PasswordEncryption {
     private boolean isValid;
     private boolean debugMode;
 
-    private @NotNull List<@NotNull AdaptedEventListener<?>> eventListenerList;
+    private @NotNull List<@NotNull PriorityEventListener<?>> eventListenerList;
     private final @NotNull List<@NotNull ObjectListener<?>> objectListenerList;
-
     private final @NotNull Map<@NotNull String, @NotNull CompletableResultCollection<?>> resultMap;
-
     private final @NotNull ClientPacketManager packetManager;
 
     /**
@@ -69,8 +67,12 @@ public class KerbClient extends Connection implements PasswordEncryption {
      * You can then use {@link KerbClient#connect()} to
      * attempt connecting to the server.
      *
-     * @param port     The port of the server.
-     * @param password The password to connect to the server.
+     * @param port               The port of the server.
+     * @param address            The servers address.
+     * @param client_certificate The client's certificate.
+     * @param server_certificate The server's certificate.
+     * @param password           The password to connect to the server
+     *                           and open the certificates.
      */
     public KerbClient(int port, @NotNull String address, @NotNull File client_certificate, @NotNull File server_certificate, @NotNull String password) {
         this.port = port;
@@ -88,9 +90,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
 
         this.eventListenerList = new ArrayList<>();
         this.objectListenerList = new ArrayList<>();
-
         this.resultMap = new HashMap<>();
-
         this.packetManager = new ClientPacketManager(this);
     }
 
@@ -134,7 +134,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
      *
      * @return The list of listeners.
      */
-    public @NotNull List<AdaptedEventListener<?>> getEventListeners() {
+    public @NotNull List<PriorityEventListener<?>> getEventListeners() {
         return this.eventListenerList;
     }
 
@@ -148,7 +148,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
      */
     public @NotNull List<EventListener<?>> getEventListeners(@NotNull Priority priority) {
         List<EventListener<?>> list = new ArrayList<>();
-        for (AdaptedEventListener<?> eventListener : this.getEventListeners()) {
+        for (PriorityEventListener<?> eventListener : this.getEventListeners()) {
             if (eventListener.getPriority() == priority) list.add(eventListener);
         }
         return list;
@@ -261,7 +261,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
      * @return This instance.
      */
     public <T extends Event> @NotNull KerbClient registerListener(@NotNull Priority priority, @NotNull EventListener<T> listener) {
-        this.eventListenerList.add(new AdaptedEventListener<>(listener)
+        this.eventListenerList.add(new PriorityEventListener<>(listener)
                 .setPriority(priority)
         );
         return this;

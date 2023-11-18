@@ -29,7 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 /**
- * Represents a ratio.
+ * Represents a ratio with two values.
+ * The values are represented by left and right integers.
  */
 public class Ratio implements ConfigurationConvertable<Ratio>, Replicable<Ratio> {
 

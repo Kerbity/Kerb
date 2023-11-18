@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents the event packet manager
  * for the client.
+ * Handles event packets when sent to the client.
  */
 public class EventPacketManager implements PacketManager {
 
@@ -72,7 +73,7 @@ public class EventPacketManager implements PacketManager {
 
             // Loop though low-priority events.
             for (EventListener<?> listener : this.client.getEventListeners(Priority.LOW)) {
-                if (!listener.isAdaptable(event)) continue;
+                if (listener.isNotCastable(event)) continue;
                 Event result = listener.onEventAdapted(event);
                 if (result == null) continue;
                 event = result;
@@ -80,7 +81,7 @@ public class EventPacketManager implements PacketManager {
 
             // Loop though med-priority events.
             for (EventListener<?> listener : this.client.getEventListeners(Priority.MEDIUM)) {
-                if (!listener.isAdaptable(event)) continue;
+                if (listener.isNotCastable(event)) continue;
                 Event result = listener.onEventAdapted(event);
                 if (result == null) continue;
                 event = result;
@@ -88,7 +89,7 @@ public class EventPacketManager implements PacketManager {
 
             // Loop though high-priority events.
             for (EventListener<?> listener : this.client.getEventListeners(Priority.HIGH)) {
-                if (!listener.isAdaptable(event)) continue;
+                if (listener.isNotCastable(event)) continue;
                 Event result = listener.onEventAdapted(event);
                 if (result == null) continue;
                 event = result;

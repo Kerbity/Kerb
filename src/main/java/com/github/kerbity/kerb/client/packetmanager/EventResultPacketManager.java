@@ -28,6 +28,10 @@ import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.result.CompletableResultCollection;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the event result packet manager.
+ * Used to handle event results when sent to the client.
+ */
 public class EventResultPacketManager implements PacketManager {
 
     private final @NotNull KerbClient client;

@@ -31,12 +31,12 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> The type of event to listen for.
  */
-public class AdaptedEventListener<T extends Event> implements EventListener<T> {
+public class PriorityEventListener<T extends Event> implements EventListener<T> {
 
     private final @NotNull EventListener<T> eventListener;
     private @NotNull Priority priority;
 
-    public AdaptedEventListener(@NotNull EventListener<T> eventListener) {
+    public PriorityEventListener(@NotNull EventListener<T> eventListener) {
         this.eventListener = eventListener;
         this.priority = Priority.LOW;
     }
@@ -56,7 +56,7 @@ public class AdaptedEventListener<T extends Event> implements EventListener<T> {
      * @param priority The priority to set the listener.
      * @return This instance.
      */
-    public @NotNull AdaptedEventListener<T> setPriority(@NotNull Priority priority) {
+    public @NotNull PriorityEventListener<T> setPriority(@NotNull Priority priority) {
         this.priority = priority;
         return this;
     }

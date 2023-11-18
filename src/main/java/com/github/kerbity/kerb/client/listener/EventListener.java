@@ -48,15 +48,15 @@ public interface EventListener<T extends Event> {
      * Used to adapt the event to this event.
      *
      * @param event The instance of the event to adapt.
-     * @return Null if the event was not the correct type.
+     * @return True if the event was not the correct type.
      */
-    @SuppressWarnings("unchecked")
-    default boolean isAdaptable(@NotNull Event event) {
+    @SuppressWarnings("all")
+    default boolean isNotCastable(@NotNull Event event) {
         try {
             T adapted = (T) event;
-            return true;
-        } catch (Exception ignored) {
             return false;
+        } catch (Exception ignored) {
+            return true;
         }
     }
 

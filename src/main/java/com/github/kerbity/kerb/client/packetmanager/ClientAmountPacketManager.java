@@ -27,6 +27,11 @@ import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.result.CompletableResultCollection;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Used to handle client amount packets.
+ * These packets are used to request the number of clients
+ * currently connected to the kerb server.
+ */
 public class ClientAmountPacketManager implements PacketManager {
 
     private final @NotNull KerbClient client;
