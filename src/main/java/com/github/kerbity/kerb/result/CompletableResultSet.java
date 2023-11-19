@@ -197,16 +197,16 @@ public class CompletableResultSet<T> {
      * @throws Exception If the result size is already equal or over the complete size.
      *                   If the results have already been completed.
      */
-    public @NotNull CompletableResultSet<T> addResult(@Nullable T result) throws Exception {
+    public @NotNull CompletableResultSet<T> addResult(@Nullable T result) {
 
         // Check if the size is already maxed.
         if (this.result.size() >= this.size) {
-            throw new Exception("Completable result collection is already full.");
+            throw new RuntimeException("Completable result collection is already full.");
         }
 
         // Check if it has already been completed.
         if (this.isComplete) {
-            throw new Exception("Completable result collection has already been completed.");
+            throw new RuntimeException("Completable result collection has already been completed.");
         }
 
         // Add the result.
