@@ -62,6 +62,23 @@ public class CompletableResultSet<T> {
     }
 
     /**
+     * Wait for the results to be completed.
+     *
+     * @return This instance with completed result set.
+     */
+    public @NotNull CompletableResultSet<T> waitForComplete() {
+        while (!this.isComplete()) {
+            try {
+                Thread.sleep(LOCK_TIME_MILLS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return this;
+    }
+
+    /**
      * Used to wait for the final result.
      * This will park the current thread until the
      * full result is completed.
