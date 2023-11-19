@@ -408,4 +408,34 @@ public class CompletableResultSet<T> {
             return null;
         }
     }
+
+    /**
+     * Used to check if the results contain a
+     * settable with a certain value.
+     *
+     * @param pattern The pattern to look for
+     *                in the {@link Settable} class.
+     * @return True if the value exists in the results.
+     * @param <C> The type of settable.
+     */
+    public <C> boolean containsSettable(@NotNull C pattern) {
+
+        // Check if the results contain a settable value
+        // that is the same as the pattern.
+        for (T result : this.result) {
+            if (!(result instanceof Settable<?, ?> settable)) continue;
+
+            Object value = settable.get();
+
+            if (value == null) continue;
+            if (value.equals(pattern)) return true;
+        }
+
+        // Return the default value.
+        try {
+            return (Boolean) this.defaultSettableValue;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
 }
