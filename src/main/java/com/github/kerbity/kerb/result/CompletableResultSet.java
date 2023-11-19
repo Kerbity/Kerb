@@ -415,8 +415,8 @@ public class CompletableResultSet<T> {
      *
      * @param pattern The pattern to look for
      *                in the {@link Settable} class.
+     * @param <C>     The type of settable.
      * @return True if the value exists in the results.
-     * @param <C> The type of settable.
      */
     public <C> boolean containsSettable(@NotNull C pattern) {
 
