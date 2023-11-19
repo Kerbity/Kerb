@@ -25,6 +25,10 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a cancellable event.
+ * Lets you set the event to be canceled when returned as a result.
+ * <ul>
+ *     <li>This won't stop the event being sent to all clients and listeners.</li>
+ * </ul>
  */
 public class CancellableEvent implements Event, Cancellable<CancellableEvent> {
 

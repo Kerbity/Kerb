@@ -22,6 +22,7 @@ package com.github.kerbity.kerb.result;
 
 import com.github.kerbity.kerb.datatype.Ratio;
 import com.github.kerbity.kerb.indicator.Cancellable;
+import com.github.kerbity.kerb.indicator.Completable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,14 +37,15 @@ import java.util.List;
  *
  * @param <T> The type of result.
  */
-public class CompletableResultSet<T> implements Cancellable<CompletableResultSet<T>> {
+public class CompletableResultSet<T> {
 
     private static final int LOCK_TIME_MILLS = 100;
 
     private final @NotNull List<T> result;
     private final int size;
     private boolean isComplete;
-    private boolean isCancelled;
+    private boolean containsCancelled;
+    private boolean containsCompleted;
 
     /**
      * Used to create a completable
@@ -56,7 +58,7 @@ public class CompletableResultSet<T> implements Cancellable<CompletableResultSet
         this.result = new ArrayList<>();
         this.size = size;
         this.isComplete = false;
-        this.isCancelled = false;
+        this.containsCancelled = false;
     }
 
     /**
@@ -295,13 +297,12 @@ public class CompletableResultSet<T> implements Cancellable<CompletableResultSet
      * Used to set if the results should be perceived as cancelled.
      * This will not stop new results from appearing.
      *
-     * @param isCancelled True if the results should be
-     *                    perceived as cancelled.
+     * @param containsCancelled True if the results should be
+     *                          perceived as cancelled.
      * @return This instance.
      */
-    @Override
-    public @NotNull CompletableResultSet<T> setCancelled(boolean isCancelled) {
-        this.isCancelled = isCancelled;
+    public @NotNull CompletableResultSet<T> setContainsCancelled(boolean containsCancelled) {
+        this.containsCancelled = containsCancelled;
         return this;
     }
 
@@ -311,8 +312,7 @@ public class CompletableResultSet<T> implements Cancellable<CompletableResultSet
      *
      * @return True if cancelled.
      */
-    @Override
-    public boolean isCancelled() {
+    public boolean containsCancelled() {
 
         // Check if a result has been canceled.
         for (T result : this.result) {
@@ -321,6 +321,36 @@ public class CompletableResultSet<T> implements Cancellable<CompletableResultSet
         }
 
         // Return if all results should be rendered as canceled.
-        return this.isCancelled;
+        return this.containsCancelled;
+    }
+
+    /**
+     * Used to set if the results should be perceived as completed.
+     *
+     * @param containsCompleted True if the results should be seen as
+     *                          containing a completed result.
+     * @return This instance.
+     */
+    public @NotNull CompletableResultSet<T> setContainsCompleted(boolean containsCompleted) {
+        this.containsCancelled = containsCompleted;
+        return this;
+    }
+
+    /**
+     * Used to check if the results contain a result
+     * that has the completed value set to true.
+     *
+     * @return True if a result is set to be completed.
+     */
+    public boolean containsCompleted() {
+
+        // Check if a result has been canceled.
+        for (T result : this.result) {
+            if (!(result instanceof Completable<?> completable)) continue;
+            if (completable.isComplete()) return true;
+        }
+
+        // Return if all results should be rendered as canceled.
+        return this.containsCompleted;
     }
 }
