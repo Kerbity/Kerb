@@ -23,6 +23,7 @@ package com.github.kerbity.kerb.client;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.time.Duration;
 
 /**
  * Represents a kerb client factory.
@@ -36,6 +37,7 @@ public class KerbClientFactory {
     private final @NotNull File client_certificate;
     private final @NotNull File server_certificate;
     private final @NotNull String password;
+    private final @NotNull Duration maxWaitTime;
 
     /**
      * Used to create a kerb client factory.
@@ -44,13 +46,21 @@ public class KerbClientFactory {
      * @param address            The servers address.
      * @param client_certificate The instance of the client certificate.
      * @param password           The password.
+     * @param maxWaitTime        The max amount of time the client should
+     *                           wait before completing the event.
      */
-    public KerbClientFactory(int port, @NotNull String address, @NotNull File client_certificate, @NotNull File server_certificate, @NotNull String password) {
+    public KerbClientFactory(int port,
+                             @NotNull String address,
+                             @NotNull File client_certificate,
+                             @NotNull File server_certificate,
+                             @NotNull String password,
+                             @NotNull Duration maxWaitTime) {
         this.port = port;
         this.address = address;
         this.client_certificate = client_certificate;
         this.server_certificate = server_certificate;
         this.password = password;
+        this.maxWaitTime = maxWaitTime;
     }
 
     /**
@@ -59,6 +69,13 @@ public class KerbClientFactory {
      * @return A new kerb client.
      */
     public @NotNull KerbClient create() {
-        return new KerbClient(this.port, this.address, this.client_certificate, this.server_certificate, this.password).setDebugMode(true);
+        return new KerbClient(
+                this.port,
+                this.address,
+                this.client_certificate,
+                this.server_certificate,
+                this.password,
+                this.maxWaitTime
+        ).setDebugMode(true);
     }
 }

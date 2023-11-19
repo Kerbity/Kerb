@@ -25,7 +25,7 @@ import com.github.kerbity.kerb.event.Event;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
-import com.github.kerbity.kerb.result.CompletableResultCollection;
+import com.github.kerbity.kerb.result.CompletableResultSet;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -63,7 +63,7 @@ public class EventResultPacketManager implements PacketManager {
             }
 
             // Get the result collection.
-            CompletableResultCollection<?> resultCollection = this.client.getResult(packet.getSequenceIdentifier());
+            CompletableResultSet<?> resultCollection = this.client.getResult(packet.getSequenceIdentifier());
 
             // Check if the result collection is null.
             if (resultCollection == null) {

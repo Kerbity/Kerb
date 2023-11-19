@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @param <T> The type of result.
  */
-public class CompletableResultCollection<T> implements Cancellable<CompletableResultCollection<T>> {
+public class CompletableResultSet<T> implements Cancellable<CompletableResultSet<T>> {
 
     private static final int LOCK_TIME_MILLS = 100;
 
@@ -52,7 +52,7 @@ public class CompletableResultCollection<T> implements Cancellable<CompletableRe
      * @param size The size the result list will be
      *             when completed.
      */
-    public CompletableResultCollection(int size) {
+    public CompletableResultSet(int size) {
         this.result = new ArrayList<>();
         this.size = size;
         this.isComplete = false;
@@ -164,7 +164,12 @@ public class CompletableResultCollection<T> implements Cancellable<CompletableRe
     public @Nullable T waitForFirstNonNull() {
 
         // Wait for the result to contain at least 1 non-null entry.
-        while ((!this.isComplete() || this.containsNonNull())) {
+        while (true) {
+
+            // Check if the result is complete for this method.
+            if (this.isComplete()) break;
+            if (this.containsNonNull()) break;
+
             try {
                 Thread.sleep(LOCK_TIME_MILLS);
             } catch (InterruptedException exception) {
@@ -190,7 +195,7 @@ public class CompletableResultCollection<T> implements Cancellable<CompletableRe
      * @throws Exception If the result size is already equal or over the complete size.
      *                   If the results have already been completed.
      */
-    public @NotNull CompletableResultCollection<T> addResult(@Nullable T result) throws Exception {
+    public @NotNull CompletableResultSet<T> addResult(@Nullable T result) throws Exception {
 
         // Check if the size is already maxed.
         if (this.result.size() >= this.size) {
@@ -221,7 +226,7 @@ public class CompletableResultCollection<T> implements Cancellable<CompletableRe
      * @return This instance.
      */
     @SuppressWarnings("unchecked")
-    public @NotNull CompletableResultCollection<T> addAmbiguosResult(@Nullable Object result) {
+    public @NotNull CompletableResultSet<T> addAmbiguosResult(@Nullable Object result) {
         try {
             this.addResult((T) result);
         } catch (Exception ignored) {
@@ -236,7 +241,7 @@ public class CompletableResultCollection<T> implements Cancellable<CompletableRe
      *
      * @return This instance.
      */
-    public @NotNull CompletableResultCollection<T> complete() {
+    public @NotNull CompletableResultSet<T> complete() {
         this.isComplete = true;
         return this;
     }
@@ -295,7 +300,7 @@ public class CompletableResultCollection<T> implements Cancellable<CompletableRe
      * @return This instance.
      */
     @Override
-    public @NotNull CompletableResultCollection<T> setCancelled(boolean isCancelled) {
+    public @NotNull CompletableResultSet<T> setCancelled(boolean isCancelled) {
         this.isCancelled = isCancelled;
         return this;
     }

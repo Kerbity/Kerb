@@ -29,7 +29,7 @@ import com.github.kerbity.kerb.event.Event;
 import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketType;
-import com.github.kerbity.kerb.result.CompletableResultCollection;
+import com.github.kerbity.kerb.result.CompletableResultSet;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +38,7 @@ import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -51,6 +52,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
     private final @NotNull File client_certificate;
     private final @NotNull File server_certificate;
     private final @NotNull String password;
+    private final @NotNull Duration maxWaitTime;
 
     private final @NotNull Logger logger;
     private boolean isConnected;
@@ -59,7 +61,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
 
     private @NotNull List<@NotNull PriorityEventListener<?>> eventListenerList;
     private final @NotNull List<@NotNull ObjectListener<?>> objectListenerList;
-    private final @NotNull Map<@NotNull String, @NotNull CompletableResultCollection<?>> resultMap;
+    private final @NotNull Map<@NotNull String, @NotNull CompletableResultSet<?>> resultMap;
     private final @NotNull ClientPacketManager packetManager;
 
     /**
@@ -73,13 +75,22 @@ public class KerbClient extends Connection implements PasswordEncryption {
      * @param server_certificate The server's certificate.
      * @param password           The password to connect to the server
      *                           and open the certificates.
+     * @param maxWaitTime        The maximum time the client should wait
+     *                           for all results.
      */
-    public KerbClient(int port, @NotNull String address, @NotNull File client_certificate, @NotNull File server_certificate, @NotNull String password) {
+    public KerbClient(int port,
+                      @NotNull String address,
+                      @NotNull File client_certificate,
+                      @NotNull File server_certificate,
+                      @NotNull String password,
+                      @NotNull Duration maxWaitTime) {
+
         this.port = port;
         this.address = address;
         this.client_certificate = client_certificate;
         this.server_certificate = server_certificate;
         this.password = password;
+        this.maxWaitTime = maxWaitTime;
 
         this.logger = new Logger(false)
                 .setLogPrefix("&a[Kerb] &7[LOG] ")
@@ -117,6 +128,16 @@ public class KerbClient extends Connection implements PasswordEncryption {
      */
     public @NotNull String getAddress() {
         return this.address;
+    }
+
+    /**
+     * Used to get the max amount of time the client should
+     * wait for a result to be completed.
+     *
+     * @return The max amount of time.
+     */
+    public @NotNull Duration getMaxWaitTime() {
+        return this.maxWaitTime;
     }
 
     /**
@@ -170,8 +191,40 @@ public class KerbClient extends Connection implements PasswordEncryption {
      * @param sequenceIdentifier The sequence identifier.
      * @return The requested completable result collection.
      */
-    public @Nullable CompletableResultCollection<?> getResult(@NotNull String sequenceIdentifier) {
+    public @Nullable CompletableResultSet<?> getResult(@NotNull String sequenceIdentifier) {
         return this.resultMap.get(sequenceIdentifier);
+    }
+
+    /**
+     * Used to add the result with a max wait time.
+     * This will also register the result with the client.
+     *
+     * @param sequenceIdentifier The sequence identifier to match up to
+     *                           the result packets.
+     * @param resultCollection   THe instance of the result collection.
+     * @return This instance.
+     */
+    public @NotNull KerbClient addResult(@NotNull String sequenceIdentifier,
+                                         @NotNull CompletableResultSet<?> resultCollection) {
+
+        // Add the result to the map.
+        this.resultMap.put(sequenceIdentifier, resultCollection);
+
+        // Remove the result after the max wait time.
+        this.runTask(() -> {
+
+            // Check if the result has been completed.
+            if (resultCollection.isComplete()) return;
+
+            // Complete the result collection.
+            resultCollection.complete();
+
+            // Remove the result collection from the map.
+            this.removeResult(sequenceIdentifier);
+
+        }, this.maxWaitTime, sequenceIdentifier);
+
+        return this;
     }
 
     /**
@@ -190,7 +243,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
      *
      * @return The number of clients connected to the server.
      */
-    public CompletableResultCollection<Integer> getAmountOfClients() {
+    public CompletableResultSet<Integer> getAmountOfClients() {
 
         // Create a new sequence identifier.
         String sequenceIdentifier = UUID.randomUUID().toString();
@@ -203,8 +256,8 @@ public class KerbClient extends Connection implements PasswordEncryption {
         );
 
         // Create a result collection.
-        CompletableResultCollection<Integer> resultCollection = new CompletableResultCollection<>(1);
-        this.resultMap.put(sequenceIdentifier, resultCollection);
+        CompletableResultSet<Integer> resultCollection = new CompletableResultSet<>(1);
+        this.addResult(sequenceIdentifier, resultCollection);
         return resultCollection;
     }
 
@@ -309,11 +362,12 @@ public class KerbClient extends Connection implements PasswordEncryption {
      * @param event The instance of an event.
      * @return This instance.
      */
-    public @NotNull <T extends Event> CompletableResultCollection<T> callEvent(T event) {
+    public @NotNull <T extends Event> CompletableResultSet<T> callEvent(T event) {
 
         // Create a new sequence identifier.
         String sequenceIdentifier = UUID.randomUUID().toString();
 
+        // Get the number of clients currently connected to the server.
         Integer amount = this.getAmountOfClients().waitForFirst();
 
         // Check if the amount is null.
@@ -322,8 +376,8 @@ public class KerbClient extends Connection implements PasswordEncryption {
         }
 
         // Create a new completable result collection.
-        CompletableResultCollection<T> resultCollection = new CompletableResultCollection<>(amount);
-        this.resultMap.put(sequenceIdentifier, resultCollection);
+        CompletableResultSet<T> resultCollection = new CompletableResultSet<>(amount);
+        this.addResult(sequenceIdentifier, resultCollection);
 
         // Send the event packet.
         this.send(event.packet()
@@ -405,6 +459,10 @@ public class KerbClient extends Connection implements PasswordEncryption {
             this.setupStreams(socket, this.logger);
             this.isConnected = true;
 
+            // Attempt to validate client.
+            boolean valid = this.validate();
+            if (!valid) return false;
+
             // Thread the client loop.
             new Thread(this::startLoop).start();
 
@@ -416,11 +474,6 @@ public class KerbClient extends Connection implements PasswordEncryption {
     }
 
     private void startLoop() {
-
-        // Attempt to validate client.
-        boolean valid = this.validate();
-        if (!valid) return;
-
         while (this.isConnected) {
             try {
 

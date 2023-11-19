@@ -26,6 +26,7 @@ import com.github.kerbity.kerb.creator.ClientCreator;
 import com.github.kerbity.kerb.creator.ServerCreator;
 import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.event.event.PingEvent;
+import com.github.kerbity.kerb.result.CompletableResultSet;
 import com.github.kerbity.kerb.server.Server;
 import com.github.minemaniauk.developertools.testing.ResultChecker;
 import org.junit.jupiter.api.MethodOrderer;
@@ -33,7 +34,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Objects;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ConnectionTest {
@@ -50,11 +51,7 @@ public class ConnectionTest {
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
         client.connect();
 
-        // Wait for validation.
-        Thread.sleep(200);
-
-        new ResultChecker()
-                .expect(client.isValid());
+        new ResultChecker().expect(client.isValid());
     }
 
     @Test
@@ -69,26 +66,17 @@ public class ConnectionTest {
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
         client.connect();
 
-        // Wait for validation.
-        Thread.sleep(200);
-
-        // Set up the flag.
-        AtomicBoolean flag = new AtomicBoolean(false);
-
         // Set up an event listener for the ping event.
         client.registerListener(Priority.LOW, (EventListener<PingEvent>) event -> {
-            flag.set(true);
+            event.setWasReceived(true);
             return event;
         });
 
         // Call the ping event.
-        client.callEvent(new PingEvent("Test"));
+        CompletableResultSet<PingEvent> resultSet = client.callEvent(new PingEvent("Test"));
 
-        // Wait for event.
-        Thread.sleep(200);
-
-        // Expect the ping event to change the flag.
         new ResultChecker()
-                .expect(flag.get());
+                .expect(resultSet.waitForFirstNonNull() != null)
+                .expect(Objects.requireNonNull(resultSet.waitForFirstNonNull()).wasReceived());
     }
 }

@@ -20,16 +20,17 @@
 
 package com.github.kerbity.kerb.event.event;
 
-import com.github.kerbity.kerb.event.Event;
+import com.github.kerbity.kerb.event.CancellableEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a simple ping event.
  * This is used as an example.
  */
-public class PingEvent implements Event {
+public class PingEvent extends CancellableEvent {
 
     private @NotNull String serverName;
+    private boolean wasReceived;
 
     /**
      * Used to create a ping event.
@@ -38,6 +39,7 @@ public class PingEvent implements Event {
      */
     public PingEvent(@NotNull String serverName) {
         this.serverName = serverName;
+        this.wasReceived = false;
     }
 
     /**
@@ -51,6 +53,15 @@ public class PingEvent implements Event {
     }
 
     /**
+     * Used to check if the event was received.
+     *
+     * @return True if the event was received.
+     */
+    public boolean wasReceived() {
+        return this.wasReceived;
+    }
+
+    /**
      * Used to set the name of the server.
      *
      * @param serverName The name of the server.
@@ -59,5 +70,14 @@ public class PingEvent implements Event {
     public @NotNull PingEvent setServerName(@NotNull String serverName) {
         this.serverName = serverName;
         return this;
+    }
+
+    /**
+     * Used to set if the event was received.
+     *
+     * @param wasReceived True if the event was received.
+     */
+    public void setWasReceived(boolean wasReceived) {
+        this.wasReceived = wasReceived;
     }
 }

@@ -24,7 +24,7 @@ import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
-import com.github.kerbity.kerb.result.CompletableResultCollection;
+import com.github.kerbity.kerb.result.CompletableResultSet;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -63,7 +63,7 @@ public class ClientAmountPacketManager implements PacketManager {
             }
 
             // Get the result collection.
-            CompletableResultCollection<Integer> resultCollection = (CompletableResultCollection<Integer>)
+            CompletableResultSet<Integer> resultCollection = (CompletableResultSet<Integer>)
                     this.client.getResult(packet.getSequenceIdentifier());
 
             // Check if the result collection is null.

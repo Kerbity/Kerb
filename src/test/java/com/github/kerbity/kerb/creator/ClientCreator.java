@@ -27,6 +27,7 @@ import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.time.Duration;
 
 public class ClientCreator {
 
@@ -44,7 +45,8 @@ public class ClientCreator {
                 configuration.getString("address"),
                 new File(configuration.getString("client_certificate_path")),
                 new File(configuration.getString("server_certificate_path")),
-                configuration.getString("password")
+                configuration.getString("password"),
+                Duration.ofMillis(configuration.getInteger("maxWaitTimeMillis", 500))
         );
     }
 
@@ -60,7 +62,8 @@ public class ClientCreator {
                 address,
                 new File(configuration.getString("client_certificate_path")),
                 new File(configuration.getString("server_certificate_path")),
-                configuration.getString("password")
+                configuration.getString("password"),
+                Duration.ofMillis(configuration.getInteger("maxWaitTimeMillis", 500))
         );
     }
 
