@@ -23,6 +23,7 @@ package com.github.kerbity.kerb.result;
 import com.github.kerbity.kerb.datatype.Ratio;
 import com.github.kerbity.kerb.indicator.Cancellable;
 import com.github.kerbity.kerb.indicator.Completable;
+import com.github.kerbity.kerb.indicator.Settable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +47,7 @@ public class CompletableResultSet<T> {
     private boolean isComplete;
     private boolean containsCancelled;
     private boolean containsCompleted;
+    private Object defaultSettableValue;
 
     /**
      * Used to create a completable
@@ -361,7 +363,7 @@ public class CompletableResultSet<T> {
      */
     public boolean containsCompleted() {
 
-        // Check if a result has been canceled.
+        // Check if a result contains a completed class.
         for (T result : this.result) {
             if (!(result instanceof Completable<?> completable)) continue;
             if (completable.isComplete()) return true;
@@ -369,5 +371,41 @@ public class CompletableResultSet<T> {
 
         // Return if all results should be rendered as canceled.
         return this.containsCompleted;
+    }
+
+    /**
+     * Used to set the default settable value if no
+     * event returns a settable value.
+     * This is specified in the {@link com.github.kerbity.kerb.indicator.Settable}
+     * interface.
+     *
+     * @param defaultSettableValue The default value.
+     * @return This instance.
+     */
+    public @NotNull CompletableResultSet<T> setDefaultSettableValue(@Nullable Object defaultSettableValue) {
+        this.defaultSettableValue = defaultSettableValue;
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <C> @NotNull C getFirstSettable(@NotNull Class<C> type) {
+
+        // Check if a result contains a settable value.
+        for (T result : this.result) {
+            if (!(result instanceof Settable<?, ?> settable)) continue;
+            if (settable.get() == null) continue;
+
+            Object value = settable.get();
+
+            if (!type.isInstance(value)) continue;
+            return (C) value;
+        }
+
+        // Return the default value.
+        try {
+            return (C) this.defaultSettableValue;
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 }

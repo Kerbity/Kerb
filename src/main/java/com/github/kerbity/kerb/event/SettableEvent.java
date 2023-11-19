@@ -18,31 +18,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.indicator;
+package com.github.kerbity.kerb.event;
 
+import com.github.kerbity.kerb.indicator.Settable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Indicates if a class is cancellable.
+ * Used to create a single settable event.
+ * An event used as a request to get a value from the clients.
  *
- * @param <T> The instance of the class to return.
+ * @param <T> The type of class to get.
  */
-public interface Cancellable<T extends Cancellable<T>> {
+public class SettableEvent<T> implements Event, Settable<T, SettableEvent<T>> {
 
-    /**
-     * Used to set weather the class is
-     * cancelled or not.
-     *
-     * @param isCancelled True if the class
-     *                    should be cancelled.
-     * @return The instance of the return type.
-     */
-    @NotNull T setCancelled(boolean isCancelled);
+    private @Nullable T instance;
 
-    /**
-     * Used to check if the class was cancelled.
-     *
-     * @return True if the class was cancelled.
-     */
-    boolean isCancelled();
+    @Override
+    public @NotNull SettableEvent<T> set(@Nullable T instance) {
+        this.instance = instance;
+        return this;
+    }
+
+    @Override
+    public @Nullable T get() {
+        return this.instance;
+    }
 }

@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  * @param <T> The instance of the class that
  *            is completable.
  */
-public interface Completable<T> {
+public interface Completable<T extends Completable<T>> {
 
     /**
      * Used to complete the task.

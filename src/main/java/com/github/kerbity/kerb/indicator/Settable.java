@@ -21,28 +21,29 @@
 package com.github.kerbity.kerb.indicator;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Indicates if a class is cancellable.
+ * Indicates if the class is settable
+ * to a specific type.
  *
- * @param <T> The instance of the class to return.
+ * @param <T> The specific settable type.
+ * @param <C> The settable class type.
  */
-public interface Cancellable<T extends Cancellable<T>> {
+public interface Settable<T, C extends Settable<T, C>> {
 
     /**
-     * Used to set weather the class is
-     * cancelled or not.
+     * Used to set the settable value.
      *
-     * @param isCancelled True if the class
-     *                    should be cancelled.
-     * @return The instance of the return type.
+     * @param instance The instance of the value.
+     * @return This instance.
      */
-    @NotNull T setCancelled(boolean isCancelled);
+    @NotNull C set(@Nullable T instance);
 
     /**
-     * Used to check if the class was cancelled.
+     * Used to get the settable value.
      *
-     * @return True if the class was cancelled.
+     * @return The instance of the value.
      */
-    boolean isCancelled();
+    @Nullable T get();
 }
