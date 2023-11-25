@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.kerbity</groupId>
   <artifactId>Kerb</artifactId>
-  <version>1.3.0</version>
+  <version>1.2.0</version>
   <build>
     <plugins>
       <plugin>
@@ -16,7 +16,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.2</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -25,11 +25,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <additionalOptions>
-            <additionalOption>-Xdoclint:none</additionalOption>
-          </additionalOptions>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
@@ -66,8 +61,8 @@
     </repository>
   </repositories>
   <properties>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
