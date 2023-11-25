@@ -34,8 +34,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import java.util.Objects;
-
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ConnectionTest {
 
