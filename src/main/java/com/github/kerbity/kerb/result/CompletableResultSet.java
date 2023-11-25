@@ -177,7 +177,8 @@ public class CompletableResultSet<T> {
     /**
      * Used to wait for the first non-null result.
      * Parks until the results are finished or a non-null
-     * result was added. If none of the results are non-null
+     * result was added.
+     * If none of the results are non-null,
      * it will return null.
      *
      * @return The first non-null result or null.
@@ -204,6 +205,24 @@ public class CompletableResultSet<T> {
             return result;
         }
         return null;
+    }
+
+    /**
+     * Used to wait for the first non-null result.
+     * Parks until the results are finished or a non-null
+     * result was added.
+     * If none of the results are non-null,
+     * it will throw an error.
+     * This is not recommended.
+     *
+     * @return The instance of the first result.
+     */
+    public @NotNull T waitForFirstNonNullAssumption() {
+        T instance = this.waitForFirstNonNull();
+        if (instance == null) throw new RuntimeException(
+                "Assumed there will be a not null result but all results returned null."
+        );
+        return instance;
     }
 
     /**

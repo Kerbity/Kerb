@@ -26,8 +26,6 @@ import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.server.ServerConnection;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
  * Represents an event packet manager.
  * Used to interpret event packets.
@@ -65,10 +63,7 @@ public class EventPacketManger implements PacketManager {
             if (!this.connection.isConnected()) continue;
 
             // Send the event packet.
-            serverConnection.sendData(packet
-                    .setTarget(Objects.requireNonNull(this.connection.getTargetIdentifier()))
-                    .getPacketString()
-            );
+            serverConnection.sendData(packet.getPacketString());
         }
     }
 }

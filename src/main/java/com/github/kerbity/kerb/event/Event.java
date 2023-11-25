@@ -20,6 +20,8 @@
 
 package com.github.kerbity.kerb.event;
 
+import com.github.kerbity.kerb.client.RegisteredClient;
+import com.github.kerbity.kerb.client.RegisteredClientAdapter;
 import com.github.kerbity.kerb.indicator.Packable;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketType;
@@ -34,7 +36,10 @@ import org.jetbrains.annotations.NotNull;
  *     </li>
  * </ul>
  */
-public interface Event extends Packable {
+public abstract class Event implements Packable {
+
+    @SuppressWarnings("all")
+    private @NotNull RegisteredClientAdapter source;
 
     /**
      * Used to get the events unique identifier.
@@ -42,15 +47,39 @@ public interface Event extends Packable {
      *
      * @return The event's identifier.
      */
-    default @NotNull String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return this.getClass().getName();
     }
 
+    /**
+     * Used to get the source of where the
+     * event was originally sent from.
+     *
+     * @return The event source.
+     */
+    public @NotNull RegisteredClient getSource() {
+        return this.source;
+    }
+
+    /**
+     * Used to set the source of where the
+     * event was originally sent from, and
+     * where it should be sent back to.
+     *
+     * @param source The event source.
+     * @return This instance.
+     */
+    public @NotNull Event setSource(@NotNull RegisteredClientAdapter source) {
+        this.source = source;
+        return this;
+    }
+
     @Override
-    default @NotNull Packet packet() {
+    public @NotNull Packet packet() {
         return new Packet()
                 .setType(PacketType.EVENT)
                 .setIdentifier(this.getIdentifier())
+                .setSource(this.getSource().getIdentifier())
                 .setData(this);
     }
 }

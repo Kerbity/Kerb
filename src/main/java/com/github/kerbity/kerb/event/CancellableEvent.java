@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
  *     <li>This won't stop the event being sent to all clients and listeners.</li>
  * </ul>
  */
-public class CancellableEvent implements Event, Cancellable<CancellableEvent> {
+public class CancellableEvent extends Event implements Cancellable<CancellableEvent> {
 
     private boolean isCancelled;
 

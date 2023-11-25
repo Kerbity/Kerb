@@ -45,8 +45,9 @@ import java.util.*;
  * Represents a kerb client.
  * Used to connect to a Kerb server.
  */
-public class KerbClient extends Connection implements PasswordEncryption {
+public class KerbClient extends Connection implements RegisteredClient, PasswordEncryption {
 
+    private final @NotNull String name;
     private final int port;
     private final @NotNull String address;
     private final @NotNull File client_certificate;
@@ -78,13 +79,15 @@ public class KerbClient extends Connection implements PasswordEncryption {
      * @param maxWaitTime        The maximum time the client should wait
      *                           for all results.
      */
-    public KerbClient(int port,
+    public KerbClient(@NotNull String name,
+                      int port,
                       @NotNull String address,
                       @NotNull File client_certificate,
                       @NotNull File server_certificate,
                       @NotNull String password,
                       @NotNull Duration maxWaitTime) {
 
+        this.name = name;
         this.port = port;
         this.address = address;
         this.client_certificate = client_certificate;
@@ -103,6 +106,20 @@ public class KerbClient extends Connection implements PasswordEncryption {
         this.objectListenerList = new ArrayList<>();
         this.resultMap = new HashMap<>();
         this.packetManager = new ClientPacketManager(this);
+    }
+
+    @Override
+    public @NotNull String getIdentifier() {
+        if (this.getSocket() == null) {
+            throw new RuntimeException("Tried to get the clients identifier but the socket was null.");
+        }
+        return this.getSocket().getLocalAddress().getHostAddress()
+                + ":" + this.getSocket().getLocalPort();
+    }
+
+    @Override
+    public @NotNull String getName() {
+        return this.name;
     }
 
     @Override
@@ -282,13 +299,7 @@ public class KerbClient extends Connection implements PasswordEncryption {
         return this.isConnected;
     }
 
-    /**
-     * Used to check if the client has been validated.
-     * This means the password was accepted and the
-     * client is contained in the whitelist.
-     *
-     * @return True if valid.
-     */
+    @Override
     public boolean isValid() {
         return this.isValid;
     }
@@ -374,6 +385,9 @@ public class KerbClient extends Connection implements PasswordEncryption {
         if (amount == null) {
             throw new RuntimeException("Amount of clients returned null when calling an event.");
         }
+
+        // Set the event source.
+        event.setSource(this.getRegisteredClient());
 
         // Create a new completable result collection.
         CompletableResultSet<T> resultCollection = new CompletableResultSet<>(amount);

@@ -120,8 +120,8 @@ public class Packet extends MemoryConfigurationSection {
      *
      * @return The details of the target.
      */
-    public @Nullable String getTarget() {
-        return this.getString("target", null);
+    public @Nullable String getSource() {
+        return this.getString("source", null);
     }
 
     /**
@@ -180,8 +180,8 @@ public class Packet extends MemoryConfigurationSection {
      * @param targetIdentifier The target identifier.
      * @return This instance.
      */
-    public @NotNull Packet setTarget(@NotNull String targetIdentifier) {
-        this.set("target", targetIdentifier);
+    public @NotNull Packet setSource(@NotNull String targetIdentifier) {
+        this.set("source", targetIdentifier);
         return this;
     }
 

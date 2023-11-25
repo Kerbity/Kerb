@@ -54,7 +54,7 @@ public class EventResultPacketManager implements PacketManager {
         this.connection.getLogger().log("&3[Event Result] " + packet);
 
         // Check if the target is not null.
-        if (packet.getTarget() == null) {
+        if (packet.getSource() == null) {
             this.connection.getLogger().warn("Could not send event result back as target was null.");
             return;
         }
@@ -69,7 +69,7 @@ public class EventResultPacketManager implements PacketManager {
             if (!this.connection.isConnected()) continue;
 
             // Check if the target is the same.
-            if (!packet.getTarget().equals(serverConnection.getTargetIdentifier())) continue;
+            if (!packet.getSource().equals(serverConnection.getSourceIdentifier())) continue;
 
             // Send the event result packet.
             serverConnection.sendData(packet.getPacketString());

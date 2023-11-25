@@ -285,7 +285,7 @@ public class Server implements PasswordEncryption {
                 Socket client = this.socket.accept();
 
                 // Create an extensions of the logger.
-                Logger clientLogger = this.logger.createExtension("[&r" + this.getClientName(client) + "&7] ");
+                Logger clientLogger = this.logger.createExtension("[&r" + this.getLocalClientName(client) + "&7] ");
 
                 // Check if the client is blocked.
                 if (this.isBlocked(client)) {
@@ -311,7 +311,15 @@ public class Server implements PasswordEncryption {
         }
     }
 
-    private @NotNull String getClientName(@NotNull Socket client) {
+    /**
+     * Used to get a client's name from configuration.
+     * This may not be the exact name the client has
+     * named them self.
+     *
+     * @param client The instance of the client's socket.
+     * @return The client name.
+     */
+    private @NotNull String getLocalClientName(@NotNull Socket client) {
         String address = client.getInetAddress() + ":" + client.getPort();
         String collectionAddress = client.getInetAddress() + ":?";
 
@@ -347,6 +355,29 @@ public class Server implements PasswordEncryption {
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
+        }
+    }
+
+    /**
+     * Used to wait for the server to start.
+     * <ul>
+     *     <li>This could loop forever if the server never starts.</li>
+     * </ul>
+     *
+     * @return This instance.
+     */
+    public @NotNull Server waitForStartup() {
+        try {
+
+            // Loop until the socket is connected.
+            while (this.socket == null || this.socket.getInetAddress() == null) {
+                Thread.sleep(100);
+            }
+
+            return this;
+
+        } catch (InterruptedException exception) {
+            throw new RuntimeException(exception);
         }
     }
 

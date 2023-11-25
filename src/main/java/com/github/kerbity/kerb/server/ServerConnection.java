@@ -113,7 +113,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
      *
      * @return The target identifier.
      */
-    public @Nullable String getTargetIdentifier() {
+    public @Nullable String getSourceIdentifier() {
         if (this.getAddress() == null || this.getPort() == -1) return null;
         return this.getAddress() + ":" + this.getPort();
     }

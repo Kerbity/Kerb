@@ -96,7 +96,7 @@ public class EventPacketManager implements PacketManager {
             }
 
             // Check if the packet target is null.
-            if (packet.getTarget() == null) {
+            if (packet.getSource() == null) {
                 this.client.getLogger().warn("Packet's target was null.");
                 return;
             }

@@ -41,11 +41,8 @@ public class ConnectionTest {
 
     @Test
     @Order(0)
-    public void testValidation() throws InterruptedException {
-        Server server = ServerCreator.createAndStart();
-
-        // Wait for server to load.
-        Thread.sleep(200);
+    public void testValidation() {
+        Server server = ServerCreator.createAndStart().waitForStartup();
 
         // Create a client connection.
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
@@ -56,11 +53,8 @@ public class ConnectionTest {
 
     @Test
     @Order(0)
-    public void testPingEvent() throws InterruptedException {
-        Server server = ServerCreator.createAndStart();
-
-        // Wait for server to load.
-        Thread.sleep(200);
+    public void testPingEvent() {
+        Server server = ServerCreator.createAndStart().waitForStartup();
 
         // Create a client connection.
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
@@ -77,6 +71,7 @@ public class ConnectionTest {
 
         new ResultChecker()
                 .expect(resultSet.waitForFirstNonNull() != null)
-                .expect(Objects.requireNonNull(resultSet.waitForFirstNonNull()).wasReceived());
+                .expect(resultSet.waitForFirstNonNullAssumption().wasReceived())
+                .expect("Test", resultSet.waitForFirstNonNullAssumption().getSource().getName());
     }
 }

@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> The type of class to get.
  */
-public class SettableEvent<T> implements Event, Settable<T, SettableEvent<T>> {
+public class SettableEvent<T> extends Event implements Settable<T, SettableEvent<T>> {
 
     private @Nullable T instance;
 

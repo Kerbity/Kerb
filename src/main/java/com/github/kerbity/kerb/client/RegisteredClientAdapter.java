@@ -18,44 +18,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.event;
+package com.github.kerbity.kerb.client;
 
-import com.github.kerbity.kerb.indicator.Completable;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Used to create a completable event.
- * This lets you check if an event is completed
- * and lets you set to true when listening to it.
- * This essentially makes the event act as a task
- * to complete.
+ * Represents a registered client in its simplest form.
+ * Stops other clients from casting it to a
+ * {@link KerbClient}.
  */
-public class CompletableEvent extends Event implements Completable<CompletableEvent> {
+public class RegisteredClientAdapter implements RegisteredClient {
 
-    private boolean isComplete;
+    private final @NotNull String identifier;
+    private final @NotNull String name;
+    private final boolean isValid;
 
     /**
-     * Used to create a completable event.
-     * An event that can be marked as completed.
+     * Used to create a registered client adapter.
+     *
+     * @param client The instance of a client to adapt.
      */
-    public CompletableEvent() {
-        this.isComplete = false;
+    public RegisteredClientAdapter(@NotNull RegisteredClient client) {
+        this.identifier = client.getIdentifier();
+        this.name = client.getName();
+        this.isValid = client.isValid();
     }
 
     @Override
-    public @NotNull CompletableEvent complete() {
-        this.isComplete = true;
-        return this;
+    public @NotNull String getIdentifier() {
+        return this.identifier;
     }
 
     @Override
-    public @NotNull CompletableEvent setComplete(boolean isComplete) {
-        this.isComplete = isComplete;
-        return this;
+    public @NotNull String getName() {
+        return this.name;
     }
 
     @Override
-    public boolean isComplete() {
-        return this.isComplete;
+    public boolean isValid() {
+        return this.isValid;
     }
 }
