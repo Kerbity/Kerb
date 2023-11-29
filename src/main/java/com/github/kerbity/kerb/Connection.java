@@ -136,8 +136,9 @@ public abstract class Connection extends TaskContainer {
         if (socket == null) return null;
         if (socket.isClosed()) return null;
 
-        this.logger.createExtension("[" + this.socket.getLocalPort() + "] ")
-                .log("&7[DEBUG] Read wait");
+        if (this.getDebugMode()) this.logger
+                .createExtension("[" + this.socket.getLocalPort() + "] ")
+                .log("&7[DEBUG] Waiting for data.");
 
         String data = this.bufferedReader.readLine();
         if (this.getDebugMode()) this.logger
