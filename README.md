@@ -22,7 +22,7 @@
     </dependency>
 ```
 ```java
-// Attempt to the kerb server.
+// Attempt to connect to the kerb server.
 KerbClient client = new KerbClient(...);
 client.connect();
 
@@ -32,18 +32,28 @@ client.registerListener((EventListener<PingEvent>) event -> {
     System.out.println(serverName);
 });
 
-// Send an event to all clients.
-client.callEvent(new PingEvent("Computer"));
+// Send an event to all clients and wait for the results.
+CompletableResultSet<PingEvent> resultCollection = client.callEvent(new PingEvent("Computer"));
+List<PingEvent> result = resultCollection.waitForFinalResult();
 ```
 
 ```java
 /**
  * Represents a simple ping event.
  * This is used as an example.
- *
- * @param serverName The server that the ping was sent from.
  */
-public record PingEvent(@NotNull String serverName) implements Event {
+public class PingEvent extends Event {
+
+    private @NotNull String serverName;
+
+    /**
+     * Used to create a ping event.
+     *
+     * @param serverName The server that the ping was sent from.
+     */
+    public PingEvent(@NotNull String serverName) {
+        this.serverName = serverName;
+    }
 
     /**
      * Used to get the name of the server
@@ -51,8 +61,7 @@ public record PingEvent(@NotNull String serverName) implements Event {
      *
      * @return The name of the server.
      */
-    @Override
-    public @NotNull String serverName() {
+    public @NotNull String getServerName() {
         return this.serverName;
     }
 }
