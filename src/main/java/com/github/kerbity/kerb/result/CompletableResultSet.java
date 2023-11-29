@@ -296,7 +296,8 @@ public class CompletableResultSet<T> {
     public @NotNull CompletableResultSet<T> addAmbiguosResult(@Nullable Object result) {
         try {
             this.addResult((T) result);
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return this;
     }

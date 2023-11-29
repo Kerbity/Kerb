@@ -100,7 +100,9 @@ public abstract class Connection extends TaskContainer {
         if (this.socket.isClosed()) return;
 
         this.printWriter.println(data);
-        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + data + "\"}");
+        if (this.getDebugMode()) this.logger
+                .createExtension("[" + this.socket.getLocalPort() + "] ")
+                .log("&7[DEBUG] Send {data: \"" + data + "\"}");
     }
 
     /**
@@ -117,7 +119,9 @@ public abstract class Connection extends TaskContainer {
             builder.append(item).append(",");
         }
         this.send(builder.toString());
-        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Send {data: \"" + builder + "\"}");
+        if (this.getDebugMode()) this.logger
+                .createExtension("[" + this.socket.getLocalPort() + "] ")
+                .log("&7[DEBUG] Send {data: \"" + builder + "\"}");
     }
 
     /**
@@ -132,8 +136,13 @@ public abstract class Connection extends TaskContainer {
         if (socket == null) return null;
         if (socket.isClosed()) return null;
 
+        this.logger.createExtension("[" + this.socket.getLocalPort() + "] ")
+                .log("&7[DEBUG] Read wait");
+
         String data = this.bufferedReader.readLine();
-        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + data + "\"}");
+        if (this.getDebugMode()) this.logger
+                .createExtension("[" + this.socket.getLocalPort() + "] ")
+                .log("&7[DEBUG] Read {data: \"" + data + "\"}");
         return data;
     }
 
@@ -151,7 +160,9 @@ public abstract class Connection extends TaskContainer {
             index++;
         }
 
-        if (this.getDebugMode()) this.logger.log("&7[DEBUG] Read {data: \"" + byteList + "\"}");
+        if (this.getDebugMode()) this.logger
+                .createExtension("[" + this.socket.getLocalPort() + "] ")
+                .log("&7[DEBUG] Read {data: \"" + byteList + "\"}");
         return byteList;
     }
 

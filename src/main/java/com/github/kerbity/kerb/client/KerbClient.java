@@ -506,8 +506,10 @@ public class KerbClient extends Connection implements RegisteredClient, Password
                     return;
                 }
 
-                Packet packet = Packet.getPacket(data);
-                this.packetManager.interpret(packet);
+                new Thread(() -> {
+                    Packet packet = Packet.getPacket(data);
+                    this.packetManager.interpret(packet);
+                }).start();
 
             } catch (Exception exception) {
                 throw new RuntimeException(exception);

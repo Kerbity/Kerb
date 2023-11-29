@@ -69,8 +69,6 @@ public class EventPacketManager implements PacketManager {
                 return;
             }
 
-            // Set the instance.
-
             // Loop though low-priority events.
             for (EventListener<?> listener : this.client.getEventListeners(Priority.LOW)) {
                 if (listener.isNotCastable(event)) continue;

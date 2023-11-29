@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.util.List;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ConnectionTest {
 
@@ -50,7 +52,7 @@ public class ConnectionTest {
     }
 
     @Test
-    @Order(0)
+    @Order(1)
     public void testPingEvent() {
         Server server = ServerCreator.createAndStart().waitForStartup();
 
@@ -71,5 +73,36 @@ public class ConnectionTest {
                 .expect(resultSet.waitForFirstNonNull() != null)
                 .expect(resultSet.waitForFirstNonNullAssumption().wasReceived())
                 .expect("Test", resultSet.waitForFirstNonNullAssumption().getSource().getName());
+    }
+
+    @Test
+    @Order(2)
+    public void testPingEventMultiple() {
+        Server server = ServerCreator.createAndStart().waitForStartup();
+        server.setDebugMode(true);
+        KerbClient client1 = ClientCreator.create(server.getPort(), server.getAddress());
+        client1.connect();
+        KerbClient client2 = ClientCreator.create(server.getPort(), server.getAddress());
+        client2.connect();
+
+        client1.registerListener(Priority.HIGH, (EventListener<PingEvent>) event -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
+            }
+            event.setWasReceived(true);
+            return event;
+        });
+
+        client2.registerListener(Priority.HIGH, (EventListener<PingEvent>) event -> {
+            event.setWasReceived(true);
+            return null;
+        });
+
+        CompletableResultSet<PingEvent> resultSet = client1.callEvent(new PingEvent("Test"));
+        List<PingEvent> results = resultSet.waitForFinalResult();
+
+        new ResultChecker().expect(results.size() == 1);
     }
 }
