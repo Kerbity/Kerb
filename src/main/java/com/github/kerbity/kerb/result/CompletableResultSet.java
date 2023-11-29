@@ -43,11 +43,18 @@ public class CompletableResultSet<T> {
     private static final int LOCK_TIME_MILLS = 100;
 
     private final @NotNull List<T> result;
+    private @NotNull CompletableResultSet.CompleteReason completeReason;
     private final int size;
     private boolean isComplete;
     private boolean containsCancelled;
     private boolean containsCompleted;
     private Object defaultSettableValue;
+
+    public enum CompleteReason {
+        UNCOMPLETED, // The results haven't been completed.
+        TIME, // The clients took too much time to respond.
+        SIZE, // The result set was completed.
+    }
 
     /**
      * Used to create a completable
@@ -58,9 +65,29 @@ public class CompletableResultSet<T> {
      */
     public CompletableResultSet(int size) {
         this.result = new ArrayList<>();
+        this.completeReason = CompleteReason.UNCOMPLETED;
         this.size = size;
         this.isComplete = false;
         this.containsCancelled = false;
+        this.containsCompleted = false;
+    }
+
+    /**
+     * Used to get the reason the results were completed.
+     *
+     * @return The reason the results where completed.
+     */
+    public @NotNull CompleteReason getCompleteReason() {
+        return this.completeReason;
+    }
+
+    /**
+     * Used to get the expected size of the result list.
+     *
+     * @return The expected size of the result list.
+     */
+    public int getSize() {
+        return this.size;
     }
 
     /**
@@ -251,8 +278,8 @@ public class CompletableResultSet<T> {
         this.result.add(result);
 
         // Auto completes the completable result collection.
-        if (this.result.size() == this.size) {
-            this.complete();
+        if (this.result.size() >= this.size) {
+            this.complete(CompleteReason.SIZE);
         }
 
         return this;
@@ -281,7 +308,8 @@ public class CompletableResultSet<T> {
      *
      * @return This instance.
      */
-    public @NotNull CompletableResultSet<T> complete() {
+    public @NotNull CompletableResultSet<T> complete(@NotNull CompletableResultSet.CompleteReason reason) {
+        this.completeReason = reason;
         this.isComplete = true;
         return this;
     }
@@ -370,7 +398,7 @@ public class CompletableResultSet<T> {
      * @return This instance.
      */
     public @NotNull CompletableResultSet<T> setContainsCompleted(boolean containsCompleted) {
-        this.containsCancelled = containsCompleted;
+        this.containsCompleted = containsCompleted;
         return this;
     }
 

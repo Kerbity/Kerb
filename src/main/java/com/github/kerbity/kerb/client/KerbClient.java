@@ -234,7 +234,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
             if (resultCollection.isComplete()) return;
 
             // Complete the result collection.
-            resultCollection.complete();
+            resultCollection.complete(CompletableResultSet.CompleteReason.TIME);
 
             // Remove the result collection from the map.
             this.removeResult(sequenceIdentifier);
