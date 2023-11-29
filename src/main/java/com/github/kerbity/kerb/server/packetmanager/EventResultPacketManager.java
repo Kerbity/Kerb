@@ -69,10 +69,18 @@ public class EventResultPacketManager implements PacketManager {
             if (!this.connection.isConnected()) continue;
 
             // Check if the target is the same.
-            if (!packet.getSource().equals(serverConnection.getSourceIdentifier())) continue;
+            if (!packet.getSource().equals(serverConnection.getIdentifier())) continue;
 
             // Send the event result packet.
             serverConnection.sendData(packet.getPacketString());
+            return;
         }
+
+        this.connection.getLogger().warn("Could not find the source of the event.");
+        StringBuilder builder = new StringBuilder();
+        for (ServerConnection serverConnection : this.connection.getServer().getConnectionList()) {
+            builder.append(serverConnection.getIdentifier()).append(",");
+        }
+        this.connection.getLogger().warn("Connections=[" + builder + "]");
     }
 }

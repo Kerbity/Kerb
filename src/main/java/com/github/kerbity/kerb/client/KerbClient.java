@@ -48,6 +48,7 @@ import java.util.*;
 public class KerbClient extends Connection implements RegisteredClient, PasswordEncryption {
 
     private final @NotNull String name;
+    private final @NotNull String identifier;
     private final int port;
     private final @NotNull String address;
     private final @NotNull File client_certificate;
@@ -88,6 +89,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
                       @NotNull Duration maxWaitTime) {
 
         this.name = name;
+        this.identifier = UUID.randomUUID().toString();
         this.port = port;
         this.address = address;
         this.client_certificate = client_certificate;
@@ -110,11 +112,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
 
     @Override
     public @NotNull String getIdentifier() {
-        if (this.getSocket() == null) {
-            throw new RuntimeException("Tried to get the clients identifier but the socket was null.");
-        }
-        return this.getSocket().getLocalAddress().getHostAddress()
-                + ":" + this.getSocket().getLocalPort();
+        return this.identifier;
     }
 
     @Override
@@ -540,6 +538,9 @@ public class KerbClient extends Connection implements RegisteredClient, Password
                 this.logger.warn("Incorrect password. The client was rejected from the server.");
                 return false;
             }
+
+            // Send the client's identifier.
+            this.send(this.identifier);
 
             this.isValid = true;
             this.logger.log("Client was validated.");

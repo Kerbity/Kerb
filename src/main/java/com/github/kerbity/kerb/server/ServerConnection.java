@@ -40,6 +40,8 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
     private static final @NotNull String TIME_OUT_IDENTIFIER = "time_out";
 
+    private @NotNull String identifier;
+
     private boolean running;
     private boolean isValid;
 
@@ -65,6 +67,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     @Override
     public boolean getDebugMode() {
         return this.server.isDebugMode();
+    }
+
+    public @NotNull String getIdentifier() {
+        return this.identifier;
     }
 
     /**
@@ -105,17 +111,6 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     public int getPort() {
         if (this.getSocket() == null) return -1;
         return this.getSocket().getPort();
-    }
-
-    /**
-     * Used to get the target identifier that
-     * represents this client.
-     *
-     * @return The target identifier.
-     */
-    public @Nullable String getSourceIdentifier() {
-        if (this.getAddress() == null || this.getPort() == -1) return null;
-        return this.getAddress() + ":" + this.getPort();
     }
 
     /**
@@ -196,8 +191,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
                 }
 
                 // Convert the data to a packet.
-                Packet packet = Packet.getPacket(data);
-                this.packetManager.interpret(packet);
+                new Thread(() -> {
+                    Packet packet = Packet.getPacket(data);
+                    this.packetManager.interpret(packet);
+                }).start();
 
             } catch (IOException exception) {
                 exception.printStackTrace();
@@ -245,6 +242,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
             this.isValid = true;
             this.send("1");
+
+            // Get the client identifier.
+            this.identifier = this.read();
+
             this.logger.log("&aClient was validated.");
             return true;
 
