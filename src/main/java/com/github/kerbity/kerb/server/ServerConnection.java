@@ -22,7 +22,9 @@ package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
+import com.github.kerbity.kerb.event.event.PingEvent;
 import com.github.kerbity.kerb.packet.Packet;
+import com.github.kerbity.kerb.result.CompletableResultSet;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,12 +43,13 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     private static final @NotNull String TIME_OUT_IDENTIFIER = "time_out";
 
     private @NotNull String identifier;
+    private @NotNull String name;
 
     private boolean running;
     private boolean isValid;
 
     private final @NotNull Server server;
-    private final @NotNull Logger logger;
+    private @NotNull Logger logger;
     private final @NotNull ServerConnectionPacketManager packetManager;
 
     /**
@@ -71,6 +74,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
     public @NotNull String getIdentifier() {
         return this.identifier;
+    }
+
+    public @NotNull String getName() {
+        return this.name;
     }
 
     /**
@@ -244,8 +251,11 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             this.send("1");
 
             // Get the client identifier.
-            this.identifier = this.read();
+            String identifierAndName = this.read();
+            this.identifier = identifierAndName.split(":")[0];
+            this.name = identifierAndName.split(":")[1];
 
+            this.logger = this.logger.createExtension("[&r" + this.name + "&7]");
             this.logger.log("&aClient was validated.");
             return true;
 

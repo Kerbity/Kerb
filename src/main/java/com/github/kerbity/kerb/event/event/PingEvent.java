@@ -20,64 +20,14 @@
 
 package com.github.kerbity.kerb.event.event;
 
+import com.github.kerbity.kerb.client.RegisteredClient;
 import com.github.kerbity.kerb.event.CancellableEvent;
+import com.github.kerbity.kerb.event.SettableEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a simple ping event.
  * This is used as an example.
  */
-public class PingEvent extends CancellableEvent {
-
-    private @NotNull String serverName;
-    private boolean wasReceived;
-
-    /**
-     * Used to create a ping event.
-     *
-     * @param serverName The server that the ping was sent from.
-     */
-    public PingEvent(@NotNull String serverName) {
-        this.serverName = serverName;
-        this.wasReceived = false;
-    }
-
-    /**
-     * Used to get the name of the server
-     * the event was sent from.
-     *
-     * @return The name of the server.
-     */
-    public @NotNull String getServerName() {
-        return this.serverName;
-    }
-
-    /**
-     * Used to check if the event was received.
-     *
-     * @return True if the event was received.
-     */
-    public boolean wasReceived() {
-        return this.wasReceived;
-    }
-
-    /**
-     * Used to set the name of the server.
-     *
-     * @param serverName The name of the server.
-     * @return The instance of the event.
-     */
-    public @NotNull PingEvent setServerName(@NotNull String serverName) {
-        this.serverName = serverName;
-        return this;
-    }
-
-    /**
-     * Used to set if the event was received.
-     *
-     * @param wasReceived True if the event was received.
-     */
-    public void setWasReceived(boolean wasReceived) {
-        this.wasReceived = wasReceived;
-    }
+public class PingEvent extends SettableEvent<RegisteredClient> {
 }

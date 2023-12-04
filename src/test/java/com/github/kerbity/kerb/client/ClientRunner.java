@@ -35,15 +35,10 @@ public class ClientRunner {
         client.connect();
 
         client.registerListener(Priority.LOW, (EventListener<PingEvent>) event -> {
-            event.setWasReceived(true);
-            return event;
+            return event.set(client.getRegisteredClient());
         });
 
-        CompletableResultSet<PingEvent> resultCollection = client.callEvent(new PingEvent("Computer"));
+        CompletableResultSet<PingEvent> resultCollection = client.callEvent(new PingEvent());
         List<PingEvent> result = resultCollection.waitForFinalResult();
-
-        for (PingEvent eventResult : result) {
-            System.out.println(eventResult.wasReceived());
-        }
     }
 }

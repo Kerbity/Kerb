@@ -323,11 +323,13 @@ public class Server implements PasswordEncryption {
         String address = client.getInetAddress() + ":" + client.getPort();
         String collectionAddress = client.getInetAddress() + ":?";
 
+        System.out.println(address);
+        System.out.println(collectionAddress);
+
         String nameFromConfig = this.configuration.getSection("names")
                 .getString(address.replace(".", "-"));
         String collectionNameFromConfig = this.configuration.getSection("names")
                 .getString(collectionAddress.replace(".", "-"));
-
 
         if (nameFromConfig == null && collectionNameFromConfig == null) return address;
         if (nameFromConfig == null) return collectionNameFromConfig;

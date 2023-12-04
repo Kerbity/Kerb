@@ -540,7 +540,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
             }
 
             // Send the client's identifier.
-            this.send(this.identifier);
+            this.send(this.getIdentifier() + ":" + this.getName());
 
             this.isValid = true;
             this.logger.log("Client was validated.");

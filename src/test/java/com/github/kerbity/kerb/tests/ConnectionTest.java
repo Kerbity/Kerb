@@ -62,16 +62,16 @@ public class ConnectionTest {
 
         // Set up an event listener for the ping event.
         client.registerListener(Priority.LOW, (EventListener<PingEvent>) event -> {
-            event.setWasReceived(true);
+            event.set(client.getRegisteredClient());
             return event;
         });
 
         // Call the ping event.
-        CompletableResultSet<PingEvent> resultSet = client.callEvent(new PingEvent("Test"));
+        CompletableResultSet<PingEvent> resultSet = client.callEvent(new PingEvent());
 
         new ResultChecker()
                 .expect(resultSet.waitForFirstNonNull() != null)
-                .expect(resultSet.waitForFirstNonNullAssumption().wasReceived())
+                .expect(resultSet.waitForFirstNonNullAssumption().get().getName(), client.getName())
                 .expect("Test", resultSet.waitForFirstNonNullAssumption().getSource().getName());
     }
 
@@ -91,16 +91,16 @@ public class ConnectionTest {
             } catch (InterruptedException exception) {
                 throw new RuntimeException(exception);
             }
-            event.setWasReceived(true);
+            event.set(client1.getRegisteredClient());
             return event;
         });
 
         client2.registerListener(Priority.HIGH, (EventListener<PingEvent>) event -> {
-            event.setWasReceived(true);
+            event.set(client2.getRegisteredClient());
             return null;
         });
 
-        CompletableResultSet<PingEvent> resultSet = client1.callEvent(new PingEvent("Test"));
+        CompletableResultSet<PingEvent> resultSet = client1.callEvent(new PingEvent());
         List<PingEvent> results = resultSet.waitForFinalResult();
 
         new ResultChecker().expect(results.size() == 1);
