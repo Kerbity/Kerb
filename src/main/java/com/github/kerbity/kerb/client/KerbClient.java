@@ -25,6 +25,7 @@ import com.github.kerbity.kerb.PasswordEncryption;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.client.listener.PriorityEventListener;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import com.github.kerbity.kerb.event.Event;
 import com.github.kerbity.kerb.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
@@ -385,7 +386,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         }
 
         // Set the event source.
-        event.setSource(this.getRegisteredClient());
+        event.setSource(this.getAdapted());
 
         // Create a new completable result collection.
         CompletableResultSet<T> resultCollection = new CompletableResultSet<>(amount);

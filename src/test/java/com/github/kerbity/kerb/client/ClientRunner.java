@@ -35,7 +35,7 @@ public class ClientRunner {
         client.connect();
 
         client.registerListener(Priority.LOW, (EventListener<PingEvent>) event -> {
-            return event.set(client.getRegisteredClient());
+            return event.set(client.getAdapted());
         });
 
         CompletableResultSet<PingEvent> resultCollection = client.callEvent(new PingEvent());

@@ -20,14 +20,13 @@
 
 package com.github.kerbity.kerb.event.event;
 
-import com.github.kerbity.kerb.client.RegisteredClient;
-import com.github.kerbity.kerb.event.CancellableEvent;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClientAdapter;
 import com.github.kerbity.kerb.event.SettableEvent;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a simple ping event.
  * This is used as an example.
  */
-public class PingEvent extends SettableEvent<RegisteredClient> {
+public class PingEvent extends SettableEvent<RegisteredClientAdapter> {
 }

@@ -20,8 +20,8 @@
 
 package com.github.kerbity.kerb.event;
 
-import com.github.kerbity.kerb.client.RegisteredClient;
-import com.github.kerbity.kerb.client.RegisteredClientAdapter;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClientAdapter;
 import com.github.kerbity.kerb.indicator.Packable;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketType;
@@ -57,7 +57,7 @@ public abstract class Event implements Packable {
      *
      * @return The event source.
      */
-    public @NotNull RegisteredClient getSource() {
+    public @NotNull RegisteredClientAdapter getSource() {
         return this.source;
     }
 

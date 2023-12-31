@@ -18,8 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.client;
+package com.github.kerbity.kerb.client.registeredclient;
 
+import com.github.kerbity.kerb.client.KerbClient;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -66,7 +67,7 @@ public interface RegisteredClient {
      *
      * @return The instance of this registered client.
      */
-    default @NotNull RegisteredClientAdapter getRegisteredClient() {
-        return new RegisteredClientAdapter(this);
+    default @NotNull RegisteredClientAdapter getAdapted() {
+        return new RegisteredClientAdapter(this.getIdentifier(), this.getName(), this.isValid());
     }
 }

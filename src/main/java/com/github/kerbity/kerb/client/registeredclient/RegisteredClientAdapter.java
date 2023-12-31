@@ -18,8 +18,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.client;
+package com.github.kerbity.kerb.client.registeredclient;
 
+import com.github.kerbity.kerb.client.KerbClient;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  * Stops other clients from casting it to a
  * {@link KerbClient}.
  */
-public class RegisteredClientAdapter implements RegisteredClient {
+public class RegisteredClientAdapter {
 
     private final @NotNull String identifier;
     private final @NotNull String name;
@@ -35,26 +37,21 @@ public class RegisteredClientAdapter implements RegisteredClient {
 
     /**
      * Used to create a registered client adapter.
-     *
-     * @param client The instance of a client to adapt.
      */
-    public RegisteredClientAdapter(@NotNull RegisteredClient client) {
-        this.identifier = client.getIdentifier();
-        this.name = client.getName();
-        this.isValid = client.isValid();
+    public RegisteredClientAdapter(@NotNull String identifier, @NotNull String name, boolean isValid) {
+        this.identifier = identifier;
+        this.name = name;
+        this.isValid = isValid;
     }
 
-    @Override
     public @NotNull String getIdentifier() {
         return this.identifier;
     }
 
-    @Override
     public @NotNull String getName() {
         return this.name;
     }
 
-    @Override
     public boolean isValid() {
         return this.isValid;
     }

@@ -29,19 +29,20 @@ import org.jetbrains.annotations.Nullable;
  * An event used as a request to get a value from the clients.
  *
  * @param <T> The type of class to get.
+ *           This should not be an interface
  */
 public class SettableEvent<T> extends Event implements Settable<T, SettableEvent<T>> {
 
-    private @Nullable T instance;
+    private @Nullable T value;
 
     @Override
     public @NotNull SettableEvent<T> set(@Nullable T instance) {
-        this.instance = instance;
+        this.value = instance;
         return this;
     }
 
     @Override
     public @Nullable T get() {
-        return this.instance;
+        return this.value;
     }
 }

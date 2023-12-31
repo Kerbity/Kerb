@@ -36,39 +36,29 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.List;
 
+/**
+ * Contains tests for kerb events.
+ */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ConnectionTest {
+public class EventTests {
 
     @Test
     @Order(0)
-    public void testValidation() {
-        Server server = ServerCreator.createAndStart().waitForStartup();
-
-        // Create a client connection.
-        KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
-        client.connect();
-
-        new ResultChecker().expect(client.isValid());
-    }
-
-    @Test
-    @Order(1)
     public void testPingEvent() {
         Server server = ServerCreator.createAndStart().waitForStartup();
-
-        // Create a client connection.
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
         client.connect();
 
         // Set up an event listener for the ping event.
         client.registerListener(Priority.LOW, (EventListener<PingEvent>) event -> {
-            event.set(client.getRegisteredClient());
+            event.set(client.getAdapted());
             return event;
         });
 
         // Call the ping event.
         CompletableResultSet<PingEvent> resultSet = client.callEvent(new PingEvent());
 
+        // Ensure the event was processed correctly.
         new ResultChecker()
                 .expect(resultSet.waitForFirstNonNull() != null)
                 .expect(resultSet.waitForFirstNonNullAssumption().get().getName(), client.getName())
@@ -76,33 +66,37 @@ public class ConnectionTest {
     }
 
     @Test
-    @Order(2)
+    @Order(1)
     public void testPingEventMultiple() {
         Server server = ServerCreator.createAndStart().waitForStartup();
-        server.setDebugMode(true);
         KerbClient client1 = ClientCreator.create(server.getPort(), server.getAddress());
         client1.connect();
         KerbClient client2 = ClientCreator.create(server.getPort(), server.getAddress());
         client2.connect();
 
+        // Register a delayed listener.
         client1.registerListener(Priority.HIGH, (EventListener<PingEvent>) event -> {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException exception) {
                 throw new RuntimeException(exception);
             }
-            event.set(client1.getRegisteredClient());
+            event.set(client1.getAdapted());
             return event;
         });
 
+        // Register a listener.
         client2.registerListener(Priority.HIGH, (EventListener<PingEvent>) event -> {
-            event.set(client2.getRegisteredClient());
+            event.set(client2.getAdapted());
             return null;
         });
 
+        // Wait for the final result.
         CompletableResultSet<PingEvent> resultSet = client1.callEvent(new PingEvent());
         List<PingEvent> results = resultSet.waitForFinalResult();
 
+        // Ensure there is only one result.
+        // This is because the first listener took too long.
         new ResultChecker().expect(results.size() == 1);
     }
 }
