@@ -23,9 +23,8 @@ package com.github.kerbity.kerb.server;
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
-import com.github.kerbity.kerb.client.registeredclient.RegisteredClientAdapter;
-import com.github.kerbity.kerb.event.event.PingEvent;
 import com.github.kerbity.kerb.packet.Packet;
+import com.github.kerbity.kerb.packet.packet.CheckAlivePacket;
 import com.github.kerbity.kerb.result.CompletableResultSet;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +42,7 @@ import java.util.Arrays;
 public class ServerConnection extends Connection implements PasswordEncryption {
 
     private static final @NotNull String TIME_OUT_IDENTIFIER = "time_out";
+    private static final @NotNull String STAY_ALIVE_IDENTIFIER = "stay_alive";
 
     private @NotNull String identifier;
     private @NotNull String name;
@@ -234,6 +234,28 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             this.logger.log("Connection timed out. Didnt send password quick enough.");
             this.disconnect();
         }, Duration.ofSeconds(this.server.getTimeOut()), TIME_OUT_IDENTIFIER);
+    }
+
+    private void startStayAliveChecker() {
+
+        // Run this task every x seconds.
+        this.runLoopTask(() -> {
+
+                },
+                Duration.ofSeconds(this.getServer().getConfiguration().getInteger("is_still_connected_seconds", 60)),
+                STAY_ALIVE_IDENTIFIER
+        );
+    }
+
+    /**
+     * Used to check if the client is alive.
+     *
+     * @return The completable result set.
+     * This size will eventually be 1.
+     */
+    public @NotNull CompletableResultSet<CheckAlivePacket> checkAlive() {
+        this.send(new CheckAlivePacket().getPacketString());
+        return new CompletableResultSet<>(1);
     }
 
     private boolean validate() {

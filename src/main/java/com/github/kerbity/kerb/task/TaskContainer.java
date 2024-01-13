@@ -71,6 +71,7 @@ public class TaskContainer {
 
             // Create the instance of the task.
             Task task = () -> running.set(false);
+            this.taskMap.put(identifier, task);
 
             // Wait till duration has completed.
             while (running.get()) {
@@ -93,6 +94,59 @@ public class TaskContainer {
             // Run the task.
             runnable.run();
 
+        }).start();
+
+        return this;
+    }
+
+    /**
+     * Run a task every x duration.
+     *
+     * @param runnable The task to run.
+     * @param duration The duration to wait.
+     * @param identifier The identifier to set the task to.
+     * @return This instance.
+     */
+    protected @NotNull TaskContainer runLoopTask(@NotNull Runnable runnable, @NotNull Duration duration, @NotNull String identifier) {
+
+        // Check if the identifier already exists.
+        if (this.taskMap.containsKey(identifier)) {
+            throw new RuntimeException("Identifier already exists within task container.");
+        }
+
+        // Start the thread.
+        new Thread(() -> {
+
+            long from = System.currentTimeMillis();
+
+            // Set the running variable.
+            AtomicBoolean running = new AtomicBoolean(true);
+
+            // Create the instance of the task.
+            Task task = () -> running.set(false);
+            this.taskMap.put(identifier, task);
+
+            // While running.
+            while (running.get()) {
+
+                try {
+
+                    // Check if it's time to run the runnable.
+                    if (System.currentTimeMillis() - from >= duration.toMillis()) break;
+
+                    // Wait a few mills.
+                    Thread.sleep(SLEEP_TIME_MILLIS);
+
+                    // Check if the task was canceled.
+                    if (!running.get()) return;
+
+                    // Run the task.
+                    runnable.run();
+
+                } catch (InterruptedException exception) {
+                    throw new RuntimeException(exception);
+                }
+            }
         }).start();
 
         return this;

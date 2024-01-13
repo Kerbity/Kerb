@@ -30,7 +30,8 @@ public enum PacketType {
     EVENT("event"),
     EVENT_RESULT("event_result"),
     OBJECT("object"),
-    CLIENT_AMOUNT("client_amount");
+    CLIENT_AMOUNT("client_amount"),
+    CHECK_ALIVE("check_alive");
 
     private final @NotNull String identifier;
 

@@ -24,6 +24,10 @@ password: "123"
 # to validate the client within.
 timeout: 5
 
+# The number of seconds to wait between checking if
+# the client is still connected.
+is_still_connected_seconds: 60
+
 # Weather IPs that are not in the list should be blocked.
 block_other_connections: false
 
