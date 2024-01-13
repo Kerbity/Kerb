@@ -22,6 +22,7 @@ package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
+import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.server.command.CommandManager;
 import com.github.minemaniauk.developertools.console.Console;
 import com.github.minemaniauk.developertools.console.Logger;
@@ -76,9 +77,7 @@ public class Server implements PasswordEncryption {
         this.configuration = configuration;
 
         // Set up the logger.
-        this.logger = new Logger(false)
-                .setLogPrefix("&a[Kerb] &7[LOG] ")
-                .setWarnPrefix("&a[Kerb] &e[WARN] ");
+        this.logger = KerbClient.createLogger();
         this.commandManager = new CommandManager(this);
         this.connectionList = new ArrayList<>();
     }

@@ -70,4 +70,20 @@ public interface RegisteredClient {
     default @NotNull RegisteredClientAdapter getAdapted() {
         return new RegisteredClientAdapter(this.getIdentifier(), this.getName(), this.isValid());
     }
+
+    /**
+     * Used to create a registered client.
+     *
+     * @param identifier The client's identifier.
+     * @param name The client's name.
+     * @param isValid If the client is valid.
+     * @return The instance of the registered client.
+     */
+    static @NotNull RegisteredClient of(
+            @NotNull String identifier,
+            @NotNull String name,
+            boolean isValid) {
+
+        return new RegisteredClientAdapter(identifier, name, isValid);
+    }
 }

@@ -98,9 +98,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         this.password = password;
         this.maxWaitTime = maxWaitTime;
 
-        this.logger = new Logger(false)
-                .setLogPrefix("&a[Kerb] &7[LOG] ")
-                .setWarnPrefix("&a[Kerb] &e[WARN] ");
+        this.logger = KerbClient.createLogger();
         this.isConnected = false;
         this.isValid = false;
         this.debugMode = false;
@@ -573,5 +571,16 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    /**
+     * Used to create a new kerb logger.
+     *
+     * @return The instance of the new logger.
+     */
+    public static @NotNull Logger createLogger() {
+        return new Logger(false)
+                .setLogPrefix("&a[Kerb] &7[LOG] ")
+                .setWarnPrefix("&a[Kerb] &e[WARN] ");
     }
 }

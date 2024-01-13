@@ -22,6 +22,8 @@ package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClientAdapter;
 import com.github.kerbity.kerb.event.event.PingEvent;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.result.CompletableResultSet;
@@ -70,6 +72,16 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     @Override
     public boolean getDebugMode() {
         return this.server.isDebugMode();
+    }
+
+    /**
+     * Used to get the registered client instance.
+     *
+     * @return This will be the same as the
+     * kerb client.
+     */
+    public @NotNull RegisteredClient getRegisteredClient() {
+        return RegisteredClient.of(this.identifier, this.name, this.isValid);
     }
 
     public @NotNull String getIdentifier() {
@@ -174,7 +186,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
         // Validate the client.
         boolean valid = this.validate();
-        if (!valid) return;
+        if (!valid) {
+            this.disconnect();
+            return;
+        }
 
         // Start the connection loop.
         while (running) {
@@ -182,7 +197,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
                 // Check if the socket is closed.
                 if (this.getSocket() == null || this.getSocket().isClosed()) {
-                    this.logger.log("Disconnecting client dut to socket being null or closed.");
+                    this.logger.log("Disconnecting client due to socket being null or closed.");
                     this.disconnect();
                     return;
                 }
@@ -237,13 +252,15 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
             // Read the encrypted password.
             byte[] password = this.readBytes();
-            if (this.getSocket() == null || this.getSocket().isClosed()) return false;
+            if (this.getSocket() == null || this.getSocket().isClosed()) {
+                this.logger.log("Disconnecting client due to socket closing.");
+                return false;
+            }
 
             // Check if the password is incorrect.
             if (!Arrays.equals(password, this.server.getHashedPassword(salt))) {
                 this.logger.log("Disconnecting client due to password being incorrect.");
                 this.send("0");
-                this.disconnect();
                 return false;
             }
 
@@ -255,7 +272,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             this.identifier = identifierAndName.split(":")[0];
             this.name = identifierAndName.split(":")[1];
 
-            this.logger = this.logger.createExtension("[&r" + this.name + "&7]");
+            this.logger = this.logger.createExtension("[&r" + this.name + "&7] ");
             this.logger.log("&aClient was validated.");
             return true;
 

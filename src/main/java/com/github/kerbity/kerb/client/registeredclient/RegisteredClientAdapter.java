@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  * Stops other clients from casting it to a
  * {@link KerbClient}.
  */
-public class RegisteredClientAdapter {
+public class RegisteredClientAdapter implements RegisteredClient {
 
     private final @NotNull String identifier;
     private final @NotNull String name;
@@ -44,14 +44,17 @@ public class RegisteredClientAdapter {
         this.isValid = isValid;
     }
 
+    @Override
     public @NotNull String getIdentifier() {
         return this.identifier;
     }
 
+    @Override
     public @NotNull String getName() {
         return this.name;
     }
 
+    @Override
     public boolean isValid() {
         return this.isValid;
     }
