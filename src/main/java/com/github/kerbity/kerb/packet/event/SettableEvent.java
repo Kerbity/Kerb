@@ -18,15 +18,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+package com.github.kerbity.kerb.packet.event;
+
+import com.github.kerbity.kerb.indicator.Settable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
- * Contains the event interface and default events.
- * <ul>
- *     <li>An event can be sent to the server though a client.</li>
- *     <li>When the server receives the event, it will send it back to all trusted clients.</li>
- *     <li>
- *         When a client receives a event it will check if there are any registered
- *         listeners for the event and call them.
- *     </li>
- * </ul>
+ * Used to create a single settable event.
+ * An event used as a request to get a value from the clients.
+ *
+ * @param <T> The type of class to get.
+ *           This should not be an interface
  */
-package com.github.kerbity.kerb.event;
+public class SettableEvent<T> extends Event implements Settable<T, SettableEvent<T>> {
+
+    private @Nullable T value;
+
+    @Override
+    public @NotNull SettableEvent<T> set(@Nullable T instance) {
+        this.value = instance;
+        return this;
+    }
+
+    @Override
+    public @Nullable T get() {
+        return this.value;
+    }
+}

@@ -18,15 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.event.event;
-
-import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
-import com.github.kerbity.kerb.client.registeredclient.RegisteredClientAdapter;
-import com.github.kerbity.kerb.event.SettableEvent;
+package com.github.kerbity.kerb.packet.event;
 
 /**
- * Represents a simple ping event.
- * This is used as an example.
+ * Represents the priority of an event.
  */
-public class PingEvent extends SettableEvent<RegisteredClientAdapter> {
+public enum Priority {
+    HIGH, MEDIUM, LOW
 }

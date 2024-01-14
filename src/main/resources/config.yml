@@ -24,6 +24,12 @@ password: "123"
 # to validate the client within.
 timeout: 5
 
+# The number of milliseconds to wait for a
+# server event to be sent back.
+# If clients are getting disconnected randomly, this may
+# need to be increased to give clients more time to respond.
+max_wait_time_mills: 500
+
 # The number of seconds to wait between checking if
 # the client is still connected.
 is_still_connected_seconds: 60

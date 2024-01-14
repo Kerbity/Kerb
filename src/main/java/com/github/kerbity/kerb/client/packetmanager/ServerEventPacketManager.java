@@ -21,78 +21,68 @@
 package com.github.kerbity.kerb.client.packetmanager;
 
 import com.github.kerbity.kerb.client.KerbClient;
-import com.github.kerbity.kerb.packet.event.Event;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
-import com.github.kerbity.kerb.result.CompletableResultSet;
+import com.github.kerbity.kerb.packet.event.Event;
+import com.github.kerbity.kerb.packet.serverevent.ServerEvent;
+import com.github.kerbity.kerb.packet.serverevent.event.CheckAliveServerEvent;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents the event result packet manager.
- * Used to handle event results when sent to the client.
- */
-public class EventResultPacketManager implements PacketManager {
+public class ServerEventPacketManager implements PacketManager {
 
     private final @NotNull KerbClient client;
 
     /**
-     * Used to create a new event result packet manager.
+     * Used to create a new server event packet manager.
      *
      * @param client The instance of the kerb client
      *               it will be managing.
      */
-    public EventResultPacketManager(@NotNull KerbClient client) {
+    public ServerEventPacketManager(@NotNull KerbClient client) {
         this.client = client;
     }
 
     @Override
     public @NotNull PacketType getPacketType() {
-        return PacketType.EVENT_RESULT;
+        return PacketType.SERVER_EVENT;
     }
 
     @Override
     public void interpret(@NotNull Packet packet) {
-
         try {
-
-            // Check if the packet has a sequence identifier.
-            if (packet.getSequenceIdentifier() == null) {
-                this.client.getLogger().warn("Sequence identifier returned null for packet: " + packet);
-                return;
-            }
-
-            // Get the result collection.
-            CompletableResultSet<?> resultCollection = this.client.getResult(packet.getSequenceIdentifier());
-
-            // Check if the result collection is null.
-            if (resultCollection == null) {
-                this.client.getLogger().warn("Result collection returned null.");
-                return;
-            }
 
             // Get the instance of the event class.
             Class<?> eventClass = Class.forName(packet.getIdentifier());
 
             // Create the event class from the packet.
-            Object eventObject = packet.getData(eventClass);
+            Object serverEventObject = packet.getData(eventClass);
 
             // Check if the event object is instance of an event.
-            if (!(eventObject instanceof Event event)) {
-                this.client.getLogger().warn("The packet type event interpreted was not an event.");
+            if (!(serverEventObject instanceof ServerEvent event)) {
+                this.client.getLogger().warn("The packet type server event interpreted was not an event.");
                 return;
             }
 
-            // Attempt to add the result.
-            resultCollection.addAmbiguosResult(event);
-
-            // Check if the result has been completed.
-            if (resultCollection.isComplete()) {
-                this.client.removeResult(packet.getSequenceIdentifier());
+            // Check if it is a check alive server event.
+            if (serverEventObject instanceof CheckAliveServerEvent checkAliveEvent) {
+                CheckAliveServerEvent result = this.handleCheckAlive(checkAliveEvent);
+                this.client.sendPacket(result.packet());
+                return;
             }
 
-        } catch (Exception exception) {
+        } catch (ClassNotFoundException exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    /**
+     * Used to handle the check alive server packet.
+     *
+     * @param event The instance of the event.
+     * @return The modified event.
+     */
+    public @NotNull CheckAliveServerEvent handleCheckAlive(@NotNull CheckAliveServerEvent event) {
+        return event.setAlive(true);
     }
 }

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.security.KeyStore;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -176,6 +177,16 @@ public class Server implements PasswordEncryption {
      */
     public int getTimeOut() {
         return this.configuration.getInteger("timeout", 5);
+    }
+
+    /**
+     * Used to get the maximum wait till the server connections
+     * should wait for server events to be sent back.
+     *
+     * @return The duration to wait.
+     */
+    public @NotNull Duration getMaxWaitTime() {
+        return Duration.ofSeconds(this.configuration.getLong("max_wait_time_mills", 500));
     }
 
     /**

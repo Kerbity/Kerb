@@ -18,7 +18,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+package com.github.kerbity.kerb.packet.event.event;
+
+import com.github.kerbity.kerb.client.registeredclient.RegisteredClientAdapter;
+import com.github.kerbity.kerb.packet.event.SettableEvent;
+
 /**
- * Contains the software default events.
+ * Represents a simple ping event.
+ * This is used as an example.
  */
-package com.github.kerbity.kerb.event.event;
+public class PingEvent extends SettableEvent<RegisteredClientAdapter> {
+}

@@ -27,11 +27,33 @@ import org.jetbrains.annotations.Nullable;
  * Represents all the packet types that can be sent.
  */
 public enum PacketType {
+
+    /**
+     * An event sent from a client to the server.
+     */
     EVENT("event"),
+
+    /**
+     * After the event is received, the event is
+     * sent back as an event_result.
+     */
     EVENT_RESULT("event_result"),
+
+    /**
+     * An event sent from the server to a specific client.
+     */
+    SERVER_EVENT("server_event"),
+
+    /**
+     * A packet that contains some data
+     * that will get sent to every client.
+     */
     OBJECT("object"),
-    CLIENT_AMOUNT("client_amount"),
-    CHECK_ALIVE("check_alive");
+
+    /**
+     * Used to retrieve the number of clients.
+     */
+    CLIENT_AMOUNT("client_amount");
 
     private final @NotNull String identifier;
 

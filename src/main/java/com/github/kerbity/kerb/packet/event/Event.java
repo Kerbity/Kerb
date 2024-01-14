@@ -18,9 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.event;
+package com.github.kerbity.kerb.packet.event;
 
-import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClientAdapter;
 import com.github.kerbity.kerb.indicator.Packable;
 import com.github.kerbity.kerb.packet.Packet;
@@ -28,7 +27,8 @@ import com.github.kerbity.kerb.packet.PacketType;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an event.
+ * Represents an event or an event result,
+ * but defaults to an event.
  * <ul>
  *     <li>
  *         When sent though a client to the server it will be

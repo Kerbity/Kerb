@@ -18,50 +18,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.packet.packet;
+package com.github.kerbity.kerb.packet.serverevent.event;
 
-import com.github.kerbity.kerb.packet.Packet;
-import com.github.kerbity.kerb.packet.PacketType;
+import com.github.kerbity.kerb.packet.serverevent.ServerEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Represents the check alive packet.
- * Used to check if a client is alive.
+ * Represents a check alive server event.
+ * Used to check if a client is still connected.
  */
-public class CheckAlivePacket extends Packet {
+public class CheckAliveServerEvent extends ServerEvent {
 
-    public CheckAlivePacket() {
-        super(new HashMap<>());
-
-        this.setType(PacketType.CHECK_ALIVE);
-    }
-
-    public CheckAlivePacket(@NotNull Map<String, Object> map) {
-        super(map);
-
-        this.setType(PacketType.CHECK_ALIVE);
-    }
+    private boolean isAlive;
 
     /**
-     * Used to check if it is set to is alive.
+     * Used to check if the client has set isAlive to true.
      *
-     * @return False if was not changed.
+     * @return True if the client is alive.
      */
     public boolean isAlive() {
-        return this.getBoolean("is_alive", false);
+        return this.isAlive;
     }
 
     /**
-     * Used to set if the client is alive.
+     * Used to set weather this client is alive or not.
      *
-     * @param isAlive True if it is alive.
+     * @param isAlive True if the client is still connected.
      * @return This instance.
      */
-    public @NotNull CheckAlivePacket setAlive(boolean isAlive) {
-        this.set("is_alive", isAlive);
+    public @NotNull CheckAliveServerEvent setAlive(boolean isAlive) {
+        this.isAlive = isAlive;
         return this;
     }
 }

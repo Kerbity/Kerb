@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.event;
+package com.github.kerbity.kerb.packet.event;
 
 import com.github.kerbity.kerb.indicator.Completable;
 import org.jetbrains.annotations.NotNull;

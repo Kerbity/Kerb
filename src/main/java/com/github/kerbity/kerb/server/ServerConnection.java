@@ -22,9 +22,11 @@ package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
+import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import com.github.kerbity.kerb.packet.Packet;
-import com.github.kerbity.kerb.packet.packet.CheckAlivePacket;
+import com.github.kerbity.kerb.packet.serverevent.ServerEvent;
+import com.github.kerbity.kerb.packet.serverevent.event.CheckAliveServerEvent;
 import com.github.kerbity.kerb.result.CompletableResultSet;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * Represents a connection from a
@@ -53,6 +55,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     private final @NotNull Server server;
     private @NotNull Logger logger;
     private final @NotNull ServerConnectionPacketManager packetManager;
+    private final @NotNull Map<@NotNull String, @NotNull CompletableResultSet<?>> resultMap;
 
     /**
      * Used to create a server connection.
@@ -65,6 +68,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         this.server = server;
         this.logger = logger;
         this.packetManager = new ServerConnectionPacketManager(this);
+        this.resultMap = new HashMap<>();
 
         this.setupStreams(socket, logger.createExtension("[Socket] "));
     }
@@ -109,6 +113,18 @@ public class ServerConnection extends Connection implements PasswordEncryption {
      */
     public @NotNull Logger getLogger() {
         return this.logger;
+    }
+
+    /**
+     * Used to get the result from the sequence identifier
+     * for server events.
+     *
+     * @param sequenceIdentifier The sequence identifier.
+     * @return The requested completable result collection
+     * linked to a server event.
+     */
+    public @Nullable CompletableResultSet<?> getServerResult(@NotNull String sequenceIdentifier) {
+        return this.resultMap.get(sequenceIdentifier);
     }
 
     /**
@@ -169,6 +185,73 @@ public class ServerConnection extends Connection implements PasswordEncryption {
      */
     public void sendData(@NotNull String data) {
         this.send(data);
+    }
+
+    /**
+     * Used to add the server result with a max wait time.
+     * This will also register the server result with the server connection.
+     *
+     * @param sequenceIdentifier The sequence identifier to match up to
+     *                           the result packets.
+     * @param resultSet   The instance of the server result set.
+     * @return This instance.
+     */
+    public @NotNull ServerConnection addResult(@NotNull String sequenceIdentifier,
+                                         @NotNull CompletableResultSet<?> resultSet) {
+
+        // Add the result to the map.
+        this.resultMap.put(sequenceIdentifier, resultSet);
+
+        // Remove the result after the max wait time.
+        this.runTask(() -> {
+
+            // Check if the result has been completed.
+            if (resultSet.isComplete()) return;
+
+            // Complete the result collection.
+            resultSet.complete(CompletableResultSet.CompleteReason.TIME);
+
+            // Remove the result collection from the map.
+            this.removeResult(sequenceIdentifier);
+
+        }, this.server.getMaxWaitTime(), sequenceIdentifier);
+
+        return this;
+    }
+
+    /**
+     * Used to remove a server result from the result map.
+     *
+     * @param sequenceIdentifier The instance of the sequence identifier.
+     * @return This instance.
+     */
+    public @NotNull ServerConnection removeResult(@NotNull String sequenceIdentifier) {
+        this.resultMap.remove(sequenceIdentifier);
+        return this;
+    }
+
+    /**
+     * Used to check if the client is alive.
+     *
+     * @return The completable result set.
+     * This size will eventually be 1.
+     */
+    public @NotNull <T extends ServerEvent> CompletableResultSet<T> callServerEvent(T serverEvent) {
+
+        // Create a new sequence identifier.
+        String sequenceIdentifier = UUID.randomUUID().toString();
+
+        // Create a new completable result collection.
+        CompletableResultSet<T> resultCollection = new CompletableResultSet<>(1);
+        this.addResult(sequenceIdentifier, resultCollection);
+
+        // Send the event packet.
+        this.send(serverEvent.packet()
+                .setSequenceIdentifier(sequenceIdentifier)
+                .setSource(this.getRegisteredClient().getIdentifier())
+                .getPacketString());
+
+        return resultCollection;
     }
 
     /**
@@ -241,21 +324,18 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         // Run this task every x seconds.
         this.runLoopTask(() -> {
 
+            CompletableResultSet<CheckAliveServerEvent> result = this.callServerEvent(new CheckAliveServerEvent());
+            CheckAliveServerEvent event = result.waitForFirst();
+            if (event == null || !event.isAlive()) {
+                this.logger.log("Client was kicked due to not responding correctly. If this is incorrect, " +
+                        "you may want to consider increasing is_still_connected_seconds in the config.");
+                this.disconnect();
+            }
+
                 },
                 Duration.ofSeconds(this.getServer().getConfiguration().getInteger("is_still_connected_seconds", 60)),
                 STAY_ALIVE_IDENTIFIER
         );
-    }
-
-    /**
-     * Used to check if the client is alive.
-     *
-     * @return The completable result set.
-     * This size will eventually be 1.
-     */
-    public @NotNull CompletableResultSet<CheckAlivePacket> checkAlive() {
-        this.send(new CheckAlivePacket().getPacketString());
-        return new CompletableResultSet<>(1);
     }
 
     private boolean validate() {
@@ -313,6 +393,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
                 this.running = false;
                 this.server.remove(this);
                 this.logger.log("Already disconnected.");
+                this.stopAllTasks();
                 return;
             }
 

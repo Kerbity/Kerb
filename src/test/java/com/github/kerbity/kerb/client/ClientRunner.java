@@ -22,8 +22,8 @@ package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.creator.ClientCreator;
-import com.github.kerbity.kerb.event.Priority;
-import com.github.kerbity.kerb.event.event.PingEvent;
+import com.github.kerbity.kerb.packet.event.Priority;
+import com.github.kerbity.kerb.packet.event.event.PingEvent;
 import com.github.kerbity.kerb.result.CompletableResultSet;
 
 import java.util.List;

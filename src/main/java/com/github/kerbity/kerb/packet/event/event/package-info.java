@@ -18,11 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.event;
-
 /**
- * Represents the priority of an event.
+ * Contains the software default events.
  */
-public enum Priority {
-    HIGH, MEDIUM, LOW
-}
+package com.github.kerbity.kerb.packet.event.event;

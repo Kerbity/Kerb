@@ -20,7 +20,7 @@
 
 package com.github.kerbity.kerb.client.listener;
 
-import com.github.kerbity.kerb.event.Event;
+import com.github.kerbity.kerb.packet.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
