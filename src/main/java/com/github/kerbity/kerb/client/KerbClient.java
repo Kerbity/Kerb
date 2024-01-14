@@ -56,6 +56,9 @@ public class KerbClient extends Connection implements RegisteredClient, Password
     private final @NotNull File server_certificate;
     private final @NotNull String password;
     private final @NotNull Duration maxWaitTime;
+    private final boolean autoReconnect;
+    private final @NotNull Duration reconnectCooldown;
+    private final int maxReconnectionAttempts;
 
     private final @NotNull Logger logger;
     private boolean isConnected;
@@ -66,6 +69,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
     private final @NotNull List<@NotNull ObjectListener<?>> objectListenerList;
     private final @NotNull Map<@NotNull String, @NotNull CompletableResultSet<?>> resultMap;
     private final @NotNull ClientPacketManager packetManager;
+    private int reconnectAttempts;
 
     /**
      * Used to create a new instance of a kerb client.
@@ -87,7 +91,10 @@ public class KerbClient extends Connection implements RegisteredClient, Password
                       @NotNull File client_certificate,
                       @NotNull File server_certificate,
                       @NotNull String password,
-                      @NotNull Duration maxWaitTime) {
+                      @NotNull Duration maxWaitTime,
+                      boolean autoReconnect,
+                      @NotNull Duration reconnectCooldown,
+                      int maxReconnectionAttempts) {
 
         this.name = name;
         this.identifier = UUID.randomUUID().toString();
@@ -97,6 +104,9 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         this.server_certificate = server_certificate;
         this.password = password;
         this.maxWaitTime = maxWaitTime;
+        this.autoReconnect = autoReconnect;
+        this.reconnectCooldown = reconnectCooldown;
+        this.maxReconnectionAttempts = maxReconnectionAttempts;
 
         this.logger = KerbClient.createLogger();
         this.isConnected = false;
@@ -107,6 +117,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         this.objectListenerList = new ArrayList<>();
         this.resultMap = new HashMap<>();
         this.packetManager = new ClientPacketManager(this);
+        this.reconnectAttempts = 0;
     }
 
     @Override
@@ -152,6 +163,36 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      */
     public @NotNull Duration getMaxWaitTime() {
         return this.maxWaitTime;
+    }
+
+    /**
+     * Used to get if the client should try to reconnect.
+     *
+     * @return True if the client should try to auto reconnect.
+     */
+    public boolean getShouldAutoReconnect() {
+        return this.autoReconnect;
+    }
+
+    /**
+     * Used to get the reconnection cooldown.
+     * The amount of time the client should wait
+     * before trying to reconnect to the server.
+     *
+     * @return The duration to wait.
+     */
+    public @NotNull Duration getReconnectCooldown() {
+        return this.reconnectCooldown;
+    }
+
+    /**
+     * Used to get the maximum reconnection attempts.
+     * If -1 there is no maximum.
+     *
+     * @return The maximum reconnection attempts.
+     */
+    public int getMaxReconnectionAttempts() {
+        return this.maxReconnectionAttempts;
     }
 
     /**
@@ -565,10 +606,81 @@ public class KerbClient extends Connection implements RegisteredClient, Password
             this.closeStreams();
             this.getSocket().close();
             this.isConnected = false;
+            this.isValid = false;
 
+            // Attempt to reconnect.
+            this.checkAndAttemptToReconnect();
             return true;
 
         } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * Used to check if the client can reconnect.
+     * If so it will try to reconnect to the server.
+     */
+    public void checkAndAttemptToReconnect() {
+
+        // Check if it is already connected.
+        if (this.isConnected()) return;
+
+        // Check if it should try to reconnect.
+        boolean canAttempt = (this.getMaxReconnectionAttempts() == -1 || this.reconnectAttempts < this.getMaxReconnectionAttempts());
+        if (this.getShouldAutoReconnect() && canAttempt) {
+            new Thread(() -> {
+
+                // Attempt to connect.
+                this.logger.log("Attempting to reconnect to the server. {attempts:" + this.reconnectAttempts + "}");
+                boolean success = this.connect();
+                if (success) return;
+
+                try {
+
+                    this.reconnectAttempts += 1;
+                    Thread.sleep(this.getReconnectCooldown().toMillis());
+                    this.checkAndAttemptToReconnect();
+
+                } catch (InterruptedException exception) {
+                    throw new RuntimeException(exception);
+                }
+            }).start();
+        }
+    }
+
+    /**
+     * Wait until the client has been validated.
+     *
+     * @return This instance.
+     */
+    public @NotNull KerbClient waitForValid() {
+        try {
+
+            while (!this.isValid) {
+                Thread.sleep(10);
+            }
+
+            return this;
+        } catch (InterruptedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * Wait for the client to be invalid.
+     *
+     * @return This instance.
+     */
+    public @NotNull KerbClient waitForInvalid() {
+        try {
+
+            while (this.isValid) {
+                Thread.sleep(10);
+            }
+
+            return this;
+        } catch (InterruptedException exception) {
             throw new RuntimeException(exception);
         }
     }

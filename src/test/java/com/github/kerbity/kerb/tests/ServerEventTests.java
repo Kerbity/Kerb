@@ -21,8 +21,13 @@
 package com.github.kerbity.kerb.tests;
 
 import com.github.kerbity.kerb.client.KerbClient;
+import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.creator.ClientCreator;
 import com.github.kerbity.kerb.creator.ServerCreator;
+import com.github.kerbity.kerb.packet.event.Priority;
+import com.github.kerbity.kerb.packet.event.event.PingEvent;
+import com.github.kerbity.kerb.packet.serverevent.event.CheckAliveServerEvent;
+import com.github.kerbity.kerb.result.CompletableResultSet;
 import com.github.kerbity.kerb.server.Server;
 import com.github.minemaniauk.developertools.testing.ResultChecker;
 import org.junit.jupiter.api.MethodOrderer;
@@ -30,46 +35,26 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.util.Objects;
+
 /**
- * Contains tests to test connecting to
- * the kerb server as a kerb client.
+ * Contains tests for kerb server events.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ConnectionTests {
+public class ServerEventTests {
 
     @Test
     @Order(0)
-    public void testValidation() {
+    public void checkAliveEvent() {
         Server server = ServerCreator.createAndStart().waitForStartup();
-
-        // Create a client connection.
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
         client.connect();
 
-        // Check if the client was validated.
+        CompletableResultSet<CheckAliveServerEvent> result = server.getConnectionList().get(0).callServerEvent(new CheckAliveServerEvent());
+
+        // Ensure the event was processed correctly.
         new ResultChecker()
-                .expect(client.isValid())
-                .expect(server.getConnectionList().get(0).isValid());
-    }
-
-    @Test
-    @Order(1)
-    public void testReconnecting() {
-        Server server = ServerCreator.createAndStart().waitForStartup();
-
-        // Create a client connection.
-        KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
-        client.connect();
-
-        // Disconnect the client from the server.
-        server.getConnectionList().get(0).disconnect();
-
-        // Wait until it has reconnected.
-        client.waitForInvalid().waitForValid();
-
-        // Check if the client was validated.
-        new ResultChecker()
-                .expect(client.isValid())
-                .expect(server.getConnectionList().get(0).isValid());
+                .expect(result.waitForFirst() != null)
+                .expect(Objects.requireNonNull(result.waitForFirst()).isAlive());
     }
 }

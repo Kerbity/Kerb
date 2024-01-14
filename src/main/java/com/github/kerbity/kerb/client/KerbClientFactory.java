@@ -38,6 +38,9 @@ public class KerbClientFactory {
     private final @NotNull File server_certificate;
     private final @NotNull String password;
     private final @NotNull Duration maxWaitTime;
+    private final boolean autoReconnect;
+    private final @NotNull Duration reconnectCooldown;
+    private final int maxReconnectionAttempts;
 
     /**
      * Used to create a kerb client factory.
@@ -54,13 +57,20 @@ public class KerbClientFactory {
                              @NotNull File client_certificate,
                              @NotNull File server_certificate,
                              @NotNull String password,
-                             @NotNull Duration maxWaitTime) {
+                             @NotNull Duration maxWaitTime,
+                             boolean autoReconnect,
+                             @NotNull Duration reconnectCooldown,
+                             int maxReconnectionAttempts) {
+
         this.port = port;
         this.address = address;
         this.client_certificate = client_certificate;
         this.server_certificate = server_certificate;
         this.password = password;
         this.maxWaitTime = maxWaitTime;
+        this.autoReconnect = autoReconnect;
+        this.reconnectCooldown = reconnectCooldown;
+        this.maxReconnectionAttempts = maxReconnectionAttempts;
     }
 
     /**
@@ -76,7 +86,10 @@ public class KerbClientFactory {
                 this.client_certificate,
                 this.server_certificate,
                 this.password,
-                this.maxWaitTime
+                this.maxWaitTime,
+                this.autoReconnect,
+                this.reconnectCooldown,
+                this.maxReconnectionAttempts
         ).setDebugMode(true);
     }
 }

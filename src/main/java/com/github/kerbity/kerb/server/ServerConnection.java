@@ -246,10 +246,12 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         this.addResult(sequenceIdentifier, resultCollection);
 
         // Send the event packet.
-        this.send(serverEvent.packet()
+        Packet packet = serverEvent.packet()
                 .setSequenceIdentifier(sequenceIdentifier)
-                .setSource(this.getRegisteredClient().getIdentifier())
-                .getPacketString());
+                .setSource(this.getRegisteredClient().getIdentifier());
+
+        this.send(packet.getPacketString());
+        this.logger.log("&5[ServerEvent] " + packet.getPacketString());
 
         return resultCollection;
     }
@@ -323,8 +325,6 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
         // Run this task every x seconds.
         this.runLoopTask(() -> {
-
-            this.logger.log("&5[ServerEvent] Checking if " + this.getRegisteredClient().asString() + " is alive.");
 
             CompletableResultSet<CheckAliveServerEvent> result = this.callServerEvent(new CheckAliveServerEvent());
             CheckAliveServerEvent event = result.waitForFirst();

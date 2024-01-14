@@ -67,7 +67,7 @@ public class ServerEventPacketManager implements PacketManager {
             // Check if it is a check alive server event.
             if (serverEventObject instanceof CheckAliveServerEvent checkAliveEvent) {
                 CheckAliveServerEvent result = this.handleCheckAlive(checkAliveEvent);
-                this.client.sendPacket(result.packet());
+                this.client.sendPacket(packet.setData(result));
                 return;
             }
 

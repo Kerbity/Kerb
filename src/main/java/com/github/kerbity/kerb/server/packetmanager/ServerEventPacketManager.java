@@ -52,6 +52,7 @@ public class ServerEventPacketManager implements PacketManager {
     public void interpret(@NotNull Packet packet) {
 
         try {
+
             // Check if the identifiers are the same.
             if (!this.connection.getRegisteredClient().getIdentifier().equals(packet.getSource())) return;
 

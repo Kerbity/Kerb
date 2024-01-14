@@ -46,7 +46,10 @@ public class ClientCreator {
                 new File(configuration.getString("client_certificate_path")),
                 new File(configuration.getString("server_certificate_path")),
                 configuration.getString("password"),
-                Duration.ofMillis(configuration.getInteger("maxWaitTimeMillis", 500))
+                Duration.ofMillis(configuration.getInteger("maxWaitTimeMillis", 500)),
+                true,
+                Duration.ofMillis(500),
+                -1
         );
     }
 
@@ -63,7 +66,10 @@ public class ClientCreator {
                 new File(configuration.getString("client_certificate_path")),
                 new File(configuration.getString("server_certificate_path")),
                 configuration.getString("password"),
-                Duration.ofMillis(configuration.getInteger("maxWaitTimeMillis", 500))
+                Duration.ofMillis(configuration.getInteger("maxWaitTimeMillis", 500)),
+                true,
+                Duration.ofMillis(500),
+                -1
         );
     }
 

@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.net.ssl.*;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.*;
 import java.security.cert.CertificateException;
 
@@ -136,15 +137,27 @@ public abstract class Connection extends TaskContainer {
         if (socket == null) return null;
         if (socket.isClosed()) return null;
 
-        if (this.getDebugMode()) this.logger
-                .createExtension("[" + this.socket.getLocalPort() + "] ")
-                .log("&7[DEBUG] Waiting for data.");
+        try {
 
-        String data = this.bufferedReader.readLine();
-        if (this.getDebugMode()) this.logger
-                .createExtension("[" + this.socket.getLocalPort() + "] ")
-                .log("&7[DEBUG] Read {data: \"" + data + "\"}");
-        return data;
+            if (this.getDebugMode()) this.logger
+                    .createExtension("[" + this.socket.getLocalPort() + "] ")
+                    .log("&7[DEBUG] Waiting for data.");
+
+            String data = this.bufferedReader.readLine();
+            if (this.getDebugMode()) this.logger
+                    .createExtension("[" + this.socket.getLocalPort() + "] ")
+                    .log("&7[DEBUG] Read {data: \"" + data + "\"}");
+            return data;
+
+        } catch (SocketException exception) {
+            if (exception.getMessage().contains("Socket closed")) {
+                if (this.getDebugMode()) this.logger
+                        .createExtension("[" + this.socket.getLocalPort() + "] ")
+                        .log("&7[DEBUG] Unable to read data as socket was closed.");
+                return null;
+            }
+            throw new RuntimeException(exception);
+        }
     }
 
     protected byte[] readBytes() throws IOException {
