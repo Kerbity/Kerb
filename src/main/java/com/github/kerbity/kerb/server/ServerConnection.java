@@ -403,6 +403,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             }
 
             // Attempt to close the connection.
+
             this.running = false;
             this.closeStreams();
             this.getSocket().close();

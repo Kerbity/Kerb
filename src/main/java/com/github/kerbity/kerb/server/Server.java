@@ -78,7 +78,7 @@ public class Server implements PasswordEncryption {
         this.configuration = configuration;
 
         // Set up the logger.
-        this.logger = KerbClient.createLogger();
+        this.logger = Server.createLogger();
         this.commandManager = new CommandManager(this);
         this.connectionList = new ArrayList<>();
     }
@@ -315,6 +315,10 @@ public class Server implements PasswordEncryption {
                 new Thread(serverThread::start).start();
 
             } catch (IOException exception) {
+                if (exception.getMessage().contains("Socket closed")) {
+                    this.logger.warn("Socket was closed when trying to accept connections.");
+                    return;
+                }
                 this.logger.warn("Exception occurred while attempting to accept a client connection.");
                 throw new RuntimeException(exception);
             }
@@ -394,16 +398,21 @@ public class Server implements PasswordEncryption {
      * Used to stop this instance of the server.
      */
     public void stop() {
-        Console.log("Stopping the server.");
 
+        this.logger.log("&7");
+        this.logger.log("&rStopping the server.");
         this.running = false;
+
+        // Disconnect all clients from the server.
+        for (ServerConnection connection : new ArrayList<>(this.getConnectionList())) {
+            connection.disconnect();
+        }
 
         try {
 
             // Attempt to close the server.
             if (this.socket != null) this.socket.close();
-
-            Console.log("Server socket closed.");
+            this.logger.log("Server socket closed.");
 
         } catch (IOException exception) {
             throw new RuntimeException(exception);
@@ -432,5 +441,16 @@ public class Server implements PasswordEncryption {
         this.logger.log("&7Author: &rSmuddgge");
         this.logger.log("&7Version: &r" + this.getVersion());
         this.logger.log("");
+    }
+
+    /**
+     * Used to create a new kerb logger.
+     *
+     * @return The instance of the new logger.
+     */
+    public static @NotNull Logger createLogger() {
+        return new Logger(false)
+                .setLogPrefix("&a[Kerb] &7[LOG] ")
+                .setWarnPrefix("&a[Kerb] &e[WARN] ");
     }
 }

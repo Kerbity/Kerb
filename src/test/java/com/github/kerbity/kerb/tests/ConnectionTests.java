@@ -54,7 +54,7 @@ public class ConnectionTests {
 
     @Test
     @Order(1)
-    public void testReconnecting() {
+    public void testReconnectingWhenServerDisconnectsClient() {
         Server server = ServerCreator.createAndStart().waitForStartup();
 
         // Create a client connection.
@@ -66,6 +66,35 @@ public class ConnectionTests {
 
         // Wait until it has reconnected.
         client.waitForInvalid().waitForValid();
+
+        // Check if the client was validated.
+        new ResultChecker()
+                .expect(client.isValid())
+                .expect(server.getConnectionList().get(0).isValid());
+    }
+
+    @Test
+    @Order(2)
+    public void testReconnectingWhenServerShutsDown() throws InterruptedException {
+        Server server = ServerCreator.createAndStart().waitForStartup();
+
+        // Create a client connection.
+        KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
+        client.connect();
+        client.waitForValid();
+
+        // Stop server.
+        server.stop();
+        client.waitForInvalid();
+
+        Thread.sleep(100);
+
+        // Start the server.
+        new Thread(server::start).start();
+        server.waitForStartup();
+
+        // Wait until it has reconnected.
+        client.waitForValid();
 
         // Check if the client was validated.
         new ResultChecker()

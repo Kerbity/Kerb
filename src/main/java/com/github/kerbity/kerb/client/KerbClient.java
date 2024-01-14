@@ -522,7 +522,8 @@ public class KerbClient extends Connection implements RegisteredClient, Password
             return true;
 
         } catch (Exception exception) {
-            throw new RuntimeException(exception);
+            if (!this.checkAndAttemptToReconnect()) throw new RuntimeException(exception);
+            return false;
         }
     }
 
@@ -588,7 +589,8 @@ public class KerbClient extends Connection implements RegisteredClient, Password
             return true;
 
         } catch (IOException exception) {
-            throw new RuntimeException(exception);
+            if (!this.checkAndAttemptToReconnect()) throw new RuntimeException(exception);
+            return false;
         }
     }
 
@@ -622,10 +624,10 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      * Used to check if the client can reconnect.
      * If so it will try to reconnect to the server.
      */
-    public void checkAndAttemptToReconnect() {
+    public boolean checkAndAttemptToReconnect() {
 
         // Check if it is already connected.
-        if (this.isConnected()) return;
+        if (this.isConnected()) return true;
 
         // Check if it should try to reconnect.
         boolean canAttempt = (this.getMaxReconnectionAttempts() == -1 || this.reconnectAttempts < this.getMaxReconnectionAttempts());
@@ -647,7 +649,11 @@ public class KerbClient extends Connection implements RegisteredClient, Password
                     throw new RuntimeException(exception);
                 }
             }).start();
+            return true;
         }
+
+        // Otherwise the client should not try to reconnect.
+        return false;
     }
 
     /**
@@ -693,7 +699,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      */
     public static @NotNull Logger createLogger() {
         return new Logger(false)
-                .setLogPrefix("&a[Kerb] &7[LOG] ")
-                .setWarnPrefix("&a[Kerb] &e[WARN] ");
+                .setLogPrefix("&a[KerbClient] &7[LOG] ")
+                .setWarnPrefix("&a[KerbClient] &e[WARN] ");
     }
 }
