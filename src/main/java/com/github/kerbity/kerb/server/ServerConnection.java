@@ -324,6 +324,8 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         // Run this task every x seconds.
         this.runLoopTask(() -> {
 
+            this.logger.log("&5[ServerEvent] Checking if " + this.getRegisteredClient().asString() + " is alive.");
+
             CompletableResultSet<CheckAliveServerEvent> result = this.callServerEvent(new CheckAliveServerEvent());
             CheckAliveServerEvent event = result.waitForFirst();
             if (event == null || !event.isAlive()) {

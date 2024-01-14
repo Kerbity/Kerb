@@ -55,7 +55,7 @@ public class ServerEventPacketManager implements PacketManager {
             // Check if the identifiers are the same.
             if (!this.connection.getRegisteredClient().getIdentifier().equals(packet.getSource())) return;
 
-            this.connection.getLogger().log("&3[ServerEventResult] " + packet);
+            this.connection.getLogger().log("&5[ServerEventResult] " + packet);
 
             // Get the result set.
             CompletableResultSet<?> resultSet = this.connection.getServerResult(packet.getSequenceIdentifier());

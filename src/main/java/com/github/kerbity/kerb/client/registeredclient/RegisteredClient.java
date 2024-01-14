@@ -21,6 +21,7 @@
 package com.github.kerbity.kerb.client.registeredclient;
 
 import com.github.kerbity.kerb.client.KerbClient;
+import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -69,6 +70,17 @@ public interface RegisteredClient {
      */
     default @NotNull RegisteredClientAdapter getAdapted() {
         return new RegisteredClientAdapter(this.getIdentifier(), this.getName(), this.isValid());
+    }
+
+    /**
+     * Used to convert this into a string.
+     *
+     * @return This object as a string.
+     */
+    default @NotNull String asString() {
+        return "{identifier:" + this.getIdentifier()
+                + ",name:" + this.getName()
+                + ",isvalid:" + this.isValid() + "}";
     }
 
     /**
