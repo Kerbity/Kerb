@@ -33,7 +33,7 @@ client.registerListener((EventListener<PingEvent>) event -> {
 });
 
 // Send an event to all clients and wait for the results.
-CompletableResultSet<PingEvent> resultCollection = client.callEvent(new PingEvent("Computer"));
+CompletableResultSet<PingEvent> result = client.callEvent(new PingEvent("Computer"));
 List<PingEvent> result = resultCollection.waitForFinalResult();
 ```
 
