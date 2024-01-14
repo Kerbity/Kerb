@@ -21,7 +21,6 @@
 package com.github.kerbity.kerb.client.registeredclient;
 
 import com.github.kerbity.kerb.client.KerbClient;
-import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -87,8 +86,8 @@ public interface RegisteredClient {
      * Used to create a registered client.
      *
      * @param identifier The client's identifier.
-     * @param name The client's name.
-     * @param isValid If the client is valid.
+     * @param name       The client's name.
+     * @param isValid    If the client is valid.
      * @return The instance of the registered client.
      */
     static @NotNull RegisteredClient of(

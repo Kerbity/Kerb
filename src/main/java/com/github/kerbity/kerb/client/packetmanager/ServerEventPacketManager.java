@@ -24,7 +24,6 @@ import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
-import com.github.kerbity.kerb.packet.event.Event;
 import com.github.kerbity.kerb.packet.serverevent.ServerEvent;
 import com.github.kerbity.kerb.packet.serverevent.event.CheckAliveServerEvent;
 import org.jetbrains.annotations.NotNull;
@@ -68,7 +67,6 @@ public class ServerEventPacketManager implements PacketManager {
             if (serverEventObject instanceof CheckAliveServerEvent checkAliveEvent) {
                 CheckAliveServerEvent result = this.handleCheckAlive(checkAliveEvent);
                 this.client.sendPacket(packet.setData(result));
-                return;
             }
 
         } catch (ClassNotFoundException exception) {

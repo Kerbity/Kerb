@@ -21,14 +21,9 @@
 package com.github.kerbity.kerb.result;
 
 import com.github.kerbity.kerb.datatype.Ratio;
-import com.github.kerbity.kerb.indicator.Cancellable;
-import com.github.kerbity.kerb.indicator.Completable;
-import com.github.kerbity.kerb.indicator.Settable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,69 +33,31 @@ import java.util.List;
  *
  * @param <T> The type of result.
  */
-public class CompletableResultSet<T> {
+public class CompletableResultSet<T> extends ResultSet<T> {
 
     private static final int LOCK_TIME_MILLS = 100;
 
-    private final @NotNull List<T> result;
-    private @NotNull CompletableResultSet.CompleteReason completeReason;
-    private final int size;
-    private boolean isComplete;
-    private boolean containsCancelled;
-    private boolean containsCompleted;
-    private Object defaultSettableValue;
-
-    public enum CompleteReason {
-        UNCOMPLETED, // The results haven't been completed.
-        TIME, // The clients took too much time to respond.
-        SIZE, // The result set was completed.
-    }
-
     /**
-     * Used to create a completable
-     * result collection.
+     * Used to create a new completable result set.
+     * When the result set size reaches the maximum, it will be completed.
      *
-     * @param size The size the result list will be
-     *             when completed.
+     * @param maxSize The maximum size of the result set.
      */
-    public CompletableResultSet(int size) {
-        this.result = new ArrayList<>();
-        this.completeReason = CompleteReason.UNCOMPLETED;
-        this.size = size;
-        this.isComplete = false;
-        this.containsCancelled = false;
-        this.containsCompleted = false;
-    }
-
-    /**
-     * Used to get the reason the results were completed.
-     *
-     * @return The reason the results where completed.
-     */
-    public @NotNull CompleteReason getCompleteReason() {
-        return this.completeReason;
-    }
-
-    /**
-     * Used to get the expected size of the result list.
-     *
-     * @return The expected size of the result list.
-     */
-    public int getSize() {
-        return this.size;
+    public CompletableResultSet(int maxSize) {
+        super(maxSize);
     }
 
     /**
      * Wait for the results to be completed.
      *
-     * @return This instance with completed result set.
+     * @return The completed result set.
      */
-    public @NotNull CompletableResultSet<T> waitForComplete() {
+    public @NotNull ResultSet<T> waitForComplete() {
         while (!this.isComplete()) {
             try {
                 Thread.sleep(LOCK_TIME_MILLS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
             }
         }
 
@@ -120,12 +77,12 @@ public class CompletableResultSet<T> {
         while (!this.isComplete()) {
             try {
                 Thread.sleep(LOCK_TIME_MILLS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
             }
         }
 
-        return this.result;
+        return this.get();
     }
 
     /**
@@ -140,15 +97,15 @@ public class CompletableResultSet<T> {
     public @NotNull List<T> waitFor(int amount) {
 
         // Wait for completion.
-        while (!(this.result.size() >= amount || this.isComplete())) {
+        while (!(this.getSize() >= amount || this.isComplete())) {
             try {
                 Thread.sleep(LOCK_TIME_MILLS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
             }
         }
 
-        return this.result;
+        return this.get();
     }
 
     /**
@@ -169,13 +126,13 @@ public class CompletableResultSet<T> {
 
         // check if the left is smaller.
         if (ratio.isLeftSmallerOrEqual()) {
-            Ratio scaled = ratio.getLeftScaled(this.size);
+            Ratio scaled = ratio.getLeftScaled(this.getMaxSize());
             int toWaitFor = scaled.getLeft();
             return this.waitFor(toWaitFor);
         }
 
         // Otherwise, the right is smaller.
-        Ratio scaled = ratio.getRightScaled(this.size);
+        Ratio scaled = ratio.getRightScaled(this.getMaxSize());
         int toWaitFor = scaled.getRight();
         return this.waitFor(toWaitFor);
     }
@@ -190,7 +147,7 @@ public class CompletableResultSet<T> {
     public @Nullable T waitForFirst() {
 
         // Wait for the result to contain at least 1 entry.
-        while (!(!this.result.isEmpty() || this.isComplete())) {
+        while (!(!this.get().isEmpty() || this.isComplete())) {
             try {
                 Thread.sleep(LOCK_TIME_MILLS);
             } catch (InterruptedException e) {
@@ -198,7 +155,7 @@ public class CompletableResultSet<T> {
             }
         }
 
-        return this.result.get(0);
+        return this.get().get(0);
     }
 
     /**
@@ -227,7 +184,7 @@ public class CompletableResultSet<T> {
         }
 
         // Attempt to find the first non-null result.
-        for (T result : this.result) {
+        for (T result : this.get()) {
             if (result == null) continue;
             return result;
         }
@@ -262,23 +219,12 @@ public class CompletableResultSet<T> {
      * @throws Exception If the result size is already equal or over the complete size.
      *                   If the results have already been completed.
      */
+    @Override
     public @NotNull CompletableResultSet<T> addResult(@Nullable T result) {
-
-        // Check if the size is already maxed.
-        if (this.result.size() >= this.size) {
-            throw new RuntimeException("Completable result collection is already full.");
-        }
-
-        // Check if it has already been completed.
-        if (this.isComplete) {
-            throw new RuntimeException("Completable result collection has already been completed.");
-        }
-
-        // Add the result.
-        this.result.add(result);
+        super.addResult(result);
 
         // Auto completes the completable result collection.
-        if (this.result.size() >= this.size) {
+        if (this.get().size() >= this.getMaxSize()) {
             this.complete(CompleteReason.SIZE);
         }
 
@@ -292,8 +238,9 @@ public class CompletableResultSet<T> {
      * @param result The instance of the result.
      * @return This instance.
      */
+    @Override
     @SuppressWarnings("unchecked")
-    public @NotNull CompletableResultSet<T> addAmbiguosResult(@Nullable Object result) {
+    public @NotNull CompletableResultSet<T> addAmbiguousResult(@Nullable Object result) {
         try {
             this.addResult((T) result);
         } catch (Exception exception) {
@@ -309,181 +256,9 @@ public class CompletableResultSet<T> {
      *
      * @return This instance.
      */
-    public @NotNull CompletableResultSet<T> complete(@NotNull CompletableResultSet.CompleteReason reason) {
+    public @NotNull ResultSet<T> complete(@NotNull CompleteReason reason) {
         this.completeReason = reason;
         this.isComplete = true;
         return this;
-    }
-
-    /**
-     * Used to check if it has been completed and
-     * all the results have been added.
-     *
-     * @return True if completed.
-     */
-    public boolean isComplete() {
-        return this.isComplete || (this.size == this.result.size());
-    }
-
-    /**
-     * Used to check if the current results
-     * contain a non null.
-     *
-     * @return True if the results contain
-     * a non null.
-     */
-    public boolean containsNonNull() {
-        for (T t : this.result) {
-            if (t == null) continue;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Used to attempt to create an instance
-     * of the generic.
-     *
-     * @return A new instance of the generic.
-     */
-    @SuppressWarnings("all")
-    public @NotNull T createGeneric() {
-        try {
-
-            // Attempt to create a new instance of the generic.
-            ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
-            Class<T> clazz = (Class<T>) parameterizedType.getActualTypeArguments()[0];
-            return clazz.newInstance();
-
-        } catch (InstantiationException | IllegalAccessException exception) {
-            throw new RuntimeException("Unable to create new generic for result collection.");
-        }
-    }
-
-    /**
-     * Used to set if the results should be perceived as cancelled.
-     * This will not stop new results from appearing.
-     *
-     * @param containsCancelled True if the results should be
-     *                          perceived as cancelled.
-     * @return This instance.
-     */
-    public @NotNull CompletableResultSet<T> setContainsCancelled(boolean containsCancelled) {
-        this.containsCancelled = containsCancelled;
-        return this;
-    }
-
-    /**
-     * Used to check if at least 1 result was
-     * rendered as cancelled.
-     *
-     * @return True if cancelled.
-     */
-    public boolean containsCancelled() {
-
-        // Check if a result has been canceled.
-        for (T result : this.result) {
-            if (!(result instanceof Cancellable<?> cancellable)) continue;
-            if (cancellable.isCancelled()) return true;
-        }
-
-        // Return if all results should be rendered as canceled.
-        return this.containsCancelled;
-    }
-
-    /**
-     * Used to set if the results should be perceived as completed.
-     *
-     * @param containsCompleted True if the results should be seen as
-     *                          containing a completed result.
-     * @return This instance.
-     */
-    public @NotNull CompletableResultSet<T> setContainsCompleted(boolean containsCompleted) {
-        this.containsCompleted = containsCompleted;
-        return this;
-    }
-
-    /**
-     * Used to check if the results contain a result
-     * that has the completed value set to true.
-     *
-     * @return True if a result is set to be completed.
-     */
-    public boolean containsCompleted() {
-
-        // Check if a result contains a completed class.
-        for (T result : this.result) {
-            if (!(result instanceof Completable<?> completable)) continue;
-            if (completable.isComplete()) return true;
-        }
-
-        // Return if all results should be rendered as canceled.
-        return this.containsCompleted;
-    }
-
-    /**
-     * Used to set the default settable value if no
-     * event returns a settable value.
-     * This is specified in the {@link com.github.kerbity.kerb.indicator.Settable}
-     * interface.
-     *
-     * @param defaultSettableValue The default value.
-     * @return This instance.
-     */
-    public @NotNull CompletableResultSet<T> setDefaultSettableValue(@Nullable Object defaultSettableValue) {
-        this.defaultSettableValue = defaultSettableValue;
-        return this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <C> @NotNull C getFirstSettable(@NotNull Class<C> type) {
-
-        // Check if a result contains a settable value.
-        for (T result : this.result) {
-            if (!(result instanceof Settable<?, ?> settable)) continue;
-            if (settable.get() == null) continue;
-
-            Object value = settable.get();
-
-            if (!type.isInstance(value)) continue;
-            return (C) value;
-        }
-
-        // Return the default value.
-        try {
-            return (C) this.defaultSettableValue;
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    /**
-     * Used to check if the results contain a
-     * settable with a certain value.
-     *
-     * @param pattern The pattern to look for
-     *                in the {@link Settable} class.
-     * @param <C>     The type of settable.
-     * @return True if the value exists in the results.
-     */
-    public <C> boolean containsSettable(@NotNull C pattern) {
-
-        // Check if the results contain a settable value
-        // that is the same as the pattern.
-        for (T result : this.result) {
-            if (!(result instanceof Settable<?, ?> settable)) continue;
-
-            Object value = settable.get();
-
-            if (value == null) continue;
-            if (value.equals(pattern)) return true;
-        }
-
-        // Return the default value.
-        try {
-            return (Boolean) this.defaultSettableValue;
-        } catch (Exception ignored) {
-            return false;
-        }
     }
 }

@@ -21,10 +21,10 @@
 package com.github.kerbity.kerb.client.packetmanager;
 
 import com.github.kerbity.kerb.client.KerbClient;
-import com.github.kerbity.kerb.packet.event.Event;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
+import com.github.kerbity.kerb.packet.event.Event;
 import com.github.kerbity.kerb.result.CompletableResultSet;
 import org.jetbrains.annotations.NotNull;
 
@@ -84,7 +84,7 @@ public class EventResultPacketManager implements PacketManager {
             }
 
             // Attempt to add the result.
-            resultCollection.addAmbiguosResult(event);
+            resultCollection.addAmbiguousResult(event);
 
             // Check if the result has been completed.
             if (resultCollection.isComplete()) {

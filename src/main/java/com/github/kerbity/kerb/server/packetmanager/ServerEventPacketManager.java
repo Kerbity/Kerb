@@ -60,6 +60,7 @@ public class ServerEventPacketManager implements PacketManager {
 
             // Get the result set.
             CompletableResultSet<?> resultSet = this.connection.getServerResult(packet.getSequenceIdentifier());
+            if (resultSet == null) return;
 
             // Get the instance of the event class.
             Class<?> eventClass = Class.forName(packet.getIdentifier());
@@ -68,7 +69,7 @@ public class ServerEventPacketManager implements PacketManager {
             Object eventObject = packet.getData(eventClass);
 
             // Add result.
-            resultSet.addAmbiguosResult(eventObject);
+            resultSet.addAmbiguousResult(eventObject);
 
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

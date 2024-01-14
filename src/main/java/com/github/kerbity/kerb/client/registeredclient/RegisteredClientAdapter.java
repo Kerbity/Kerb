@@ -21,7 +21,6 @@
 package com.github.kerbity.kerb.client.registeredclient;
 
 import com.github.kerbity.kerb.client.KerbClient;
-import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import org.jetbrains.annotations.NotNull;
 
 /**

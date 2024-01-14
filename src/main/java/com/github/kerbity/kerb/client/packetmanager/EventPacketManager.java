@@ -22,11 +22,11 @@ package com.github.kerbity.kerb.client.packetmanager;
 
 import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.listener.EventListener;
-import com.github.kerbity.kerb.packet.event.Event;
-import com.github.kerbity.kerb.packet.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketManager;
 import com.github.kerbity.kerb.packet.PacketType;
+import com.github.kerbity.kerb.packet.event.Event;
+import com.github.kerbity.kerb.packet.event.Priority;
 import org.jetbrains.annotations.NotNull;
 
 /**

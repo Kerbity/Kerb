@@ -18,31 +18,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.packet.event;
-
-import com.github.kerbity.kerb.indicator.Settable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 /**
- * Used to create a single settable event.
- * An event used as a request to get a value from the clients.
- *
- * @param <T> The type of class to get.
- *            This should not be an interface
+ * Contains classes used to interact with the results.
+ * <ul>
+ *     <li>
+ *         The {@link com.github.kerbity.kerb.result.CompletableResultSet}
+ *         is first given to give the option of waiting for the results.
+ *     </li>
+ *     <li>
+ *         The {@link com.github.kerbity.kerb.result.ResultSet}
+ *         contains the results but without the option of waiting for results.
+ *     </li>
+ * </ul>
  */
-public class SettableEvent<T> extends Event implements Settable<T, SettableEvent<T>> {
-
-    private @Nullable T value;
-
-    @Override
-    public @NotNull SettableEvent<T> set(@Nullable T instance) {
-        this.value = instance;
-        return this;
-    }
-
-    @Override
-    public @Nullable T get() {
-        return this.value;
-    }
-}
+package com.github.kerbity.kerb.result;

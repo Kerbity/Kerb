@@ -22,12 +22,12 @@ package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
-import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.serverevent.ServerEvent;
 import com.github.kerbity.kerb.packet.serverevent.event.CheckAliveServerEvent;
 import com.github.kerbity.kerb.result.CompletableResultSet;
+import com.github.kerbity.kerb.result.CompleteReason;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +35,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Represents a connection from a
@@ -193,11 +196,11 @@ public class ServerConnection extends Connection implements PasswordEncryption {
      *
      * @param sequenceIdentifier The sequence identifier to match up to
      *                           the result packets.
-     * @param resultSet   The instance of the server result set.
+     * @param resultSet          The instance of the server result set.
      * @return This instance.
      */
     public @NotNull ServerConnection addResult(@NotNull String sequenceIdentifier,
-                                         @NotNull CompletableResultSet<?> resultSet) {
+                                               @NotNull CompletableResultSet<?> resultSet) {
 
         // Add the result to the map.
         this.resultMap.put(sequenceIdentifier, resultSet);
@@ -209,7 +212,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             if (resultSet.isComplete()) return;
 
             // Complete the result collection.
-            resultSet.complete(CompletableResultSet.CompleteReason.TIME);
+            resultSet.complete(CompleteReason.TIME);
 
             // Remove the result collection from the map.
             this.removeResult(sequenceIdentifier);
@@ -326,13 +329,13 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         // Run this task every x seconds.
         this.runLoopTask(() -> {
 
-            CompletableResultSet<CheckAliveServerEvent> result = this.callServerEvent(new CheckAliveServerEvent());
-            CheckAliveServerEvent event = result.waitForFirst();
-            if (event == null || !event.isAlive()) {
-                this.logger.log("Client was kicked due to not responding correctly. If this is incorrect, " +
-                        "you may want to consider increasing is_still_connected_seconds in the config.");
-                this.disconnect();
-            }
+                    CompletableResultSet<CheckAliveServerEvent> result = this.callServerEvent(new CheckAliveServerEvent());
+                    CheckAliveServerEvent event = result.waitForFirst();
+                    if (event == null || !event.isAlive()) {
+                        this.logger.log("Client was kicked due to not responding correctly. If this is incorrect, " +
+                                "you may want to consider increasing is_still_connected_seconds in the config.");
+                        this.disconnect();
+                    }
 
                 },
                 Duration.ofSeconds(this.getServer().getConfiguration().getInteger("is_still_connected_seconds", 60)),

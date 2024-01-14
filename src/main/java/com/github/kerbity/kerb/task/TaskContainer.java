@@ -102,8 +102,8 @@ public class TaskContainer {
     /**
      * Run a task every x duration.
      *
-     * @param runnable The task to run.
-     * @param duration The duration to wait.
+     * @param runnable   The task to run.
+     * @param duration   The duration to wait.
      * @param identifier The identifier to set the task to.
      * @return This instance.
      */

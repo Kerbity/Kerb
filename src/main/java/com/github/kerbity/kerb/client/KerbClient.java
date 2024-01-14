@@ -26,11 +26,12 @@ import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.client.listener.PriorityEventListener;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
-import com.github.kerbity.kerb.packet.event.Event;
-import com.github.kerbity.kerb.packet.event.Priority;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketType;
+import com.github.kerbity.kerb.packet.event.Event;
+import com.github.kerbity.kerb.packet.event.Priority;
 import com.github.kerbity.kerb.result.CompletableResultSet;
+import com.github.kerbity.kerb.result.CompleteReason;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -272,7 +273,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
             if (resultCollection.isComplete()) return;
 
             // Complete the result collection.
-            resultCollection.complete(CompletableResultSet.CompleteReason.TIME);
+            resultCollection.complete(CompleteReason.TIME);
 
             // Remove the result collection from the map.
             this.removeResult(sequenceIdentifier);
