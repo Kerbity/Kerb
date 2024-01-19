@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
  * Represents a registered client in its simplest form.
  * Stops other clients from casting it to a
  * {@link KerbClient}.
+ * Also used in packet sending.
  */
 public class RegisteredClientAdapter implements RegisteredClient {
 

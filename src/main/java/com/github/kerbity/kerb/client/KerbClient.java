@@ -49,12 +49,13 @@ import java.util.*;
  */
 public class KerbClient extends Connection implements RegisteredClient, PasswordEncryption {
 
-    private final @NotNull String name;
+
     private final @NotNull String identifier;
+    private final @NotNull String name;
     private final int port;
     private final @NotNull String address;
-    private final @NotNull File client_certificate;
-    private final @NotNull File server_certificate;
+    private final @NotNull File clientCertificate;
+    private final @NotNull File serverCertificate;
     private final @NotNull String password;
     private final @NotNull Duration maxWaitTime;
     private final boolean autoReconnect;
@@ -97,12 +98,13 @@ public class KerbClient extends Connection implements RegisteredClient, Password
                       @NotNull Duration reconnectCooldown,
                       int maxReconnectionAttempts) {
 
-        this.name = name;
+
         this.identifier = UUID.randomUUID().toString();
+        this.name = name;
         this.port = port;
         this.address = address;
-        this.client_certificate = client_certificate;
-        this.server_certificate = server_certificate;
+        this.clientCertificate = client_certificate;
+        this.serverCertificate = server_certificate;
         this.password = password;
         this.maxWaitTime = maxWaitTime;
         this.autoReconnect = autoReconnect;
@@ -132,6 +134,11 @@ public class KerbClient extends Connection implements RegisteredClient, Password
     }
 
     @Override
+    public boolean isValid() {
+        return this.isValid;
+    }
+
+    @Override
     public boolean getDebugMode() {
         return this.debugMode;
     }
@@ -154,6 +161,46 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      */
     public @NotNull String getAddress() {
         return this.address;
+    }
+
+    /**
+     * Used to get the instance of the client certificate
+     * used in ssl.
+     *
+     * @return The instance of the client certificate.
+     */
+    public @NotNull File getClientCertificate() {
+        return this.clientCertificate;
+    }
+
+    /**
+     * Used to get the instance of the server certificate
+     * used in ssl.
+     *
+     * @return The instance of the server certificate.
+     */
+    public @NotNull File getServerCertificate() {
+        return this.serverCertificate;
+    }
+
+    /**
+     * Used to get the instance of the password.
+     * It is advised not to use this method, or send this over the socket.
+     * It is normally hashed using {@link #getPasswordHashed(byte[])}
+     * @return The instance of the raw password.
+     */
+    public @NotNull String getPassword() {
+        return this.password;
+    }
+
+    /**
+     * Used to get the password hashed.
+     *
+     * @param salt The instance of the salt to hash with.
+     * @return The hashed password.
+     */
+    public byte @NotNull [] getPasswordHashed(byte @NotNull [] salt) {
+        return this.encrypt(this.password, salt);
     }
 
     /**
@@ -338,11 +385,6 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         return this.isConnected;
     }
 
-    @Override
-    public boolean isValid() {
-        return this.isValid;
-    }
-
     /**
      * Used to send a packet though the socket.
      *
@@ -488,11 +530,11 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         try {
 
             // Loading key store.
-            KeyStore keyStore = Connection.createKeyStore(this.client_certificate, this.password);
+            KeyStore keyStore = Connection.createKeyStore(this.clientCertificate, this.password);
 
             // Create the trust manager.
             X509TrustManager x509TrustManager = Connection.createTrustManager(
-                    this.server_certificate, this.password, this.logger
+                    this.serverCertificate, this.password, this.logger
             );
 
             // Create key manager.
