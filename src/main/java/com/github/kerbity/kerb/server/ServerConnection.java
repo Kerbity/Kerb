@@ -272,16 +272,16 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         // Used to check if the connection has sent the password quick enough.
         this.startTimeOutChecker();
 
-        // Start the stay an alive checker.
-        // Used to check if the client is still connected.
-        this.startStayAliveChecker();
-
         // Validate the client.
         boolean valid = this.validate();
         if (!valid) {
             this.disconnect();
             return;
         }
+
+        // Start the stay an alive checker.
+        // Used to check if the client is still connected.
+        this.startStayAliveChecker();
 
         // Start the connection loop.
         while (running) {

@@ -289,6 +289,8 @@ public class Server implements PasswordEncryption {
         while (this.running) {
             try {
 
+                if (this.socket.isClosed()) return;
+
                 // Wait for new client connection.
                 Socket client = this.socket.accept();
 
