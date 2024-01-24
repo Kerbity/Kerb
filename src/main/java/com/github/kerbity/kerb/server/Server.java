@@ -145,7 +145,12 @@ public class Server implements PasswordEncryption {
      * @return The list of connections.
      */
     public @NotNull List<ServerConnection> getConnectionList() {
+        this.cleanConnectionList();
         return this.connectionList;
+    }
+
+    private void cleanConnectionList() {
+        this.connectionList.remove(null);
     }
 
     /**
