@@ -22,9 +22,7 @@ package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.PasswordEncryption;
-import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.server.command.CommandManager;
-import com.github.minemaniauk.developertools.console.Console;
 import com.github.minemaniauk.developertools.console.Logger;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.jetbrains.annotations.NotNull;

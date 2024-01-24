@@ -187,6 +187,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      * Used to get the instance of the password.
      * It is advised not to use this method, or send this over the socket.
      * It is normally hashed using {@link #getPasswordHashed(byte[])}
+     *
      * @return The instance of the raw password.
      */
     public @NotNull String getPassword() {
