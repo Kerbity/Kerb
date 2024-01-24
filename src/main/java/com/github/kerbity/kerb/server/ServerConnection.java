@@ -331,7 +331,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     private void startStayAliveChecker() {
 
         // Run this task every x seconds.
-        this.runLoopTask(() -> {
+        this.runTask(() -> {
 
                     CompletableResultSet<CheckAliveServerEvent> result = this.callServerEvent(new CheckAliveServerEvent());
                     CheckAliveServerEvent event = result.waitForFirst();
@@ -339,7 +339,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
                         this.logger.log("Client was kicked due to not responding correctly. If this is incorrect, " +
                                 "you may want to consider increasing is_still_connected_seconds in the config.");
                         this.disconnect();
+                        return;
                     }
+
+                    this.startStayAliveChecker();
 
                 },
                 Duration.ofSeconds(this.getServer().getConfiguration().getInteger("is_still_connected_seconds", 60)),

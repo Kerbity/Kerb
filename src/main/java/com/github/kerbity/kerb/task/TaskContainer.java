@@ -84,7 +84,10 @@ public class TaskContainer {
                     Thread.sleep(SLEEP_TIME_MILLIS);
 
                     // Check if the task was canceled.
-                    if (!running.get()) return;
+                    if (!running.get()) {
+                        this.taskMap.remove(identifier);
+                        return;
+                    }
 
                 } catch (InterruptedException exception) {
                     throw new RuntimeException(exception);
@@ -92,40 +95,17 @@ public class TaskContainer {
             }
 
             // Check if the task was canceled.
-            if (!running.get()) return;
+            if (!running.get()) {
+                this.taskMap.remove(identifier);
+                return;
+            }
 
             // Run the task.
+            this.taskMap.remove(identifier);
             runnable.run();
 
         }).start();
 
-        return this;
-    }
-
-    /**
-     * Run a task every x duration.
-     *
-     * @param runnable   The task to run.
-     * @param duration   The duration to wait.
-     * @param identifier The identifier to set the task to.
-     * @return This instance.
-     */
-    protected @NotNull TaskContainer runLoopTask(@NotNull Runnable runnable, @NotNull Duration duration, @NotNull String identifier) {
-
-        // Check if the identifier already exists.
-        if (this.taskMap.containsKey(identifier)) {
-            throw new RuntimeException("Identifier already exists within task container.");
-        }
-
-        this.runTask(() -> {
-
-            // Run the task.
-            runnable.run();
-
-            this.taskMap.remove(identifier);
-            this.runLoopTask(runnable, duration, identifier);
-
-        }, duration, identifier);
         return this;
     }
 

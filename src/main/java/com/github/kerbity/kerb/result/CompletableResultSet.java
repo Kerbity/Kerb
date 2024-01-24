@@ -155,6 +155,7 @@ public class CompletableResultSet<T> extends ResultSet<T> {
             }
         }
 
+        if (this.get().isEmpty()) return null;
         return this.get().get(0);
     }
 
