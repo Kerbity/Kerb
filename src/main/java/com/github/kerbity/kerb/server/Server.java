@@ -184,7 +184,7 @@ public class Server implements PasswordEncryption {
      * @return The duration to wait.
      */
     public @NotNull Duration getMaxWaitTime() {
-        return Duration.ofSeconds(this.configuration.getLong("max_wait_time_mills", 500));
+        return Duration.ofMillis(this.configuration.getLong("max_wait_time_mills", 500));
     }
 
     /**

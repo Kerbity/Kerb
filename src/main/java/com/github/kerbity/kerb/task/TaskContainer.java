@@ -83,6 +83,9 @@ public class TaskContainer {
                     // Wait a few mills.
                     Thread.sleep(SLEEP_TIME_MILLIS);
 
+                    // Check if the task was canceled.
+                    if (!running.get()) return;
+
                 } catch (InterruptedException exception) {
                     throw new RuntimeException(exception);
                 }
@@ -114,41 +117,15 @@ public class TaskContainer {
             throw new RuntimeException("Identifier already exists within task container.");
         }
 
-        // Start the thread.
-        new Thread(() -> {
+        this.runTask(() -> {
 
-            long from = System.currentTimeMillis();
+            // Run the task.
+            runnable.run();
 
-            // Set the running variable.
-            AtomicBoolean running = new AtomicBoolean(true);
+            this.taskMap.remove(identifier);
+            this.runLoopTask(runnable, duration, identifier);
 
-            // Create the instance of the task.
-            Task task = () -> running.set(false);
-            this.taskMap.put(identifier, task);
-
-            // While running.
-            while (running.get()) {
-
-                try {
-
-                    // Check if it's time to run the runnable.
-                    if (System.currentTimeMillis() - from >= duration.toMillis()) break;
-
-                    // Wait a few mills.
-                    Thread.sleep(SLEEP_TIME_MILLIS);
-
-                    // Check if the task was canceled.
-                    if (!running.get()) return;
-
-                    // Run the task.
-                    runnable.run();
-
-                } catch (InterruptedException exception) {
-                    throw new RuntimeException(exception);
-                }
-            }
-        }).start();
-
+        }, duration, identifier);
         return this;
     }
 
