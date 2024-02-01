@@ -35,10 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Represents a connection from a
@@ -254,7 +251,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
                 .setSource(this.getRegisteredClient().getIdentifier());
 
         this.send(packet.getPacketString());
-        this.logger.log("&5[ServerEvent] " + packet.getPacketString());
+        if (this.getDebugMode()) this.logger.log("&5[ServerEvent] " + packet.getPacketString());
 
         return resultCollection;
     }
@@ -277,6 +274,11 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         if (!valid) {
             this.disconnect();
             return;
+        }
+
+        // Check if it should remove duplicate names.
+        if (this.server.kickDuplicateNames()) {
+            this.removeDuplicateNames();
         }
 
         // Start the stay an alive checker.
@@ -348,6 +350,19 @@ public class ServerConnection extends Connection implements PasswordEncryption {
                 Duration.ofSeconds(this.getServer().getConfiguration().getInteger("is_still_connected_seconds", 60)),
                 STAY_ALIVE_IDENTIFIER
         );
+    }
+
+    /**
+     * Used to remove connections with the
+     * same name as this connection
+     * from the server.
+     */
+    public void removeDuplicateNames() {
+        for (ServerConnection serverConnection : new ArrayList<>(this.server.getConnectionList())) {
+            if (serverConnection.getIdentifier().equals(this.getIdentifier())) continue;
+            if (!serverConnection.getName().equals(this.getName())) continue;
+            serverConnection.disconnect();
+        }
     }
 
     private boolean validate() {

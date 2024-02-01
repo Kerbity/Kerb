@@ -233,6 +233,16 @@ public class Server implements PasswordEncryption {
     }
 
     /**
+     * Used to check if the server should kick
+     * older duplicate server connection names.
+     *
+     * @return True if it should kick older duplicate names.
+     */
+    public boolean kickDuplicateNames() {
+        return this.configuration.getBoolean("kick_duplicate_names", false);
+    }
+
+    /**
      * Used to start this instance of the server.
      * <ul>
      *     <li>This will run on the main thread.</li>

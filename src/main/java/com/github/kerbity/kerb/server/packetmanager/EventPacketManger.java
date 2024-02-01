@@ -51,7 +51,8 @@ public class EventPacketManger implements PacketManager {
     @Override
     public void interpret(@NotNull Packet packet) {
 
-        this.connection.getLogger().log("&3[Event] " + packet);
+        if (this.connection.getDebugMode()) this.connection.getLogger().log("&3[Event] " + packet);
+        else this.connection.getLogger().log("&3[Event] " + packet.getSequenceIdentifier() + "&7:" + packet.getIdentifier());
 
         // Loop though all the connections.
         for (ServerConnection serverConnection : this.connection.getServer().getConnectionList()) {

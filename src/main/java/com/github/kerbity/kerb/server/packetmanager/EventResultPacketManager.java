@@ -51,7 +51,8 @@ public class EventResultPacketManager implements PacketManager {
     @Override
     public void interpret(@NotNull Packet packet) {
 
-        this.connection.getLogger().log("&3[Event Result] " + packet);
+        if (this.connection.getDebugMode()) this.connection.getLogger().log("&3[Event Result] " + packet);
+        else this.connection.getLogger().log("&3[Event Result] " + packet.getSequenceIdentifier());
 
         // Check if the target is not null.
         if (packet.getSource() == null) {

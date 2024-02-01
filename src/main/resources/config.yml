@@ -34,7 +34,9 @@ max_wait_time_mills: 500
 # the client is still connected.
 is_still_connected_seconds: 60
 
-# Weather IPs that are not in the list should be blocked.
+# Set to true and the server will kick old
+# connections with the same name as a new connection.
+kick_duplicate_names: false
 
 # Weather IPs that are not in the list should be blocked.
 block_other_connections: false
