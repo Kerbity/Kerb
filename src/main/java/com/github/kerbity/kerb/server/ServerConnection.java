@@ -363,6 +363,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             if (!serverConnection.getName().equals(this.getName())) continue;
             serverConnection.disconnect();
         }
+        this.server.cleanConnectionList();
     }
 
     private boolean validate() {

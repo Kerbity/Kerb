@@ -149,8 +149,9 @@ public class Server implements PasswordEncryption {
         return this.connectionList;
     }
 
-    private void cleanConnectionList() {
+    public void cleanConnectionList() {
         this.connectionList.remove(null);
+        if (this.connectionList.contains(null)) this.cleanConnectionList();
     }
 
     /**

@@ -28,6 +28,8 @@ import com.github.kerbity.kerb.server.command.Command;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+
 /**
  * Represents the list command.
  * Used to list the connected clients to the server.
@@ -47,6 +49,12 @@ public class ListCommand implements Command {
         logger.log("&rServer Connections &e" + server.getConnectionList().size());
 
         for (ServerConnection connection : server.getConnectionList()) {
+
+            if (connection == null) {
+                logger.warn("Something went wrong! One of the connections returned null.");
+                continue;
+            }
+
             RegisteredClient client = connection.getRegisteredClient();
             logger.log("&7{identifier} &r{name} &7is_valid:&7{is_valid}"
                     .replace("{identifier}", client.getIdentifier())
