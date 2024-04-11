@@ -230,6 +230,12 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      * @return The duration to wait.
      */
     public @NotNull Duration getReconnectCooldown() {
+
+        // Make sure the reconnected cooldown isn't too low.
+        if (this.reconnectCooldown.toSeconds() < 1) {
+            return Duration.ofSeconds(1);
+        }
+
         return this.reconnectCooldown;
     }
 
@@ -673,6 +679,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
 
         // Check if it should try to reconnect.
         boolean canAttempt = (this.getMaxReconnectionAttempts() == -1 || this.reconnectAttempts < this.getMaxReconnectionAttempts());
+
         if (this.getShouldAutoReconnect() && canAttempt) {
             new Thread(() -> {
 

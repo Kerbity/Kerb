@@ -45,8 +45,8 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     private static final @NotNull String TIME_OUT_IDENTIFIER = "time_out";
     private static final @NotNull String STAY_ALIVE_IDENTIFIER = "stay_alive";
 
-    private @NotNull String identifier;
-    private @NotNull String name;
+    private @Nullable String identifier;
+    private @Nullable String name;
 
     private boolean running;
     private boolean isValid;
@@ -84,7 +84,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
      * kerb client.
      */
     public @NotNull RegisteredClient getRegisteredClient() {
-        return RegisteredClient.of(this.identifier, this.name, this.isValid);
+        return RegisteredClient.of(this.getIdentifier(), this.getName(), this.isValid);
     }
 
     /**
@@ -95,6 +95,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
      * @return The client's identifier.
      */
     public @NotNull String getIdentifier() {
+        if (identifier == null) {
+            this.logger.warn("The identifier is null for this client.");
+            return "null";
+        }
         return this.identifier;
     }
 
@@ -106,6 +110,10 @@ public class ServerConnection extends Connection implements PasswordEncryption {
      * @return The client's name.
      */
     public @NotNull String getName() {
+        if (name == null) {
+            this.logger.warn("The name is null for this client.");
+            return "null";
+        }
         return this.name;
     }
 

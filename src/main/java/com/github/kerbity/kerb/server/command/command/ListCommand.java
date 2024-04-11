@@ -44,7 +44,7 @@ public class ListCommand implements Command {
 
         // Create a new logger.
         Logger logger = KerbClient.createLogger();
-        logger.log("&rServer Connections &e" + server.getConnectionList().size());
+        logger.log("&rServer Connections &e" + server.getConnectionList().size() + " &7[");
 
         for (ServerConnection connection : server.getConnectionList()) {
 
@@ -54,10 +54,11 @@ public class ListCommand implements Command {
             }
 
             RegisteredClient client = connection.getRegisteredClient();
-            logger.log("&7{identifier} &r{name} &7is_valid:&7{is_valid}"
+            logger.log("  &7{identifier} &r{name} &7valid:&7{is_valid}"
                     .replace("{identifier}", client.getIdentifier())
                     .replace("{name}", client.getName())
                     .replace("{is_valid}", Boolean.toString(client.isValid())));
         }
+        logger.log("&7]");
     }
 }
