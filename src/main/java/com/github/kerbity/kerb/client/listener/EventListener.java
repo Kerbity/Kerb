@@ -34,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface EventListener<T extends Event> {
 
-
     /**
      * Called when the event is received.
      *
@@ -42,7 +41,8 @@ public interface EventListener<T extends Event> {
      * @return The instance of the modified or unmodified event.
      * You can also return null.
      */
-    @Nullable Event onEvent(T event);
+    @Nullable
+    Event onEvent(T event);
 
     /**
      * Used to adapt the event to this event.

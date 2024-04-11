@@ -35,7 +35,8 @@ public interface Command {
      *
      * @return The command's identifier.
      */
-    @NotNull String getIdentifier();
+    @NotNull
+    String getIdentifier();
 
     /**
      * Used to execute this command.

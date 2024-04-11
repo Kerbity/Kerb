@@ -41,7 +41,8 @@ public interface RegisteredClient {
      *
      * @return The instance of the unique identifier.
      */
-    @NotNull String getIdentifier();
+    @NotNull
+    String getIdentifier();
 
     /**
      * Used to get the name of the client.
@@ -49,7 +50,8 @@ public interface RegisteredClient {
      *
      * @return The name of the client.
      */
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
     /**
      * Used to check if the client has been validated.

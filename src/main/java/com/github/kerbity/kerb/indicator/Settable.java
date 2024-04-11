@@ -38,12 +38,14 @@ public interface Settable<T, C extends Settable<T, C>> {
      * @param instance The instance of the value.
      * @return This instance.
      */
-    @NotNull C set(@Nullable T instance);
+    @NotNull
+    C set(@Nullable T instance);
 
     /**
      * Used to get the settable value.
      *
      * @return The instance of the value.
      */
-    @Nullable T get();
+    @Nullable
+    T get();
 }

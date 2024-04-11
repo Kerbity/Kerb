@@ -37,7 +37,8 @@ public interface Cancellable<T extends Cancellable<T>> {
      *                    should be cancelled.
      * @return The instance of the return type.
      */
-    @NotNull T setCancelled(boolean isCancelled);
+    @NotNull
+    T setCancelled(boolean isCancelled);
 
     /**
      * Used to check if the class was cancelled.

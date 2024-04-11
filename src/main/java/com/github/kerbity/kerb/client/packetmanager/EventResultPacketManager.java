@@ -71,6 +71,12 @@ public class EventResultPacketManager implements PacketManager {
                 return;
             }
 
+            // Check if the packet identifier is null.
+            if (packet.getIdentifier() == null) {
+                this.client.getLogger().warn("Event result packet was sent without an identifier.");
+                return;
+            }
+
             // Get the instance of the event class.
             Class<?> eventClass = Class.forName(packet.getIdentifier());
 
@@ -91,7 +97,13 @@ public class EventResultPacketManager implements PacketManager {
                 this.client.removeResult(packet.getSequenceIdentifier());
             }
 
+        } catch (ClassNotFoundException exception) {
+            this.client.getLogger().warn("(ClassNotFound) Received event result packet {packet} but the event class sent doesnt exist for this client."
+                    .replace("{packet}", packet.getIdentifier() == null ? "null" : packet.getIdentifier())
+            );
+
         } catch (Exception exception) {
+            this.client.getLogger().warn("An error occurred while receiving a event result packet.");
             throw new RuntimeException(exception);
         }
     }

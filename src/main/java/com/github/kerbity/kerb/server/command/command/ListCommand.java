@@ -28,8 +28,6 @@ import com.github.kerbity.kerb.server.command.Command;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-
 /**
  * Represents the list command.
  * Used to list the connected clients to the server.

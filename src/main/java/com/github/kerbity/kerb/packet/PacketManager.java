@@ -33,7 +33,8 @@ public interface PacketManager {
      *
      * @return The manager's packet type.
      */
-    @NotNull PacketType getPacketType();
+    @NotNull
+    PacketType getPacketType();
 
     /**
      * Used to interpret a packet.

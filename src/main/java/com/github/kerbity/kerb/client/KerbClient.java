@@ -49,7 +49,6 @@ import java.util.*;
  */
 public class KerbClient extends Connection implements RegisteredClient, PasswordEncryption {
 
-
     private final @NotNull String identifier;
     private final @NotNull String name;
     private final int port;
@@ -390,7 +389,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      * Used to send a packet though the socket.
      *
      * @param packet The packet to send.
-     * @return This isntance.
+     * @return This instance.
      */
     public @NotNull KerbClient sendPacket(@NotNull Packet packet) {
         this.send(packet.getPacketString());

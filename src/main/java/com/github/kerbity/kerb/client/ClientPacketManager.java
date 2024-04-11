@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the clients packet manager.
+ * Represents the client's packet manager.
  * Used to interpret packets sent to the client.
  */
 public class ClientPacketManager {

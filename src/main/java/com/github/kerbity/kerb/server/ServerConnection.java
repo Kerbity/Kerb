@@ -38,8 +38,7 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * Represents a connection from a
- * client to the server.
+ * Represents a client connection to the server.
  */
 public class ServerConnection extends Connection implements PasswordEncryption {
 
@@ -88,10 +87,24 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         return RegisteredClient.of(this.identifier, this.name, this.isValid);
     }
 
+    /**
+     * Used to get the client's identifier.
+     * This identifier was sent from the client to
+     * the server when it connected.
+     *
+     * @return The client's identifier.
+     */
     public @NotNull String getIdentifier() {
         return this.identifier;
     }
 
+    /**
+     * Used to get the client's name.
+     * This name was sent from the client to
+     * the server when it connected.
+     *
+     * @return The client's name.
+     */
     public @NotNull String getName() {
         return this.name;
     }
@@ -318,18 +331,31 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         }
     }
 
+    /**
+     * Starts the time-out checker task.
+     * This task will check if the client was validated
+     * after a certain amount of time set in the configuration.
+     * If it hasn't been validated it will be disconnected.
+     */
     private void startTimeOutChecker() {
 
         // Run a task in the future.
         this.runTask(() -> {
+
+            // Check if the client has been validated.
             if (this.getSocket() == null || this.getSocket().isClosed()) return;
             if (this.isValid()) return;
 
-            this.logger.log("Connection timed out. Didnt send password quick enough.");
+            this.logger.log("Connection timed out. The client didnt send the password quick enough.");
             this.disconnect();
         }, Duration.ofSeconds(this.server.getTimeOut()), TIME_OUT_IDENTIFIER);
     }
 
+    /**
+     * Used to start the stay alive checker task.
+     * This will periodically check if the client is still
+     * responding by sending a check alive server event.
+     */
     private void startStayAliveChecker() {
 
         // Run this task every x seconds.
@@ -366,6 +392,13 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         this.server.cleanConnectionList();
     }
 
+    /**
+     * Used to check if the client is valid.
+     * This is called when the connection is created
+     * to check if the client can connect to the server.
+     *
+     * @return True if the client was validated.
+     */
     private boolean validate() {
         try {
 
@@ -383,13 +416,13 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             // Read the encrypted password.
             byte[] password = this.readBytes();
             if (this.getSocket() == null || this.getSocket().isClosed()) {
-                this.logger.log("Disconnecting client due to socket closing.");
+                this.logger.log("Disconnecting client due to the socket closing.");
                 return false;
             }
 
             // Check if the password is incorrect.
             if (!Arrays.equals(password, this.server.getHashedPassword(salt))) {
-                this.logger.log("Disconnecting client due to password being incorrect.");
+                this.logger.log("Disconnecting client due to the password being incorrect.");
                 this.send("0");
                 return false;
             }
@@ -426,7 +459,6 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             }
 
             // Attempt to close the connection.
-
             this.running = false;
             this.closeStreams();
             this.getSocket().close();

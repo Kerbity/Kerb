@@ -35,7 +35,8 @@ public interface Completable<T extends Completable<T>> {
      *
      * @return The instance of the completable class.
      */
-    @NotNull T complete();
+    @NotNull
+    T complete();
 
     /**
      * Used to set if the class is completed.
@@ -43,7 +44,8 @@ public interface Completable<T extends Completable<T>> {
      * @param isComplete True if the class is completed.
      * @return The instance of the completable class.
      */
-    @NotNull T setComplete(boolean isComplete);
+    @NotNull
+    T setComplete(boolean isComplete);
 
     /**
      * Used to check if the class is completed.

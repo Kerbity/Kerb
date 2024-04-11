@@ -5,19 +5,21 @@
 # | . \  __/ |  | |_) |
 # |_|\_\___|_|  |_.__/
 #
+# Event distributor server software.
 # Author: Smuddgge
 
-# The server's port.
+# The port the server is running on.
 port: 5000
 
-# The path to the server certificate.
+# The path to the server certificate
+# and client certificate.
 server_certificate_path: "server.p12"
-
-# The path to the client certificate.
 client_certificate_path: "client.p12"
 
-# The password to log in to the server and
-# also access the certificates.
+# The password that is used to access the
+# certificates.
+# This password will also be used to
+# log in to the server.
 password: "123"
 
 # The amount of seconds the server should expect
@@ -34,14 +36,18 @@ max_wait_time_mills: 500
 # the client is still connected.
 is_still_connected_seconds: 60
 
-# Set to true and the server will kick old
+# When set to true, the server will kick old
 # connections with the same name as a new connection.
 kick_duplicate_names: false
 
-# Weather IPs that are not in the list should be blocked.
+# When set to true, IPs that are not in the list
+# will be kicked.
 block_other_connections: false
 
-# The list of names for ip addresses.
+# Here you can assign names to IP addresses.
+# Instead of using dots in the IP address,
+# you should use underscores as the yaml parser
+# sees dots as the path splitter.
 names:
-  "/ip_with_dashes:port": "Computer"
+  "/ip1_with_dashes:port": "Computer"
   "/ip2_with_dashes:port": "Server 1"

@@ -51,6 +51,12 @@ public class ServerEventPacketManager implements PacketManager {
     public void interpret(@NotNull Packet packet) {
         try {
 
+            // Check if the packet identifier is null.
+            if (packet.getIdentifier() == null) {
+                this.client.getLogger().warn("Server event packet was sent without an identifier.");
+                return;
+            }
+
             // Get the instance of the event class.
             Class<?> eventClass = Class.forName(packet.getIdentifier());
 
@@ -70,6 +76,12 @@ public class ServerEventPacketManager implements PacketManager {
             }
 
         } catch (ClassNotFoundException exception) {
+            this.client.getLogger().warn("(ClassNotFound) Received server event packet {packet} but the server event class sent doesnt exist for this client."
+                    .replace("{packet}", packet.getIdentifier() == null ? "null" : packet.getIdentifier())
+            );
+
+        } catch (Exception exception) {
+            this.client.getLogger().warn("An error occurred while receiving a event packet.");
             throw new RuntimeException(exception);
         }
     }

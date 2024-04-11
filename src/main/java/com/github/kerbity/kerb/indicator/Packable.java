@@ -34,5 +34,6 @@ public interface Packable {
      *
      * @return The instance of the packet.
      */
-    @NotNull Packet packet();
+    @NotNull
+    Packet packet();
 }
