@@ -37,11 +37,10 @@ public class HelpCommand implements Command {
     public void execute(@NotNull Server server, @NotNull String command) {
 
         // Create a new logger.
-        Logger logger = KerbClient.createLogger();
-        logger.log("&rCommands &e3 &7[");
-        logger.log("  &rhelp &7Lists the commands you can execute.");
-        logger.log("  &rdebug <true/false> &7Used to toggle the servers debug mode.");
-        logger.log("  &rlist &7Used to list the current clients connected.");
-        logger.log("&7]");
+        server.getLogger().log("&rCommands &e3 &7[");
+        server.getLogger().log("  &rhelp &7Lists the commands you can execute.");
+        server.getLogger().log("  &rdebug <true/false> &7Used to toggle the servers debug mode.");
+        server.getLogger().log("  &rlist &7Used to list the current clients connected.");
+        server.getLogger().log("&7]");
     }
 }

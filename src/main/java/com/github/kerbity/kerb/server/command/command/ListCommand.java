@@ -43,22 +43,21 @@ public class ListCommand implements Command {
     public void execute(@NotNull Server server, @NotNull String command) {
 
         // Create a new logger.
-        Logger logger = KerbClient.createLogger();
-        logger.log("&rServer Connections &e" + server.getConnectionList().size() + " &7[");
+        server.getLogger().log("&rServer Connections &e" + server.getConnectionList().size() + " &7[");
 
         for (ServerConnection connection : server.getConnectionList()) {
 
             if (connection == null) {
-                logger.warn("Something went wrong! One of the connections returned null.");
+                server.getLogger().warn("Something went wrong! One of the connections returned null.");
                 continue;
             }
 
             RegisteredClient client = connection.getRegisteredClient();
-            logger.log("  &7{identifier} &r{name} &7valid:&7{is_valid}"
+            server.getLogger().log("  &7{identifier} &r{name} &7valid:&7{is_valid}"
                     .replace("{identifier}", client.getIdentifier())
                     .replace("{name}", client.getName())
                     .replace("{is_valid}", Boolean.toString(client.isValid())));
         }
-        logger.log("&7]");
+        server.getLogger().log("&7]");
     }
 }
