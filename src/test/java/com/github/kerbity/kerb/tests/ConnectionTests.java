@@ -62,7 +62,7 @@ public class ConnectionTests {
         client.connect();
 
         // Disconnect the client from the server.
-        server.getConnectionList().get(0).disconnect();
+        server.getConnectionList().get(0).disconnect(true);
 
         // Wait until it has reconnected.
         client.waitForInvalid().waitForValid();
@@ -80,6 +80,7 @@ public class ConnectionTests {
 
         // Create a client connection.
         KerbClient client = ClientCreator.create(server.getPort(), server.getAddress());
+        client.setDebugMode(false);
         client.connect();
         client.waitForValid();
 
@@ -87,7 +88,7 @@ public class ConnectionTests {
         server.stop();
         client.waitForInvalid();
 
-        Thread.sleep(100);
+        Thread.sleep(1000);
 
         // Start the server.
         new Thread(server::start).start();
@@ -98,6 +99,7 @@ public class ConnectionTests {
 
         // Check if the client was validated.
         new ResultChecker()
+                .expect(client.getReconnectAttempts(), 2)
                 .expect(client.isValid())
                 .expect(server.getConnectionList().get(0).isValid());
     }

@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.security.KeyStore;
 import java.time.Duration;
 import java.util.*;
@@ -232,8 +233,8 @@ public class KerbClient extends Connection implements RegisteredClient, Password
     public @NotNull Duration getReconnectCooldown() {
 
         // Make sure the reconnected cooldown isn't too low.
-        if (this.reconnectCooldown.toSeconds() < 1) {
-            return Duration.ofSeconds(1);
+        if (this.reconnectCooldown.toMillis() < 50) {
+            return Duration.ofMillis(50);
         }
 
         return this.reconnectCooldown;
@@ -302,6 +303,16 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      */
     public @Nullable CompletableResultSet<?> getResult(@NotNull String sequenceIdentifier) {
         return this.resultMap.get(sequenceIdentifier);
+    }
+
+    /**
+     * Used to get the number of reconnection attempts
+     * made since kerb was initialized.
+     *
+     * @return The number of connection attempts.
+     */
+    public int getReconnectAttempts() {
+        return this.reconnectAttempts;
     }
 
     /**
@@ -569,9 +580,18 @@ public class KerbClient extends Connection implements RegisteredClient, Password
 
             return true;
 
+        } catch (ConnectException exception) {
+            if (exception.getMessage().contains("Connection refused") && this.autoReconnect) {
+                this.getLogger().warn("Unable to connect to the server. The client will try to reconnect in " + this.reconnectCooldown.toMillis() + "ms.");
+                return false;
+            }
+
+            this.getLogger().warn("Exception occurred while trying to connect to the server.");
+            throw new RuntimeException(exception);
+
         } catch (Exception exception) {
-            if (!this.checkAndAttemptToReconnect()) throw new RuntimeException(exception);
-            return false;
+            this.getLogger().warn("Exception occurred while trying to connect to the server.");
+            throw new RuntimeException(exception);
         }
     }
 
@@ -742,13 +762,13 @@ public class KerbClient extends Connection implements RegisteredClient, Password
     }
 
     /**
-     * Used to create a new kerb logger.
+     * Used to create a new kerb client logger.
      *
      * @return The instance of the new logger.
      */
     public static @NotNull Logger createLogger() {
         return new Logger(false)
                 .setLogPrefix("&a[KerbClient] &7[LOG] ")
-                .setWarnPrefix("&a[KerbClient] &e[WARN] ");
+                .setWarnPrefix("&a[KerbClient] &c[WARN] ");
     }
 }

@@ -288,6 +288,7 @@ public class Server implements PasswordEncryption {
 
             this.logger.log("Server socket created.");
             this.logger.log("Listening on : " + this.port);
+            this.logger.log("&7");
 
             this.running = true;
 
@@ -325,7 +326,7 @@ public class Server implements PasswordEncryption {
 
                 // Add the connection to the list.
                 this.connectionList.add(serverThread);
-                clientLogger.log("&eConnected to the server, waiting for validation. {clients: " + this.getSize() + "}");
+                clientLogger.log("&rConnected to the server, waiting for validation. {clients: " + this.getSize() + "}");
 
                 // Thread the client loop.
                 new Thread(serverThread::start).start();
@@ -421,7 +422,8 @@ public class Server implements PasswordEncryption {
 
         // Disconnect all clients from the server.
         for (ServerConnection connection : new ArrayList<>(this.getConnectionList())) {
-            connection.disconnect();
+            connection.getLogger().log("[-] Disconnecting client from the server.");
+            connection.disconnect(false);
         }
 
         try {
@@ -429,6 +431,7 @@ public class Server implements PasswordEncryption {
             // Attempt to close the server.
             if (this.socket != null) this.socket.close();
             this.logger.log("Server socket closed.");
+            this.logger.log("&7");
 
         } catch (IOException exception) {
             throw new RuntimeException(exception);
@@ -456,7 +459,7 @@ public class Server implements PasswordEncryption {
         this.logger.log("&7");
         this.logger.log("&7Author: &rSmuddgge");
         this.logger.log("&7Version: &r" + this.getVersion());
-        this.logger.log("");
+        this.logger.log("&7");
     }
 
     /**
@@ -467,6 +470,6 @@ public class Server implements PasswordEncryption {
     public static @NotNull Logger createLogger() {
         return new Logger(false)
                 .setLogPrefix("&a[Kerb] &7[LOG] ")
-                .setWarnPrefix("&a[Kerb] &e[WARN] ");
+                .setWarnPrefix("&a[Kerb] &c[WARN] ");
     }
 }

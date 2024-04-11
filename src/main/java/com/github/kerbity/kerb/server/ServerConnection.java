@@ -293,7 +293,9 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         // Validate the client.
         boolean valid = this.validate();
         if (!valid) {
-            this.disconnect();
+
+            // Don't log as it should have been explained in the validate method.
+            this.disconnect(false);
             return;
         }
 
@@ -312,8 +314,8 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
                 // Check if the socket is closed.
                 if (this.getSocket() == null || this.getSocket().isClosed()) {
-                    this.logger.log("Disconnecting client due to socket being null or closed.");
-                    this.disconnect();
+                    this.logger.log("[-] Disconnecting client due to socket being null or closed.");
+                    this.disconnect(false);
                     return;
                 }
 
@@ -322,8 +324,8 @@ public class ServerConnection extends Connection implements PasswordEncryption {
 
                 // Check if the data is null.
                 if (data == null) {
-                    this.logger.log("Client disconnected from the server.");
-                    this.disconnect();
+                    this.logger.log("[-] Client disconnected from the server.");
+                    this.disconnect(false);
                     return;
                 }
 
@@ -354,8 +356,8 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             if (this.getSocket() == null || this.getSocket().isClosed()) return;
             if (this.isValid()) return;
 
-            this.logger.log("Connection timed out. The client didnt send the password quick enough.");
-            this.disconnect();
+            this.logger.log("[-] Connection timed out. The client didnt send the password quick enough.");
+            this.disconnect(false);
         }, Duration.ofSeconds(this.server.getTimeOut()), TIME_OUT_IDENTIFIER);
     }
 
@@ -372,9 +374,9 @@ public class ServerConnection extends Connection implements PasswordEncryption {
                     CompletableResultSet<CheckAliveServerEvent> result = this.callServerEvent(new CheckAliveServerEvent());
                     CheckAliveServerEvent event = result.waitForFirst();
                     if (event == null || !event.isAlive()) {
-                        this.logger.log("Client was kicked due to not responding correctly. If this is incorrect, " +
+                        this.logger.log("[-] Client was kicked due to not responding correctly. If this is incorrect, " +
                                 "you may want to consider increasing is_still_connected_seconds in the config.");
-                        this.disconnect();
+                        this.disconnect(false);
                         return;
                     }
 
@@ -395,7 +397,8 @@ public class ServerConnection extends Connection implements PasswordEncryption {
         for (ServerConnection serverConnection : new ArrayList<>(this.server.getConnectionList())) {
             if (serverConnection.getIdentifier().equals(this.getIdentifier())) continue;
             if (!serverConnection.getName().equals(this.getName())) continue;
-            serverConnection.disconnect();
+            this.logger.log("[-] Disconnected client as a client with the same name or identifier connected.");
+            serverConnection.disconnect(false);
         }
         this.server.cleanConnectionList();
     }
@@ -424,13 +427,13 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             // Read the encrypted password.
             byte[] password = this.readBytes();
             if (this.getSocket() == null || this.getSocket().isClosed()) {
-                this.logger.log("Disconnecting client due to the socket closing.");
+                this.logger.log("[-] Disconnecting client due to the socket closing.");
                 return false;
             }
 
             // Check if the password is incorrect.
             if (!Arrays.equals(password, this.server.getHashedPassword(salt))) {
-                this.logger.log("Disconnecting client due to the password being incorrect.");
+                this.logger.log("[-] Disconnecting client due to the password being incorrect.");
                 this.send("0");
                 return false;
             }
@@ -455,13 +458,13 @@ public class ServerConnection extends Connection implements PasswordEncryption {
     /**
      * Used to disconnect the client from the server.
      */
-    public void disconnect() {
+    public void disconnect(boolean shouldLog) {
         try {
 
             if (this.getSocket() == null || this.getSocket().isClosed()) {
                 this.running = false;
                 this.server.remove(this);
-                this.logger.log("Already disconnected.");
+                if (shouldLog) this.logger.log("[-] Already disconnected.");
                 this.stopAllTasks();
                 return;
             }
@@ -471,7 +474,7 @@ public class ServerConnection extends Connection implements PasswordEncryption {
             this.closeStreams();
             this.getSocket().close();
             this.server.remove(this);
-            this.logger.log("Disconnected.");
+            if (shouldLog) this.logger.log("[-] Disconnected.");
 
             // Stop all tasks.
             this.stopAllTasks();
