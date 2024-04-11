@@ -24,6 +24,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.ParameterizedType;
 
+/**
+ * Indicates if the class can create the generic class.
+ *
+ * @param <T> The generic class type.
+ */
 public interface GenericCreator<T> {
 
     /**
@@ -42,7 +47,9 @@ public interface GenericCreator<T> {
             return clazz.newInstance();
 
         } catch (InstantiationException | IllegalAccessException exception) {
-            throw new RuntimeException("Unable to create new generic for result collection.");
+            throw new RuntimeException("Unable to create a new instance of the {class} class."
+                    .replace("{class}", this.getClass().getGenericSuperclass().getTypeName())
+            );
         }
     }
 }
