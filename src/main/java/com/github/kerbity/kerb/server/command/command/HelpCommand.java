@@ -21,9 +21,7 @@
 package com.github.kerbity.kerb.server.command.command;
 
 import com.github.kerbity.kerb.client.KerbClient;
-import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import com.github.kerbity.kerb.server.Server;
-import com.github.kerbity.kerb.server.ServerConnection;
 import com.github.kerbity.kerb.server.command.Command;
 import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -40,10 +38,10 @@ public class HelpCommand implements Command {
 
         // Create a new logger.
         Logger logger = KerbClient.createLogger();
-        logger.log("&fCommands &e3 &7[");
-        logger.log("  &fhelp &7Lists the commands you can execute.");
-        logger.log("  &fdebug <true/false> &7Used to toggle the servers debug mode.");
-        logger.log("  &flist &7Used to list the current clients connected.");
+        logger.log("&rCommands &e3 &7[");
+        logger.log("  &rhelp &7Lists the commands you can execute.");
+        logger.log("  &rdebug <true/false> &7Used to toggle the servers debug mode.");
+        logger.log("  &rlist &7Used to list the current clients connected.");
         logger.log("&7]");
     }
 }
