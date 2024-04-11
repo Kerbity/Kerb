@@ -22,6 +22,7 @@ package com.github.kerbity.kerb.server.command;
 
 import com.github.kerbity.kerb.server.Server;
 import com.github.kerbity.kerb.server.command.command.DebugCommand;
+import com.github.kerbity.kerb.server.command.command.HelpCommand;
 import com.github.kerbity.kerb.server.command.command.ListCommand;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +46,7 @@ public class CommandManager {
         this.commandList = new ArrayList<>();
         this.commandList.add(new DebugCommand());
         this.commandList.add(new ListCommand());
+        this.commandList.add(new HelpCommand());
     }
 
     /**
