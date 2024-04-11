@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb.datatype;
+package com.github.kerbity.kerb.result;
 
 import com.github.minemaniauk.developertools.indicator.Replicable;
 import com.github.smuddgge.squishyconfiguration.indicator.ConfigurationConvertable;

@@ -20,12 +20,10 @@
 
 package com.github.kerbity.kerb.server.command.command;
 
-import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import com.github.kerbity.kerb.server.Server;
 import com.github.kerbity.kerb.server.ServerConnection;
 import com.github.kerbity.kerb.server.command.Command;
-import com.github.minemaniauk.developertools.console.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**

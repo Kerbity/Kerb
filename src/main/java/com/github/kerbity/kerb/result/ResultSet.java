@@ -32,6 +32,7 @@ import java.util.List;
 
 /**
  * Represents a result set.
+ * Contains all the current results.
  *
  * @param <T> The type the set contains.
  */
@@ -40,6 +41,7 @@ public class ResultSet<T> implements GenericCreator<T> {
     private final @NotNull List<T> resultList;
     protected @NotNull CompleteReason completeReason;
     private final int maxSize;
+
     protected boolean isComplete;
     private boolean containsCancelled;
     private boolean containsCompleted;

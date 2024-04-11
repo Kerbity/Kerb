@@ -20,7 +20,6 @@
 
 package com.github.kerbity.kerb.result;
 
-import com.github.kerbity.kerb.datatype.Ratio;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
