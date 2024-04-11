@@ -21,7 +21,7 @@
 package com.github.kerbity.kerb.server;
 
 import com.github.kerbity.kerb.Connection;
-import com.github.kerbity.kerb.PasswordEncryption;
+import com.github.kerbity.kerb.indicator.PasswordEncryption;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.serverevent.ServerEvent;

@@ -20,7 +20,7 @@
 
 package com.github.kerbity.kerb.result;
 
-import com.github.kerbity.kerb.GenericCreator;
+import com.github.kerbity.kerb.indicator.GenericCreator;
 import com.github.kerbity.kerb.indicator.Cancellable;
 import com.github.kerbity.kerb.indicator.Completable;
 import com.github.kerbity.kerb.indicator.Settable;

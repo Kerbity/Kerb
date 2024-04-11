@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.kerbity.kerb;
+package com.github.kerbity.kerb.indicator;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 /**
- * Represents the password encryption interface.
+ * Indicates if the class can encrypt
+ * passwords and create salts.
  * This class contains methods used to
  * encrypt the password.
  */
