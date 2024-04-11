@@ -312,7 +312,7 @@ public class Server implements PasswordEncryption {
                 Socket client = this.socket.accept();
 
                 // Create an extensions of the logger.
-                Logger clientLogger = this.logger.createExtension("[&r" + this.getLocalClientName(client) + "&7] ");
+                Logger clientLogger = this.logger.createExtension("&7[&r" + this.getLocalClientName(client) + "&7] ");
 
                 // Check if the client is blocked.
                 if (this.isBlocked(client)) {
