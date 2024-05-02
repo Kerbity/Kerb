@@ -228,6 +228,7 @@ public class ResultSet<T> implements GenericCreator<T> {
 
         // Check if a result has been canceled.
         for (T result : this.resultList) {
+            if (result == null) continue;
             if (!(result instanceof Cancellable<?> cancellable)) continue;
             if (cancellable.isCancelled()) return true;
         }
@@ -258,6 +259,7 @@ public class ResultSet<T> implements GenericCreator<T> {
 
         // Check if a result contains a completed class.
         for (T result : this.resultList) {
+            if (result == null) continue;
             if (!(result instanceof Completable<?> completable)) continue;
             if (completable.isComplete()) return true;
         }
@@ -285,6 +287,7 @@ public class ResultSet<T> implements GenericCreator<T> {
 
         // Check if a result contains a settable value.
         for (T result : this.resultList) {
+            if (result == null) continue;
             if (!(result instanceof Settable<?, ?> settable)) continue;
             if (settable.get() == null) continue;
 
@@ -316,6 +319,7 @@ public class ResultSet<T> implements GenericCreator<T> {
         // Check if the results contain a settable value
         // that is the same as the pattern.
         for (T result : this.resultList) {
+            if (result == null) continue;
             if (!(result instanceof Settable<?, ?> settable)) continue;
 
             Object value = settable.get();

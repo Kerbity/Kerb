@@ -9,7 +9,7 @@
 # Author: Smuddgge
 
 # The port the server is running on.
-port: 5000
+port: 7000
 
 # The path to the server certificate
 # and client certificate.
