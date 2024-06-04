@@ -27,6 +27,7 @@ import com.github.kerbity.kerb.indicator.Settable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class ResultSet<T> implements GenericCreator<T> {
      * @param maxSize The maximum size of the result set.
      */
     public ResultSet(int maxSize) {
-        this.resultList = new LinkedList<>();
+        this.resultList = new ArrayList<>();
         this.completeReason = CompleteReason.UNCOMPLETED;
         this.maxSize = maxSize;
     }
@@ -257,15 +258,21 @@ public class ResultSet<T> implements GenericCreator<T> {
      */
     public boolean containsCompleted() {
 
-        // Check if a result contains a completed class.
-        for (T result : this.resultList) {
-            if (result == null) continue;
-            if (!(result instanceof Completable<?> completable)) continue;
-            if (completable.isComplete()) return true;
-        }
+        try {
+            // Check if a result contains a completed class.
+            for (T result : this.resultList) {
+                if (result == null) continue;
+                if (!(result instanceof Completable<?> completable)) continue;
+                if (completable.isComplete()) return true;
+            }
 
-        // Return if all results should be rendered as canceled.
-        return this.containsCompleted;
+            // Return if all results should be rendered as canceled.
+            return this.containsCompleted;
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return false;
+        }
     }
 
     /**

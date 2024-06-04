@@ -24,6 +24,7 @@ import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.creator.ClientCreator;
 import com.github.kerbity.kerb.creator.ServerCreator;
+import com.github.kerbity.kerb.event.CompletableTest;
 import com.github.kerbity.kerb.packet.event.Priority;
 import com.github.kerbity.kerb.packet.event.event.PingEvent;
 import com.github.kerbity.kerb.result.CompletableResultSet;
@@ -98,5 +99,31 @@ public class EventTests {
         // Ensure there is only one result.
         // This is because the first listener took too long.
         new ResultChecker().expect(results.size() == 1);
+    }
+
+    @Test
+    @Order(1)
+    public void testNullResults() {
+        Server server = ServerCreator.createAndStart().waitForStartup();
+        KerbClient client1 = ClientCreator.create(server.getPort(), server.getAddress());
+        client1.connect();
+        KerbClient client2 = ClientCreator.create(server.getPort(), server.getAddress());
+        client2.connect();
+
+        // Register a null listener
+        client1.registerListener(Priority.HIGH, (EventListener<CompletableTest>) event -> null);
+
+        // Register a listener.
+        client2.registerListener(Priority.HIGH, (EventListener<CompletableTest>) event -> {
+            event.setCancelled(true);
+            return event;
+        });
+
+        // Wait for the final result.
+        CompletableResultSet<CompletableTest> resultSet = client1.callEvent(new CompletableTest());
+
+        // Ensure there is only one result.
+        // This is because the first listener took too long.
+        new ResultChecker().expect(resultSet.waitForComplete().containsCancelled());
     }
 }
