@@ -20,15 +20,14 @@
 
 package com.github.kerbity.kerb.result;
 
-import com.github.kerbity.kerb.indicator.GenericCreator;
 import com.github.kerbity.kerb.indicator.Cancellable;
 import com.github.kerbity.kerb.indicator.Completable;
+import com.github.kerbity.kerb.indicator.GenericCreator;
 import com.github.kerbity.kerb.indicator.Settable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -227,15 +226,25 @@ public class ResultSet<T> implements GenericCreator<T> {
      */
     public boolean containsCancelled() {
 
-        // Check if a result has been canceled.
-        for (T result : this.resultList) {
-            if (result == null) continue;
-            if (!(result instanceof Cancellable<?> cancellable)) continue;
-            if (cancellable.isCancelled()) return true;
-        }
+        try {
+            // Check if a result has been canceled.
+            for (T result : this.resultList) {
+                if (result == null) continue;
+                if (!(result instanceof Cancellable<?> cancellable)) continue;
+                if (cancellable.isCancelled()) return true;
+            }
 
-        // Return if all results should be rendered as canceled.
-        return this.containsCancelled;
+            // Return if all results should be rendered as canceled.
+            return this.containsCancelled;
+            
+        } catch (Exception exception) {
+            try {
+                System.out.println(this.resultList);
+            } catch (Exception ignored) {
+            }
+            exception.printStackTrace();
+            return false;
+        }
     }
 
     /**
@@ -270,6 +279,10 @@ public class ResultSet<T> implements GenericCreator<T> {
             return this.containsCompleted;
 
         } catch (Exception exception) {
+            try {
+                System.out.println(this.resultList);
+            } catch (Exception ignored) {
+            }
             exception.printStackTrace();
             return false;
         }
