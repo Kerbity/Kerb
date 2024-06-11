@@ -236,7 +236,7 @@ public class ResultSet<T> implements GenericCreator<T> {
 
             // Return if all results should be rendered as canceled.
             return this.containsCancelled;
-            
+
         } catch (Exception exception) {
             try {
                 System.out.println(this.resultList);
