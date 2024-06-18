@@ -69,12 +69,26 @@ public class ClientAmountPacketManager implements PacketManager {
             // Check if the result collection is null.
             if (resultCollection == null) return;
 
-            // Attempt to add the result.
-            resultCollection.addResult(packet.getData(Integer.class));
+            if (packet.getData() == null) {
+                this.client.getLogger().warn("Packet returned null data when getting client amount. packet=" + packet);
+                return;
+            }
 
-            // Check if the result has been completed.
-            if (resultCollection.isComplete()) {
-                this.client.removeResult(packet.getSequenceIdentifier());
+            try {
+                // Attempt to add the result.
+                Integer integer = Integer.parseInt(packet.getData());
+
+                // Add the result.
+                resultCollection.addResult(integer);
+
+                // Check if the result has been completed.
+                if (resultCollection.isComplete()) {
+                    this.client.removeResult(packet.getSequenceIdentifier());
+                }
+
+            } catch (Exception exception) {
+                this.client.getLogger().warn("Unable to convert packet data to a integer. packet=" + packet);
+                throw new RuntimeException(exception);
             }
 
         } catch (Exception exception) {
