@@ -76,7 +76,9 @@ public class ClientAmountPacketManager implements PacketManager {
 
             try {
                 // Attempt to add the result.
-                Integer integer = Integer.parseInt(packet.getData());
+                int integer = Integer.parseInt(packet.getData());
+
+                if (this.client.getDebugMode()) this.client.getLogger().log("Client amount : " + integer);
 
                 // Add the result.
                 resultCollection.addResult(integer);
@@ -88,6 +90,7 @@ public class ClientAmountPacketManager implements PacketManager {
 
             } catch (Exception exception) {
                 this.client.getLogger().warn("Unable to convert packet data to a integer. packet=" + packet);
+                this.client.getLogger().warn("Data=" + packet.getData());
                 throw new RuntimeException(exception);
             }
 

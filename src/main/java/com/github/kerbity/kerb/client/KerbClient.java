@@ -21,11 +21,11 @@
 package com.github.kerbity.kerb.client;
 
 import com.github.kerbity.kerb.Connection;
-import com.github.kerbity.kerb.indicator.PasswordEncryption;
 import com.github.kerbity.kerb.client.listener.EventListener;
 import com.github.kerbity.kerb.client.listener.ObjectListener;
 import com.github.kerbity.kerb.client.listener.PriorityEventListener;
 import com.github.kerbity.kerb.client.registeredclient.RegisteredClient;
+import com.github.kerbity.kerb.indicator.PasswordEncryption;
 import com.github.kerbity.kerb.packet.Packet;
 import com.github.kerbity.kerb.packet.PacketType;
 import com.github.kerbity.kerb.packet.event.Event;
@@ -338,6 +338,12 @@ public class KerbClient extends Connection implements RegisteredClient, Password
 
             // Complete the result collection.
             resultCollection.complete(CompleteReason.TIME);
+
+            // Log a warn message.
+            this.logger.warn(
+                    "Result took too long to complete and was therefor cancelled. " +
+                            "You may want to increase the max wait time. sequence=" + sequenceIdentifier
+            );
 
             // Remove the result collection from the map.
             this.removeResult(sequenceIdentifier);
