@@ -69,7 +69,8 @@ public class ClientAmountPacketManager implements PacketManager {
 
             // Check if the result collection is null.
             if (resultCollection == null) {
-                this.client.getLogger().warn("Packet referenced a result collection that doesnt exist.  packet=" + packet);
+                this.client.getLogger().warn("Packet referenced a result collection that doesnt exist. packet=" + packet);
+                this.client.getLogger().warn("Ongoing sequences: " + this.client.getAllSequences());
                 return;
             }
 

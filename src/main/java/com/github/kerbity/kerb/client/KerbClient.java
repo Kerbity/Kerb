@@ -296,6 +296,16 @@ public class KerbClient extends Connection implements RegisteredClient, Password
     }
 
     /**
+     * Used to get the list of sequence identifiers
+     * that are currently active.
+     *
+     * @return The list of sequence identifiers.
+     */
+    public @NotNull List<String> getAllSequences() {
+        return this.resultMap.keySet().stream().toList();
+    }
+
+    /**
      * Used to get the result from the sequence identifier.
      *
      * @param sequenceIdentifier The sequence identifier.
@@ -374,16 +384,24 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         // Create a new sequence identifier.
         String sequenceIdentifier = UUID.randomUUID().toString();
 
-        // Send packet.
-        this.send(new Packet()
-                .setType(PacketType.CLIENT_AMOUNT)
-                .setSequenceIdentifier(sequenceIdentifier)
-                .getPacketString()
-        );
-
         // Create a result collection.
         CompletableResultSet<Integer> resultCollection = new CompletableResultSet<>(1);
+
+        // Register the result collection before sending
+        // in case it comes back too quick.
         this.addResult(sequenceIdentifier, resultCollection);
+
+        // Thread the sending of the packet to stop wait times.
+        new Thread(() -> {
+
+            // Send the packet.
+            this.send(new Packet()
+                    .setType(PacketType.CLIENT_AMOUNT)
+                    .setSequenceIdentifier(sequenceIdentifier)
+                    .getPacketString()
+            );
+        }).start();
+
         return resultCollection;
     }
 
@@ -497,10 +515,14 @@ public class KerbClient extends Connection implements RegisteredClient, Password
         CompletableResultSet<T> resultCollection = new CompletableResultSet<>(amount);
         this.addResult(sequenceIdentifier, resultCollection);
 
-        // Send the event packet.
-        this.send(event.packet()
-                .setSequenceIdentifier(sequenceIdentifier)
-                .getPacketString());
+        // Thread the sending of the packet to stop wait times.
+        new Thread(() -> {
+
+            // Send the event packet.
+            this.send(event.packet()
+                    .setSequenceIdentifier(sequenceIdentifier)
+                    .getPacketString());
+        });
 
         return resultCollection;
     }
