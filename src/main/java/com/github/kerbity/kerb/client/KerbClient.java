@@ -497,9 +497,6 @@ public class KerbClient extends Connection implements RegisteredClient, Password
      */
     public @NotNull <T extends Event> CompletableResultSet<T> callEvent(T event) {
 
-        // Create a new sequence identifier.
-        String sequenceIdentifier = UUID.randomUUID().toString();
-
         // Get the number of clients currently connected to the server.
         Integer amount = this.getAmountOfClients().waitForFirst();
 
@@ -510,6 +507,9 @@ public class KerbClient extends Connection implements RegisteredClient, Password
 
         // Set the event source.
         event.setSource(this.getAdapted());
+
+        // Create a new sequence identifier.
+        String sequenceIdentifier = UUID.randomUUID().toString();
 
         // Create a new completable result collection.
         CompletableResultSet<T> resultCollection = new CompletableResultSet<>(amount);
@@ -522,7 +522,7 @@ public class KerbClient extends Connection implements RegisteredClient, Password
             this.send(event.packet()
                     .setSequenceIdentifier(sequenceIdentifier)
                     .getPacketString());
-        });
+        }).start();
 
         return resultCollection;
     }
