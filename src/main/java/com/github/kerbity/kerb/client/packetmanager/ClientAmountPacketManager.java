@@ -56,6 +56,8 @@ public class ClientAmountPacketManager implements PacketManager {
     public void interpret(@NotNull Packet packet) {
         try {
 
+            if (this.client.getDebugMode()) this.client.getLogger().log("[ClientAmountPacket] Packet interpreting...");
+
             // Check if the packet has a sequence identifier.
             if (packet.getSequenceIdentifier() == null) {
                 this.client.getLogger().warn("Sequence identifier returned null for packet: " + packet);
@@ -63,11 +65,13 @@ public class ClientAmountPacketManager implements PacketManager {
             }
 
             // Get the result collection.
-            CompletableResultSet<Integer> resultCollection = (CompletableResultSet<Integer>)
-                    this.client.getResult(packet.getSequenceIdentifier());
+            CompletableResultSet<?> resultCollection = this.client.getResult(packet.getSequenceIdentifier());
 
             // Check if the result collection is null.
-            if (resultCollection == null) return;
+            if (resultCollection == null) {
+                this.client.getLogger().warn("Packet referenced a result collection that doesnt exist.  packet=" + packet);
+                return;
+            }
 
             if (packet.getData() == null) {
                 this.client.getLogger().warn("Packet returned null data when getting client amount. packet=" + packet);
@@ -78,10 +82,10 @@ public class ClientAmountPacketManager implements PacketManager {
                 // Attempt to add the result.
                 int integer = Integer.parseInt(packet.getData());
 
-                if (this.client.getDebugMode()) this.client.getLogger().log("Client amount : " + integer);
+                if (this.client.getDebugMode()) this.client.getLogger().log("[ClientAmountPacket] Client amount : " + integer);
 
                 // Add the result.
-                resultCollection.addResult(integer);
+                resultCollection.addAmbiguousResult(integer);
 
                 // Check if the result has been completed.
                 if (resultCollection.isComplete()) {
