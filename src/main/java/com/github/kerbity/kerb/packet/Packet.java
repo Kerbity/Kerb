@@ -20,7 +20,7 @@
 
 package com.github.kerbity.kerb.packet;
 
-import com.github.smuddgge.squishyconfiguration.memory.MemoryConfigurationSection;
+import com.github.squishylib.configuration.implementation.MemoryConfigurationSection;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

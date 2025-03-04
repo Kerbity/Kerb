@@ -21,8 +21,8 @@
 package com.github.kerbity.kerb;
 
 import com.github.kerbity.kerb.server.Server;
-import com.github.smuddgge.squishyconfiguration.ConfigurationFactory;
-import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
+import com.github.squishylib.configuration.Configuration;
+import com.github.squishylib.configuration.ConfigurationFactory;
 
 import java.io.File;
 
@@ -42,7 +42,7 @@ public class Main {
         // Set up the configuration.
         ConfigurationFactory factory = ConfigurationFactory.YAML;
         Configuration configuration = factory.create(new File("config.yml"));
-        configuration.setDefaultPath("config.yml");
+        configuration.setResourcePath("config.yml");
         configuration.load();
 
         // Create a new instance of the server.

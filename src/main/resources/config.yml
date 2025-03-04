@@ -49,5 +49,5 @@ block_other_connections: false
 # you should use underscores as the yaml parser
 # sees dots as the path splitter.
 names:
-  "/ip1_with_dashes:port": "Computer"
-  "/ip2_with_dashes:port": "Server 1"
+  "ip1-with-dashes:?": "Known Source"
+  "ip2-with-dashes:port": "Server 1"

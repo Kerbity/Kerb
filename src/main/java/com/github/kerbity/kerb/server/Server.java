@@ -24,7 +24,7 @@ import com.github.kerbity.kerb.Connection;
 import com.github.kerbity.kerb.indicator.PasswordEncryption;
 import com.github.kerbity.kerb.server.command.CommandManager;
 import com.github.minemaniauk.developertools.console.Logger;
-import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
+import com.github.squishylib.configuration.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.*;
@@ -224,9 +224,7 @@ public class Server implements PasswordEncryption {
 
         // Check if the address is listed.
         for (String address : this.configuration.getSection("names").getKeys()) {
-            if (address.contains(client.getInetAddress()
-                    .getHostAddress()
-                    .replace(".", "-"))) return false;
+            if (address.contains(client.getInetAddress().getHostAddress().replace(".", "-"))) return false;
         }
 
         // Otherwise, it is blocked.

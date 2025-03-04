@@ -22,8 +22,8 @@ package com.github.kerbity.kerb.creator;
 
 import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.KerbClientFactory;
-import com.github.smuddgge.squishyconfiguration.ConfigurationFactory;
-import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
+import com.github.squishylib.configuration.Configuration;
+import com.github.squishylib.configuration.ConfigurationFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

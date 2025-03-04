@@ -20,8 +20,8 @@
 
 package com.github.kerbity.kerb.client;
 
-import com.github.smuddgge.squishyconfiguration.implementation.YamlConfiguration;
-import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
+import com.github.squishylib.configuration.Configuration;
+import com.github.squishylib.configuration.implementation.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class KerbClientBuilder {
         config.load();
 
         if (config.getKeys().isEmpty()) {
-            config.set("name", "client_name");
+            config.set("client_name", "client_name");
             config.set("port", 7000);
             config.set("address", "127.0.0.1");
             config.set("client_certificate", "client.p12");
@@ -51,7 +51,7 @@ public class KerbClientBuilder {
 
             config.save();
         }
-        
+
         return new KerbClient(
             config.getString("client_name"),
             config.getInteger("port"),
