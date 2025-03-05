@@ -112,9 +112,11 @@ public class EventPacketManager implements PacketManager {
             );
 
         } catch (ClassNotFoundException exception) {
-            this.client.getLogger().warn("(ClassNotFound) Received event packet {packet} but the event class sent doesnt exist for this client."
+            this.client.getLogger().warn("(ClassNotFound) Received event packet {packet} but the event class sent doesnt exist for this client. Sending the packet back."
                     .replace("{packet}", packet.getIdentifier() == null ? "null" : packet.getIdentifier())
             );
+
+            this.client.sendPacket(packet.setType(PacketType.EVENT_RESULT));
 
         } catch (Exception exception) {
             this.client.getLogger().warn("An error occurred while receiving a event packet.");
