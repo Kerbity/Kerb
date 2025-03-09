@@ -41,7 +41,7 @@ public class Main {
 
         // Set up the configuration.
         ConfigurationFactory factory = ConfigurationFactory.YAML;
-        Configuration configuration = factory.create(new File("config.yml"));
+        Configuration configuration = factory.create(new File("config.yml"), Main.class);
         configuration.setResourcePath("config.yml");
         configuration.load();
 

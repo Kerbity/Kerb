@@ -20,6 +20,7 @@
 
 package com.github.kerbity.kerb.creator;
 
+import com.github.kerbity.kerb.Main;
 import com.github.kerbity.kerb.client.KerbClient;
 import com.github.kerbity.kerb.client.KerbClientFactory;
 import com.github.squishylib.configuration.Configuration;
@@ -37,7 +38,7 @@ public class ClientCreator {
 
         // Load settings.
         ConfigurationFactory configurationFactory = ConfigurationFactory.YAML;
-        Configuration configuration = configurationFactory.create(new File("src/main/resources/hidden_resource/settings.yml"));
+        Configuration configuration = configurationFactory.create(new File("src/main/resources/hidden_resource/settings.yml"), Main.class);
         configuration.load();
 
         factory = new KerbClientFactory(
@@ -57,7 +58,7 @@ public class ClientCreator {
 
         // Load settings.
         ConfigurationFactory configurationFactory = ConfigurationFactory.YAML;
-        Configuration configuration = configurationFactory.create(new File("src/main/resources/hidden_resource/settings.yml"));
+        Configuration configuration = configurationFactory.create(new File("src/main/resources/hidden_resource/settings.yml"), Main.class);
         configuration.load();
 
         factory = new KerbClientFactory(

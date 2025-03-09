@@ -20,6 +20,7 @@
 
 package com.github.kerbity.kerb.creator;
 
+import com.github.kerbity.kerb.Main;
 import com.github.kerbity.kerb.server.Server;
 import com.github.squishylib.configuration.Configuration;
 import com.github.squishylib.configuration.ConfigurationFactory;
@@ -33,7 +34,7 @@ public class ServerCreator {
 
     public static @NotNull Server createAndStart() {
         ConfigurationFactory configurationFactory = ConfigurationFactory.YAML;
-        Configuration configuration = configurationFactory.create(new File("src/main/resources/hidden_resource/settings.yml"));
+        Configuration configuration = configurationFactory.create(new File("src/main/resources/hidden_resource/settings.yml"), Main.class);
         configuration.load();
 
         Server server = new Server(

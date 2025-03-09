@@ -34,7 +34,7 @@ public class KerbClientBuilder {
     }
 
     public @NotNull KerbClient generateConfigAndBuild(@NotNull File file) {
-        Configuration config = new YamlConfiguration(file);
+        Configuration config = new YamlConfiguration(file, KerbClientBuilder.class);
         config.load();
 
         if (config.getKeys().isEmpty()) {
